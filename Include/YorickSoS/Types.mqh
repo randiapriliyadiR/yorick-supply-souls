@@ -59,6 +59,10 @@ struct SYssCfg
    double          sharpAtr;
    int             minApproachBars;
    double          slZoneMult;
+   bool            useGuard;
+   double          beTriggerR;
+   double          trailStartR;
+   double          trailDistR;
   };
 
 struct SYssZone
@@ -114,6 +118,19 @@ int      g_hStruct = INVALID_HANDLE;
 int      g_hFvg = INVALID_HANDLE;
 int      g_hZones = INVALID_HANDLE;
 datetime g_yss_lastBar = 0;
+
+ulong    g_yss_guardTicket = 0;
+double   g_yss_guardR      = 0.0;
+double   g_yss_guardBest   = 0.0;
+bool     g_yss_guardBeDone = false;
+
+void YssGuardReset(void)
+  {
+   g_yss_guardTicket = 0;
+   g_yss_guardR = 0.0;
+   g_yss_guardBest = 0.0;
+   g_yss_guardBeDone = false;
+  }
 
 bool YssShowUi(void)
   {

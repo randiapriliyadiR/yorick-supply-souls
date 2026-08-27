@@ -189,7 +189,92 @@ void YssTryEnter(const double atr)
       YssZoneRemoveAt(idx);
       g_yss_view.state = YSS_IN_TRADE;
       g_yss_view.zone = z;
+      YssGuardReset();
      }
+  }
+
+void YssManageGuard(const ulong ticket)
+  {
+   if(!g_yss_cfg.useGuard)
+     {
+      YssGuardReset();
+      return;
+     }
+   if(ticket == 0 || !PositionSelectByTicket(ticket))
+     {
+      YssGuardReset();
+      return;
+     }
+
+   const string symbol = PositionGetString(POSITION_SYMBOL);
+   const bool   isBuy  = (PositionGetInteger(POSITION_TYPE) == POSITION_TYPE_BUY);
+   const double entry  = PositionGetDouble(POSITION_PRICE_OPEN);
+   const double curSl  = PositionGetDouble(POSITION_SL);
+   const double bid    = SymbolInfoDouble(symbol, SYMBOL_BID);
+   const double ask    = SymbolInfoDouble(symbol, SYMBOL_ASK);
+   const double px     = (isBuy ? bid : ask);
+
+   if(ticket != g_yss_guardTicket)
+     {
+      g_yss_guardTicket = ticket;
+      g_yss_guardR = MathAbs(entry - curSl);
+      g_yss_guardBest = px;
+      g_yss_guardBeDone = false;
+     }
+
+   if(g_yss_guardR <= 0.0)
+      return;
+
+   if(isBuy)
+      g_yss_guardBest = MathMax(g_yss_guardBest, px);
+   else
+     {
+      if(g_yss_guardBest <= 0.0)
+         g_yss_guardBest = px;
+      else
+         g_yss_guardBest = MathMin(g_yss_guardBest, px);
+     }
+
+   const double fav = (isBuy
+                       ? (g_yss_guardBest - entry)
+                       : (entry - g_yss_guardBest));
+   double newSl = curSl;
+
+   if(!g_yss_guardBeDone && fav + 1e-12 >= g_yss_cfg.beTriggerR * g_yss_guardR)
+     {
+      newSl = entry;
+      g_yss_guardBeDone = true;
+      g_yss_view.reason = "guard BEP";
+     }
+
+   if(fav + 1e-12 >= g_yss_cfg.trailStartR * g_yss_guardR)
+     {
+      const double trailSl = (isBuy
+                              ? g_yss_guardBest - g_yss_cfg.trailDistR * g_yss_guardR
+                              : g_yss_guardBest + g_yss_cfg.trailDistR * g_yss_guardR);
+      if(isBuy)
+         newSl = MathMax(newSl, trailSl);
+      else
+        {
+         if(newSl <= 0.0)
+            newSl = trailSl;
+         else
+            newSl = MathMin(newSl, trailSl);
+        }
+      if(g_yss_guardBeDone || fav + 1e-12 >= g_yss_cfg.trailStartR * g_yss_guardR)
+         g_yss_view.reason = "guard trail";
+     }
+
+   if(g_yss_guardBeDone)
+     {
+      if(isBuy)
+         newSl = MathMax(newSl, entry);
+      else if(newSl <= 0.0 || newSl > entry)
+         newSl = entry;
+     }
+
+   if(MathAbs(newSl - curSl) > 1e-12)
+      YssModifySl(ticket, isBuy, newSl);
   }
 
 void YssEngineStep(const bool newBar)
@@ -217,6 +302,10 @@ void YssEngineStep(const bool newBar)
 
    ulong ticket = 0;
    const bool inTrade = YssSelectPosition(g_yss_cfg.symbol, g_yss_cfg.magic, ticket);
+   if(inTrade)
+      YssManageGuard(ticket);
+   else
+      YssGuardReset();
    YssFillView(YssAtrNow(atr), inTrade, ticket);
   }
 

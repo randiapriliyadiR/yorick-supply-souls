@@ -74,5 +74,42 @@ bool YssOpen(const string symbol,
    return ok;
   }
 
+bool YssModifySl(const ulong ticket, const bool isBuy, const double newSlRaw)
+  {
+   if(!PositionSelectByTicket(ticket))
+      return false;
+
+   const string symbol = PositionGetString(POSITION_SYMBOL);
+   const double entry  = PositionGetDouble(POSITION_PRICE_OPEN);
+   double sl = newSlRaw;
+   double tp = PositionGetDouble(POSITION_TP);
+   YssAdjustStops(symbol, isBuy, entry, sl, tp);
+
+   const double curSl = PositionGetDouble(POSITION_SL);
+   const double cur   = PositionGetDouble(POSITION_PRICE_CURRENT);
+   if(isBuy)
+     {
+      if(sl <= curSl + 1e-12)
+         return true;
+      if(sl >= cur)
+         return true;
+     }
+   else
+     {
+      if(curSl > 0.0 && sl >= curSl - 1e-12)
+         return true;
+      if(sl <= cur)
+         return true;
+     }
+
+   if(!g_yss_trade.PositionModify(ticket, sl, PositionGetDouble(POSITION_TP)))
+     {
+      Print("YSS: guard failed ", g_yss_trade.ResultRetcode(), " ",
+            g_yss_trade.ResultRetcodeDescription());
+      return false;
+     }
+   return true;
+  }
+
 #endif
 //+------------------------------------------------------------------+

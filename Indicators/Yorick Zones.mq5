@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                               Yorick Zones.mq5   |
 //|                                                 Randi Apriliyadi |
-//|                              https://github.com/randiapriliyadiR |
+//|        https://github.com/randiapriliyadiR/yorick-supply-souls |
 //+------------------------------------------------------------------+
 #property copyright "Randi Apriliyadi"
-#property link      "https://github.com/randiapriliyadiR"
-#property version   "1.00"
+#property link      "https://github.com/randiapriliyadiR/yorick-supply-souls"
+#property version   "1.10"
 #property indicator_chart_window
 #property indicator_buffers 1
 #property indicator_plots   1
@@ -25,6 +25,8 @@ input int    InpMaxImpulseBars = 15;
 input bool   InpRequireBos     = true;
 input bool   InpRequireFvg     = true;
 input double InpSlZoneMult     = 2.5;
+input int    InpMaxShowZones   = 3;       // Max live graves on chart
+input int    InpExtendBars     = 40;      // How far boxes draw past peak
 
 double g_dummy[];
 int    g_indAtr = INVALID_HANDLE;
@@ -41,7 +43,8 @@ void YssZnBox(const string key,
               const double top,
               const double bot,
               const color clr,
-              const bool fill)
+              const bool fill,
+              const int width)
   {
    const string n = YSS_ZN_PFX + key;
    if(ObjectFind(0, n) < 0)
@@ -50,7 +53,6 @@ void YssZnBox(const string key,
       ObjectSetInteger(0, n, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, n, OBJPROP_HIDDEN, true);
       ObjectSetInteger(0, n, OBJPROP_BACK, true);
-      ObjectSetInteger(0, n, OBJPROP_WIDTH, 1);
      }
    ObjectSetInteger(0, n, OBJPROP_TIME, t1);
    ObjectSetDouble(0, n, OBJPROP_PRICE, top);
@@ -59,6 +61,30 @@ void YssZnBox(const string key,
    ObjectSetInteger(0, n, OBJPROP_COLOR, clr);
    ObjectSetInteger(0, n, OBJPROP_BGCOLOR, clr);
    ObjectSetInteger(0, n, OBJPROP_FILL, fill);
+   ObjectSetInteger(0, n, OBJPROP_WIDTH, width);
+  }
+
+void YssZnLabel(const string key,
+                const datetime t,
+                const double price,
+                const string text,
+                const color clr)
+  {
+   const string n = YSS_ZN_PFX + key;
+   if(ObjectFind(0, n) < 0)
+     {
+      ObjectCreate(0, n, OBJ_TEXT, 0, t, price);
+      ObjectSetInteger(0, n, OBJPROP_FONTSIZE, 9);
+      ObjectSetString(0, n, OBJPROP_FONT, "Consolas");
+      ObjectSetInteger(0, n, OBJPROP_SELECTABLE, false);
+      ObjectSetInteger(0, n, OBJPROP_HIDDEN, true);
+      ObjectSetInteger(0, n, OBJPROP_ANCHOR, ANCHOR_LEFT_UPPER);
+      ObjectSetInteger(0, n, OBJPROP_BACK, false);
+     }
+   ObjectSetInteger(0, n, OBJPROP_TIME, t);
+   ObjectSetDouble(0, n, OBJPROP_PRICE, price);
+   ObjectSetInteger(0, n, OBJPROP_COLOR, clr);
+   ObjectSetString(0, n, OBJPROP_TEXT, text);
   }
 
 void YssZnLine(const string key,
@@ -85,9 +111,21 @@ void YssZnLine(const string key,
    ObjectSetInteger(0, n, OBJPROP_COLOR, clr);
   }
 
+datetime YssZnEndTime(const SYssZone &z)
+  {
+   const int peakSh = iBarShift(_Symbol, PERIOD_CURRENT, z.peakTime, false);
+   int endSh = 0;
+   if(peakSh >= 0)
+      endSh = MathMax(0, peakSh - InpExtendBars);
+   datetime t2 = iTime(_Symbol, PERIOD_CURRENT, endSh);
+   if(t2 <= z.baseTime)
+      t2 = z.baseTime + PeriodSeconds();
+   return t2;
+  }
+
 int OnInit()
   {
-   if(InpAtrPeriod < 1 || InpLookback < 30 || InpSlZoneMult < 1.0)
+   if(InpAtrPeriod < 1 || InpLookback < 30 || InpSlZoneMult < 1.0 || InpMaxShowZones < 1)
       return(INIT_PARAMETERS_INCORRECT);
    SetIndexBuffer(0, g_dummy, INDICATOR_CALCULATIONS);
    IndicatorSetString(INDICATOR_SHORTNAME, "Yorick Zones");
@@ -143,32 +181,44 @@ int OnCalculate(const int rates_total,
    cfg.slZoneMult = InpSlZoneMult;
 
    YssZnClear();
-   const datetime nowT = iTime(_Symbol, PERIOD_CURRENT, 0);
    int drawn = 0;
    const int last = InpLookback - cfg.swingStrength - 1;
+   const int maxShow = MathMin(InpMaxShowZones, 6);
 
-   for(int b = 3; b <= last && drawn < 12; b++)
+   // Newest fresh graves first (same freshness idea as the EA).
+   for(int b = 3; b <= last && drawn < maxShow; b++)
      {
       const double a = atr[b];
       if(a <= 0.0)
          continue;
       SYssZone z;
-      bool ok = YssBuildZoneAt(cfg, b, 1, a, z, false);
+      bool ok = YssBuildZoneAt(cfg, b, 1, a, z, true);
       if(!ok)
-         ok = YssBuildZoneAt(cfg, b, -1, a, z, false);
+         ok = YssBuildZoneAt(cfg, b, -1, a, z, true);
       if(!ok)
          continue;
 
       const datetime t1 = z.baseTime;
-      const color zclr = (z.dir > 0 ? C'40,140,90' : C'160,55,70');
-      const color bclr = (z.dir > 0 ? C'30,80,55' : C'90,35,45');
-      YssZnBox("Z" + IntegerToString(b), t1, nowT, z.zoneHigh, z.zoneLow, zclr, true);
+      const datetime t2 = YssZnEndTime(z);
+      const bool live = (drawn == 0);
+      const color zclr = (z.dir > 0
+                          ? (live ? C'46,180,110' : C'28,90,60')
+                          : (live ? C'200,70,85' : C'110,40,50'));
+      const color bclr = (z.dir > 0 ? C'20,55,40' : C'70,25,35');
+      const color lclr = (z.dir > 0 ? C'120,230,170' : C'255,150,160');
+
+      YssZnBox("Z" + IntegerToString(drawn), t1, t2, z.zoneHigh, z.zoneLow, zclr, true, live ? 2 : 1);
       if(z.dir > 0)
-         YssZnBox("B" + IntegerToString(b), t1, nowT, z.zoneLow, z.sl, bclr, false);
+         YssZnBox("B" + IntegerToString(drawn), t1, t2, z.zoneLow, z.sl, bclr, false, 1);
       else
-         YssZnBox("B" + IntegerToString(b), t1, nowT, z.sl, z.zoneHigh, bclr, false);
-      YssZnLine("E" + IntegerToString(b), t1, nowT, z.impulseExtreme,
-                (z.dir > 0 ? clrDodgerBlue : clrOrchid));
+         YssZnBox("B" + IntegerToString(drawn), t1, t2, z.sl, z.zoneHigh, bclr, false, 1);
+
+      YssZnLine("TP" + IntegerToString(drawn), t1, t2, z.impulseExtreme,
+                (z.dir > 0 ? C'80,160,220' : C'180,120,200'));
+
+      const string tag = (z.dir > 0 ? " DEMAND" : " SUPPLY") + (live ? "  *" : "");
+      YssZnLabel("L" + IntegerToString(drawn), t1,
+                 (z.dir > 0 ? z.zoneHigh : z.zoneLow), tag, lclr);
       drawn++;
      }
    return(rates_total);

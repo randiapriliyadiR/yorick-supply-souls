@@ -7,9 +7,9 @@
 //+------------------------------------------------------------------+
 #property copyright "Randi Apriliyadi"
 #property link      "https://github.com/randiapriliyadiR/yorick-supply-souls"
-#property version   "1.03"
+#property version   "1.05"
 #property strict
-#property description "Yorick Supply of Souls — D1 gold shepherd, tuned 2% soul budget"
+#property description "Yorick Supply of Souls — M5 gold shepherd, tuned 2% soul budget + grave guard"
 
 // Bundle overlays from this project folder (no MQL5/Indicators copy required).
 #resource "Indicators\\Yorick Structure.ex5"
@@ -25,7 +25,7 @@
 
 input group "=== Flock ==="
 input string           InpSymbol          = "XAUUSD";   // Grave market filter (substring ok)
-input ENUM_TIMEFRAMES  InpTF              = PERIOD_D1;  // Shepherd timeframe
+input ENUM_TIMEFRAMES  InpTF              = PERIOD_M5;  // Shepherd timeframe
 input double           InpRiskPct         = 2.0;        // Soul budget (% of balance)
 input ulong            InpMagic           = 26082603;   // Identity stamp
 input ulong            InpDeviation       = 50;         // Slippage allowance (points)
@@ -45,6 +45,12 @@ input double InpSlowMaxAtr      = 0.8;      // Gentle: max bar breath
 input double InpSharpAtr        = 1.2;      // Sharp: reject bar breath
 input int    InpMinApproachBars = 2;        // Min return bars
 input double InpSlZoneMult      = 2.5;      // Grave buffer (× zone depth)
+
+input group "=== Grave Guard ==="
+input bool   InpUseGuard        = true;     // BEP + trail (lock soul after touch)
+input double InpBeTriggerR      = 0.5;      // Move SL to BEP after this many R
+input double InpTrailStartR     = 0.5;      // Start trail after this many R
+input double InpTrailDistR      = 0.5;      // Trail distance (R behind best)
 
 bool YssSymbolAllowed(void)
   {
@@ -89,7 +95,8 @@ int OnInit()
      }
    if(InpRiskPct <= 0.0 || InpAtrPeriod < 1 || InpImpulseAtrMult <= 0.0 ||
       InpBodyAtrMult <= 0.0 || InpSwingStrength < 1 || InpLookback < 30 ||
-      InpMaxImpulseBars < 2 || InpSlZoneMult < 1.0 || InpMinApproachBars < 1)
+      InpMaxImpulseBars < 2 || InpSlZoneMult < 1.0 || InpMinApproachBars < 1 ||
+      InpBeTriggerR <= 0.0 || InpTrailStartR <= 0.0 || InpTrailDistR <= 0.0)
       return(INIT_PARAMETERS_INCORRECT);
 
    g_yss_cfg.symbol          = _Symbol;
@@ -111,9 +118,14 @@ int OnInit()
    g_yss_cfg.sharpAtr        = InpSharpAtr;
    g_yss_cfg.minApproachBars = InpMinApproachBars;
    g_yss_cfg.slZoneMult      = InpSlZoneMult;
+   g_yss_cfg.useGuard        = InpUseGuard;
+   g_yss_cfg.beTriggerR      = InpBeTriggerR;
+   g_yss_cfg.trailStartR     = InpTrailStartR;
+   g_yss_cfg.trailDistR      = InpTrailDistR;
 
    g_yss_zoneCount = 0;
    g_yss_usedCount = 0;
+   YssGuardReset();
    ZeroMemory(g_yss_view);
    g_yss_view.reason = "idle";
 

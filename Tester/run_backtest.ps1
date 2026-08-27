@@ -4,14 +4,14 @@
 #>
 param(
   [string]$Symbol = "XAUUSD",
-  [string]$Period = "D1",
+  [string]$Period = "M5",
   [string]$FromDate = "2021.01.01",
   [string]$ToDate = "2026.08.26",
   [int]$Deposit = 100000,
   [int]$Model = 1,
   [int]$Leverage = 500,
   [int]$TimeoutSec = 3600,
-  [string]$ReportName = "YorickSoS_XAUUSD_D1_100k",
+  [string]$ReportName = "YorickSoS_XAUUSD_M5_100k",
   [double]$RiskPct = 2.0,
   [int]$AtrPeriod = 14,
   [double]$ImpulseAtrMult = 1.25,
@@ -24,6 +24,10 @@ param(
   [double]$SharpAtr = 1.2,
   [int]$MinApproachBars = 2,
   [double]$SlZoneMult = 2.5,
+  [string]$UseGuard = "true",
+  [double]$BeTriggerR = 1.0,
+  [double]$TrailStartR = 1.0,
+  [double]$TrailDistR = 1.0,
   [switch]$SkipCompile
 )
 
@@ -104,6 +108,9 @@ $bodyStr = $BodyAtrMult.ToString($inv)
 $slowStr = $SlowMaxAtr.ToString($inv)
 $sharpStr = $SharpAtr.ToString($inv)
 $slStr = $SlZoneMult.ToString($inv)
+$beStr = $BeTriggerR.ToString($inv)
+$tsStr = $TrailStartR.ToString($inv)
+$tdStr = $TrailDistR.ToString($inv)
 $ini = $ini -replace "(?m)^InpRiskPct=.*$", "InpRiskPct=$riskStr"
 $ini = $ini -replace "(?m)^InpAtrPeriod=.*$", "InpAtrPeriod=$AtrPeriod"
 $ini = $ini -replace "(?m)^InpImpulseAtrMult=.*$", "InpImpulseAtrMult=$impStr"
@@ -116,6 +123,14 @@ $ini = $ini -replace "(?m)^InpSlowMaxAtr=.*$", "InpSlowMaxAtr=$slowStr"
 $ini = $ini -replace "(?m)^InpSharpAtr=.*$", "InpSharpAtr=$sharpStr"
 $ini = $ini -replace "(?m)^InpMinApproachBars=.*$", "InpMinApproachBars=$MinApproachBars"
 $ini = $ini -replace "(?m)^InpSlZoneMult=.*$", "InpSlZoneMult=$slStr"
+if ($ini -match "(?m)^InpUseGuard=") {
+  $ini = $ini -replace "(?m)^InpUseGuard=.*$", "InpUseGuard=$UseGuard"
+  $ini = $ini -replace "(?m)^InpBeTriggerR=.*$", "InpBeTriggerR=$beStr"
+  $ini = $ini -replace "(?m)^InpTrailStartR=.*$", "InpTrailStartR=$tsStr"
+  $ini = $ini -replace "(?m)^InpTrailDistR=.*$", "InpTrailDistR=$tdStr"
+} else {
+  $ini = $ini.TrimEnd() + "`r`nInpUseGuard=$UseGuard`r`nInpBeTriggerR=$beStr`r`nInpTrailStartR=$tsStr`r`nInpTrailDistR=$tdStr`r`n"
+}
 Set-Content -Path $IniRun -Value $ini -Encoding ASCII
 
 $candidates = @(
@@ -133,7 +148,7 @@ Start-Sleep -Seconds 2
 
 Write-Host "== Launch Strategy Tester (headless) =="
 Write-Host "Config: $IniRun"
-Write-Host "Range: $FromDate -> $ToDate | Deposit=$Deposit | Model=$Model | $Period $Symbol | risk=$riskStr% | imp=$impStr body=$bodyStr fvg=$RequireFvg slow=$RequireSlow slx=$slStr"
+Write-Host "Range: $FromDate -> $ToDate | Deposit=$Deposit | Model=$Model | $Period $Symbol | risk=$riskStr% | imp=$impStr body=$bodyStr fvg=$RequireFvg slow=$RequireSlow slx=$slStr | guard=$UseGuard be=$beStr start=$tsStr dist=$tdStr"
 $before = Get-Date
 $p = Start-Process -FilePath $TerminalExe -ArgumentList "/config:`"$IniRun`"" -PassThru
 
@@ -179,7 +194,7 @@ function Get-Stat([string]$label) {
 $lines = @(
   "Report: $reportPath",
   "Symbol=$Symbol Period=$Period Deposit=$Deposit Model=$Model",
-  "Risk=$riskStr Impulse=$impStr Body=$bodyStr Bos=$RequireBos Fvg=$RequireFvg Slow=$RequireSlow SlowMax=$slowStr Slx=$slStr",
+  "Risk=$riskStr Impulse=$impStr Body=$bodyStr Bos=$RequireBos Fvg=$RequireFvg Slow=$RequireSlow SlowMax=$slowStr Slx=$slStr Guard=$UseGuard Be=$beStr Start=$tsStr Dist=$tdStr",
   "From=$FromDate To=$ToDate",
   "Total Net Profit: $(Get-Stat 'Total Net Profit')",
   "Gross Profit: $(Get-Stat 'Gross Profit')",

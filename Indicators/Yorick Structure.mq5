@@ -1,11 +1,11 @@
 //+------------------------------------------------------------------+
 //|                                           Yorick Structure.mq5   |
 //|                                                 Randi Apriliyadi |
-//|                              https://github.com/randiapriliyadiR |
+//|        https://github.com/randiapriliyadiR/yorick-supply-souls |
 //+------------------------------------------------------------------+
 #property copyright "Randi Apriliyadi"
-#property link      "https://github.com/randiapriliyadiR"
-#property version   "1.00"
+#property link      "https://github.com/randiapriliyadiR/yorick-supply-souls"
+#property version   "1.10"
 #property indicator_chart_window
 #property indicator_buffers 1
 #property indicator_plots   1
@@ -15,8 +15,10 @@
 
 #include <YorickSoS/Swings.mqh>
 
-input int InpSwingStrength = 3;    // Fractal bars each side
-input int InpLookback      = 200;  // Bars to map
+input int  InpSwingStrength = 3;     // Fractal bars each side
+input int  InpLookback      = 200;   // Bars to map
+input int  InpMaxBos        = 3;     // Max BOS marks (newest first)
+input bool InpShowSwingDots = false; // Swing dots (off = cleaner chart)
 
 double g_dummy[];
 #define YSS_ST_PFX "YSS_ST_"
@@ -52,7 +54,8 @@ void YssStBos(const string key,
               const double p1,
               const datetime t2,
               const double p2,
-              const color clr)
+              const color clr,
+              const bool labeled)
   {
    const string n = YSS_ST_PFX + key;
    if(ObjectFind(0, n) < 0)
@@ -72,11 +75,16 @@ void YssStBos(const string key,
    ObjectSetInteger(0, n, OBJPROP_COLOR, clr);
 
    const string lb = n + "_L";
+   if(!labeled)
+     {
+      ObjectDelete(0, lb);
+      return;
+     }
    if(ObjectFind(0, lb) < 0)
      {
       ObjectCreate(0, lb, OBJ_TEXT, 0, t2, p2);
       ObjectSetInteger(0, lb, OBJPROP_FONTSIZE, 8);
-      ObjectSetString(0, lb, OBJPROP_FONT, "Arial");
+      ObjectSetString(0, lb, OBJPROP_FONT, "Consolas");
       ObjectSetInteger(0, lb, OBJPROP_SELECTABLE, false);
       ObjectSetInteger(0, lb, OBJPROP_HIDDEN, true);
       ObjectSetInteger(0, lb, OBJPROP_ANCHOR, ANCHOR_LEFT_LOWER);
@@ -89,7 +97,7 @@ void YssStBos(const string key,
 
 int OnInit()
   {
-   if(InpSwingStrength < 1 || InpLookback < 20)
+   if(InpSwingStrength < 1 || InpLookback < 20 || InpMaxBos < 1)
       return(INIT_PARAMETERS_INCORRECT);
    SetIndexBuffer(0, g_dummy, INDICATOR_CALCULATIONS);
    IndicatorSetString(INDICATOR_SHORTNAME, "Yorick Structure");
@@ -120,31 +128,39 @@ int OnCalculate(const int rates_total,
    YssStClear();
    const int strength = InpSwingStrength;
    const int last = MathMin(InpLookback, rates_total - strength - 2);
+   const int maxBos = MathMin(InpMaxBos, 8);
    int bosN = 0;
 
-   for(int s = strength + 1; s <= last; s++)
+   // Walk newest -> oldest so BOS labels stay on recent breaks.
+   for(int s = strength + 1; s <= last && bosN < maxBos; s++)
      {
       if(YssIsSwingHigh(_Symbol, (ENUM_TIMEFRAMES)Period(), s, strength))
         {
          const datetime t = iTime(_Symbol, PERIOD_CURRENT, s);
          const double p = iHigh(_Symbol, PERIOD_CURRENT, s);
-         YssStDot("SH" + IntegerToString(s), t, p, clrDodgerBlue, 159);
+         if(InpShowSwingDots)
+            YssStDot("SH" + IntegerToString(s), t, p, clrDodgerBlue, 159);
          datetime bosTime = 0;
-         if(YssBosDemand(_Symbol, PERIOD_CURRENT, s - 1, 1, p, bosTime) && bosN < 24)
+         if(YssBosDemand(_Symbol, PERIOD_CURRENT, s - 1, 1, p, bosTime))
            {
-            YssStBos("BH" + IntegerToString(s), t, p, bosTime, p, clrDodgerBlue);
+            YssStBos("BH" + IntegerToString(bosN), t, p, bosTime, p,
+                     C'70,150,220', bosN == 0);
             bosN++;
            }
         }
+      if(bosN >= maxBos)
+         break;
       if(YssIsSwingLow(_Symbol, (ENUM_TIMEFRAMES)Period(), s, strength))
         {
          const datetime t = iTime(_Symbol, PERIOD_CURRENT, s);
          const double p = iLow(_Symbol, PERIOD_CURRENT, s);
-         YssStDot("SL" + IntegerToString(s), t, p, clrOrchid, 159);
+         if(InpShowSwingDots)
+            YssStDot("SL" + IntegerToString(s), t, p, clrOrchid, 159);
          datetime bosTime = 0;
-         if(YssBosSupply(_Symbol, PERIOD_CURRENT, s - 1, 1, p, bosTime) && bosN < 24)
+         if(YssBosSupply(_Symbol, PERIOD_CURRENT, s - 1, 1, p, bosTime))
            {
-            YssStBos("BL" + IntegerToString(s), t, p, bosTime, p, clrOrchid);
+            YssStBos("BL" + IntegerToString(bosN), t, p, bosTime, p,
+                     C'190,120,210', bosN == 0);
             bosN++;
            }
         }
