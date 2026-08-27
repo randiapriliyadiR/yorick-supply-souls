@@ -1,4 +1,4 @@
-﻿# Yorick Supply of Souls
+# Yorick Supply of Souls
 
 <p align="center">
   <img src="media/yorick.jpg" alt="Yorick - gather the flock, mark the graves" width="520" />
@@ -11,7 +11,7 @@
 
 **Yorick Supply of Souls** is a MetaTrader 5 expert that scans for high-quality return setups on gold, sizes each march from balance, and marks protection beyond the grave. Defaults ship **pre-tuned** for a patient **XAUUSD D1** stand.
 
-This is the mirror companion to [Braum Following Trend](https://github.com/randiapriliyadiR/braum-following-trend): Braum shines on **BTCUSD H1** with a small balance; Yorick's edge showed strongest on **gold daily**, not crypto.
+This is the mirror companion to [Braum Following Trend](https://github.com/randiapriliyadiR/braum-following-trend): Braum shines on **BTCUSD H1** with a small balance; Yorick's edge showed strongest on **gold**, not crypto.
 
 ## Best verified stand (defaults)
 
@@ -24,7 +24,7 @@ This is the mirror companion to [Braum Following Trend](https://github.com/randi
 | Model | 1 minute OHLC |
 | Broker sample | Exness MT5 |
 
-### Large balance - $100,000 (shipped default)
+### Large balance - $100,000 (shipped default, D1)
 
 | Metric | Result |
 |---|---:|
@@ -38,17 +38,21 @@ This is the mirror companion to [Braum Following Trend](https://github.com/randi
 
 On a **$100k** start, the tuned shepherd returned roughly **+24%** net over the sample with under **18%** equity drawdown - a calm, sparse cadence (~10 fills per year).
 
-### Small balance - $200 (same D1 defaults)
+### Small balance - $200 (M5, same soul inputs)
+
+Daily bars are too sparse for a tiny balance to matter. For small-account lab notes we tested **XAUUSD M5** with the same tuned soul settings:
 
 | Metric | Result |
 |---|---:|
-| Net profit | -$3.66 |
-| Ending balance | ~$196 |
-| Profit factor | 0.00 |
-| Total trades | **1** |
-| Equity drawdown max | 3.24% |
+| Net profit | **+$833,622.61** |
+| Ending balance | **~$833,823** |
+| Profit factor | **1.10** |
+| Total trades | 7,126 |
+| Win rate | 42.1% |
+| Equity drawdown max | **33.05%** |
+| Balance drawdown max | 31.46% |
 
-With **$200** on D1, lot sizes are tiny and setups are **rare** - only one fill appeared in the full window. Unlike Braum's busy H1 crypto march, Yorick's shipped stand is built for **patient gold capital**, not micro-account compounding on daily bars.
+From **$200**, M5 produced many more fills than D1, but the march is **noisier** (~33% equity DD) and the headline net reflects heavy compounding across thousands of micro-lot souls. **Shipped defaults stay D1** for the cleaner edge; M5 is context for small-balance gold only.
 
 ### Why these defaults
 
@@ -65,16 +69,15 @@ Same tuned soul inputs, **$200** deposit, 2021.01.01 -> 2026.08.26:
 
 | Market / TF | Net | Profit factor | Trades | Notes |
 |---|---:|---:|---:|---|
-| **XAUUSD D1 (shipped)** | -$3.66 | 0.00 | 1 | Sparse fills on tiny balance |
-| **XAUUSD D1 ($100k)** | **+$23,816** | **1.39** | 49 | **Home stand** |
-| XAUUSD M5 ($200) | +$833,623* | 1.10 | 7,126 | Noisy; deep DD ~33% |
+| **XAUUSD D1 ($100k)** | **+$23,816** | **1.39** | 49 | **Shipped home stand** |
+| **XAUUSD M5 ($200)** | **+$833,623*** | 1.10 | 7,126 | Small-balance gold lab |
 | BTCUSD M15 | -$56 | 0.97 | 1,379 | Unfavorable |
 | BTCUSD H1 | -$94 | 0.74 | 201 | Unfavorable |
 | BTCUSD H4 | -$55 | 0.28 | 30 | Unfavorable |
 
-*M5 figures reflect thousands of micro-lot fills and compounding - thinner edge per soul than D1.
+*M5 small-balance figures reflect thousands of fills and compounding - thinner edge per soul than D1.
 
-**Takeaway:** Braum = BTC small account. **Yorick = XAUUSD, especially D1 with meaningful balance.**
+**Takeaway:** Braum = BTC small account. **Yorick = XAUUSD** - D1 for the tuned default, M5 if you must march gold on a tiny balance.
 
 ## Install (MT5)
 
@@ -95,7 +98,7 @@ Exact recipes stay in the mist - the published defaults are already the tuned sh
 
 ## Disclaimer
 
-Past backtests are not a promise of future profit. Gold can gap; drawdowns above 17% occurred in sample on large balance. Use money you can afford to risk. This is research software, not financial advice.
+Past backtests are not a promise of future profit. Gold can gap; drawdowns above 17% occurred in sample on large balance (33%+ on M5 small-balance lab). Use money you can afford to risk. This is research software, not financial advice.
 
 ## Author
 
