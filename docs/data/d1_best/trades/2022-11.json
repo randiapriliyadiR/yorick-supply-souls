@@ -1,0 +1,18 @@
+{
+    "trades":  [
+                   {
+                       "id":  31,
+                       "side":  "sell",
+                       "volume":  0.46,
+                       "openTime":  "2022.10.04 15:34:40",
+                       "closeTime":  "2022.11.11 20:41:40",
+                       "openPrice":  1728.75,
+                       "closePrice":  1769.9,
+                       "profit":  -1892.9,
+                       "balance":  94171.07,
+                       "comment":  "YSS supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

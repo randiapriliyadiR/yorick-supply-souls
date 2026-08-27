@@ -1,0 +1,32 @@
+{
+    "trades":  [
+                   {
+                       "id":  33,
+                       "side":  "buy",
+                       "volume":  0.57,
+                       "openTime":  "2022.12.12 17:01:40",
+                       "closeTime":  "2022.12.13 12:30:40",
+                       "openPrice":  1779.92,
+                       "closePrice":  1806.14,
+                       "profit":  1451.69,
+                       "balance":  95622.76,
+                       "comment":  "YSS demand",
+                       "commission":  0,
+                       "swap":  -42.85
+                   },
+                   {
+                       "id":  35,
+                       "side":  "buy",
+                       "volume":  0.42,
+                       "openTime":  "2022.12.15 01:52:40",
+                       "closeTime":  "2022.12.27 14:34:40",
+                       "openPrice":  1795.43,
+                       "closePrice":  1824.52,
+                       "profit":  906.08,
+                       "balance":  96528.84,
+                       "comment":  "YSS demand",
+                       "commission":  0,
+                       "swap":  -315.7
+                   }
+               ]
+}

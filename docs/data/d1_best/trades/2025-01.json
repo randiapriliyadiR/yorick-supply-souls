@@ -1,0 +1,18 @@
+{
+    "trades":  [
+                   {
+                       "id":  83,
+                       "side":  "sell",
+                       "volume":  0.37,
+                       "openTime":  "2024.12.12 01:00:40",
+                       "closeTime":  "2025.01.30 14:28:40",
+                       "openPrice":  2726.23,
+                       "closePrice":  2787.734,
+                       "profit":  -2275.65,
+                       "balance":  113494.13,
+                       "comment":  "YSS supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

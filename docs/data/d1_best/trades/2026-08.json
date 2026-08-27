@@ -1,0 +1,32 @@
+{
+    "trades":  [
+                   {
+                       "id":  97,
+                       "side":  "sell",
+                       "volume":  0.12,
+                       "openTime":  "2026.07.02 12:40:40",
+                       "closeTime":  "2026.08.07 12:30:40",
+                       "openPrice":  4140.735,
+                       "closePrice":  4343.346,
+                       "profit":  -2431.33,
+                       "balance":  121311.54,
+                       "comment":  "YSS supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  99,
+                       "side":  "sell",
+                       "volume":  0.13,
+                       "openTime":  "2026.08.13 00:34:40",
+                       "closeTime":  "2026.08.21 16:47:40",
+                       "openPrice":  4449.817,
+                       "closePrice":  4624.464,
+                       "profit":  -2270.41,
+                       "balance":  119041.13,
+                       "comment":  "YSS supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

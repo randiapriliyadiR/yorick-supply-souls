@@ -1,0 +1,32 @@
+{
+    "trades":  [
+                   {
+                       "id":  71,
+                       "side":  "buy",
+                       "volume":  0.53,
+                       "openTime":  "2024.05.31 19:15:40",
+                       "closeTime":  "2024.07.16 14:54:40",
+                       "openPrice":  2321.29,
+                       "closePrice":  2450.07,
+                       "profit":  5072.38,
+                       "balance":  123532.32,
+                       "comment":  "YSS demand",
+                       "commission":  0,
+                       "swap":  -1752.96
+                   },
+                   {
+                       "id":  73,
+                       "side":  "buy",
+                       "volume":  1.68,
+                       "openTime":  "2024.07.19 10:08:40",
+                       "closeTime":  "2024.07.19 13:11:20",
+                       "openPrice":  2411.2,
+                       "closePrice":  2396.57,
+                       "profit":  -2457.84,
+                       "balance":  121074.48,
+                       "comment":  "YSS demand",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

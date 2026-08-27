@@ -1,0 +1,18 @@
+{
+    "trades":  [
+                   {
+                       "id":  93,
+                       "side":  "buy",
+                       "volume":  0.35,
+                       "openTime":  "2026.02.02 01:10:40",
+                       "closeTime":  "2026.02.02 05:52:40",
+                       "openPrice":  4585.775,
+                       "closePrice":  4515.158,
+                       "profit":  -2471.6,
+                       "balance":  121225.66,
+                       "comment":  "YSS demand",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

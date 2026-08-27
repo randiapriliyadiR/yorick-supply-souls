@@ -1,0 +1,18 @@
+{
+    "trades":  [
+                   {
+                       "id":  95,
+                       "side":  "sell",
+                       "volume":  0.15,
+                       "openTime":  "2026.05.06 06:31:40",
+                       "closeTime":  "2026.05.18 00:33:40",
+                       "openPrice":  4668.449,
+                       "closePrice":  4500.635,
+                       "profit":  2517.21,
+                       "balance":  123742.87,
+                       "comment":  "YSS supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}
