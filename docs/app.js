@@ -331,7 +331,15 @@ function renderCalendar() {
 }
 
 function renderTradeList() {
-  const tbody = document.getElementById("trade-list");
+  const tbody = 
+  document.getElementById("history-modal")?.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close-modal]")) closeHistoryModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeHistoryModal();
+  });
+
+  document.getElementById("trade-list");
   const pageLabel = document.getElementById("page-label");
   const prev = document.getElementById("page-prev");
   const next = document.getElementById("page-next");
@@ -427,6 +435,27 @@ function renderTradeDetail(trade) {
     "</dl>";
 }
 
+
+function openHistoryModal() {
+  const modal = document.getElementById("history-modal");
+  if (!modal) return;
+  const title = document.getElementById("history-modal-title");
+  if (title) {
+    title.textContent =
+      "Trade history \u00b7 " + (months[monthIdx] || standId);
+  }
+  modal.hidden = false;
+  modal.setAttribute("aria-hidden", "false");
+  document.body.classList.add("modal-open");
+}
+
+function closeHistoryModal() {
+  const modal = document.getElementById("history-modal");
+  if (!modal) return;
+  modal.hidden = true;
+  modal.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("modal-open");
+}
 async function setStand(id) {
   standId = id || "m5_best";
   months = await loadMonths(stand());
@@ -439,12 +468,13 @@ async function setStand(id) {
   await setMonthByIndex(monthIdx);
 }
 
-async function setMonthByIndex(i) {
+async function setMonthByIndex(i, openModal) {
   if (!months.length) {
     monthTrades = [];
     renderCalendar();
     renderTradeList();
     renderTradeDetail(null);
+    closeHistoryModal();
     return;
   }
   monthIdx = Math.max(0, Math.min(i, months.length - 1));
@@ -454,6 +484,14 @@ async function setMonthByIndex(i) {
   renderCalendar();
   renderTradeList();
   renderTradeDetail(null);
+  if (openModal) openHistoryModal();
+  else {
+    const title = document.getElementById("history-modal-title");
+    if (title) {
+      title.textContent =
+        "Trade history \u00b7 " + (months[monthIdx] || standId);
+    }
+  }
 }
 
 function wireEvents() {
@@ -473,7 +511,7 @@ function wireEvents() {
   document.getElementById("cal-grid")?.addEventListener("click", (e) => {
     const btn = e.target.closest("[data-month-idx]");
     if (!btn) return;
-    setMonthByIndex(Number(btn.dataset.monthIdx));
+    setMonthByIndex(Number(btn.dataset.monthIdx), true);
   });
 
   document.getElementById("trade-list")?.addEventListener("click", (e) => {

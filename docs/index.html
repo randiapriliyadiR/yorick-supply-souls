@@ -31,7 +31,6 @@
     <a href="#overview">Overview</a>
     <a href="#chart">Balance</a>
     <a href="#calendar">Calendar</a>
-    <a href="#history">History</a>
   </nav>
 
   <main class="wrap">
@@ -57,6 +56,7 @@
 
     <section id="calendar" class="block">
       <h2>Calendar</h2>
+      <p class="deck">Click a month to open that month&rsquo;s trade history.</p>
       <div class="cal-nav">
         <button type="button" id="cal-prev" aria-label="Previous month">&lsaquo;</button>
         <p id="cal-label"></p>
@@ -64,9 +64,15 @@
       </div>
       <div class="cal-grid" id="cal-grid"></div>
     </section>
+  </main>
 
-    <section id="history" class="block">
-      <h2>Trade history</h2>
+  <div id="history-modal" class="modal" hidden aria-hidden="true">
+    <div class="modal-backdrop" data-close-modal></div>
+    <div class="modal-panel" role="dialog" aria-modal="true" aria-labelledby="history-modal-title">
+      <header class="modal-head">
+        <h2 id="history-modal-title">Trade history</h2>
+        <button type="button" class="modal-close" data-close-modal aria-label="Close">&times;</button>
+      </header>
       <div class="history-layout">
         <div class="table-scroll">
           <table>
@@ -87,8 +93,8 @@
         <span id="page-label"></span>
         <button type="button" id="page-next">Next</button>
       </div>
-    </section>
-  </main>
+    </div>
+  </div>
 
   <footer class="foot">
     <p>Research software only. Past backtests are not a promise of future profit. Chart overlays do not change entries.</p>
