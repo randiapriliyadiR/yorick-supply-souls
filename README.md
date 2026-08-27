@@ -7,6 +7,8 @@
 > *"A man is very small when he is on his knees."*  
 > An MT5 Expert Advisor named after Yorick - a shepherd of gold who waits for souls to return to marked graves.
 
+**Lab reports (GitHub Pages):** [randiapriliyadiR.github.io/yorick-supply-souls](https://randiapriliyadiR.github.io/yorick-supply-souls/)
+
 ## What it is
 
 **Yorick Supply of Souls** is a MetaTrader 5 expert that scans for high-quality return setups on gold, sizes each march from balance, and marks protection beyond the grave. Defaults ship **pre-tuned** for **XAUUSD M5** with **Grave Guard** (break-even + trailing) so a touched grave does not give the full risk back.

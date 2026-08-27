@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Yorick Supply of Souls — Lab Reports</title>
+  <meta name="description" content="Backtest lab dashboard for Yorick Supply of Souls MT5 expert — XAUUSD M5 with Grave Guard." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Syne:wght@600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
+  <script src="app.js" defer></script>
+</head>
+<body>
+  <div class="app">
+    <aside class="side">
+      <div class="brand">
+        <img src="assets/yorick.jpg" alt="" class="brand-img" />
+        <div>
+          <div class="brand-kicker">Lab</div>
+          <div class="brand-name">Yorick</div>
+        </div>
+      </div>
+      <nav class="nav">
+        <button class="nav-item active" data-view="overview">Overview</button>
+        <button class="nav-item" data-view="compare">Guard Lab</button>
+        <button class="nav-item" data-view="history">All Reports</button>
+      </nav>
+      <div class="side-foot">
+        <a href="https://github.com/randiapriliyadiR/yorick-supply-souls" target="_blank" rel="noopener">GitHub repo</a>
+        <span id="side-version">v—</span>
+      </div>
+    </aside>
+
+    <main class="main">
+      <header class="top">
+        <div>
+          <h1 id="page-title">Overview</h1>
+          <p class="muted" id="page-sub">Shipped stand · XAUUSD M5 · Grave Guard</p>
+        </div>
+        <div class="top-pills">
+          <span class="pill">Model 1 OHLC</span>
+          <span class="pill" id="pill-range">2021 → 2026</span>
+          <span class="pill pill-gold">Exness MT5</span>
+        </div>
+      </header>
+
+      <section class="account-card">
+        <div class="account-left">
+          <div class="account-type">Supply of Souls · Shipped default</div>
+          <div class="account-bal" id="hero-end">—</div>
+          <div class="account-meta" id="hero-meta">XAUUSD · M5 · deposit $200 · risk 1%</div>
+        </div>
+        <div class="account-right">
+          <div class="badge badge-live">Guard ON · 0.5R</div>
+          <div class="account-tags">
+            <span>Fresh graves only</span>
+            <span>BEP + trail</span>
+            <span>v1.05</span>
+          </div>
+        </div>
+      </section>
+
+      <section class="view active" id="view-overview">
+        <div class="metric-grid" id="hero-metrics"></div>
+        <div class="split">
+          <article class="panel">
+            <div class="panel-head">
+              <h2>Why Grave Guard</h2>
+              <span class="muted">M5 $200 stress · 1% soul budget</span>
+            </div>
+            <p class="panel-copy">
+              Once a position opens, the grave is no longer fresh. Grave Guard moves SL to break-even then trails,
+              so the march can exit before a used zone would take full risk back.
+            </p>
+            <div class="vs-row" id="vs-1pct"></div>
+          </article>
+          <article class="panel">
+            <div class="panel-head">
+              <h2>Aggressive path</h2>
+              <span class="muted">M5 $200 · 2% soul budget</span>
+            </div>
+            <p class="panel-copy">
+              Same recipe at 2%. Headline nets compound hard — use them to rank presets, not as a live promise.
+            </p>
+            <div class="vs-row" id="vs-2pct"></div>
+          </article>
+        </div>
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Guard presets at 1% risk</h2>
+            <span class="muted">Net profit ranking</span>
+          </div>
+          <div class="chart-wrap">
+            <canvas id="chart-1pct" height="120"></canvas>
+          </div>
+        </article>
+      </section>
+
+      <section class="view" id="view-compare">
+        <div class="tabs" id="risk-tabs">
+          <button class="tab active" data-risk="1">Soul budget 1%</button>
+          <button class="tab" data-risk="2">Soul budget 2%</button>
+        </div>
+        <div class="metric-grid" id="compare-metrics"></div>
+        <article class="panel">
+          <div class="panel-head">
+            <h2>Net vs equity drawdown</h2>
+            <span class="muted">Higher net + lower DD is better</span>
+          </div>
+          <div class="chart-wrap chart-tall">
+            <canvas id="chart-compare" height="160"></canvas>
+          </div>
+        </article>
+        <article class="panel">
+          <div class="panel-head"><h2>Preset table</h2></div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Preset</th>
+                  <th>Guard</th>
+                  <th>Net</th>
+                  <th>PF</th>
+                  <th>Equity DD</th>
+                  <th>Trades</th>
+                </tr>
+              </thead>
+              <tbody id="compare-table"></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+
+      <section class="view" id="view-history">
+        <article class="panel">
+          <div class="panel-head">
+            <h2>All lab reports</h2>
+            <input type="search" id="search" placeholder="Filter label / id…" />
+          </div>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th>Stand</th>
+                  <th>TF</th>
+                  <th>Deposit</th>
+                  <th>Risk</th>
+                  <th>Guard</th>
+                  <th>Net</th>
+                  <th>PF</th>
+                  <th>DD%</th>
+                  <th>Trades</th>
+                </tr>
+              </thead>
+              <tbody id="history-table"></tbody>
+            </table>
+          </div>
+        </article>
+        <p class="fineprint">
+          Past backtests are not a promise of future profit. Overlays on the MT5 chart are visual only and do not change entries.
+          Design language inspired by FundedNext-style prop dashboards (dark cards, objective metrics, green/red P&amp;L).
+        </p>
+      </section>
+    </main>
+  </div>
+</body>
+</html>
