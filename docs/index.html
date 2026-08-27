@@ -3,8 +3,8 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Yorick Supply of Souls — Backtest Lab</title>
-  <meta name="description" content="Independent backtest lab for Yorick Supply of Souls — best XAUUSD M5 and D1 stands." />
+  <title>Yorick Supply of Souls - Backtest Lab</title>
+  <meta name="description" content="Independent backtest lab for Yorick Supply of Souls - best XAUUSD M5 and D1 stands." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -17,102 +17,81 @@
     <div class="hero-bg" style="background-image:url('assets/yorick.jpg')"></div>
     <div class="hero-veil"></div>
     <div class="hero-inner">
-      <p class="hero-kicker">Backtest lab · v<span id="ver">1.05</span></p>
+      <p class="hero-kicker">Backtest lab &middot; v<span id="ver">1.05</span></p>
       <h1>Yorick Supply of Souls</h1>
       <p class="hero-lead">Gold graves, measured risk, and a guard that locks the soul after the first touch.</p>
       <div class="hero-actions">
         <a class="btn" href="https://github.com/randiapriliyadiR/yorick-supply-souls">Source on GitHub</a>
-        <a class="btn btn-ghost" href="#shipped">Jump to best stand</a>
+        <a class="btn btn-ghost" href="#overview">Jump to best stand</a>
       </div>
     </div>
   </header>
 
   <nav class="toc" aria-label="Sections">
-    <a href="#verdict">Verdict</a>
-    <a href="#shipped">Best stand</a>
-    <a href="#guard">Guard grid</a>
-    <a href="#ledger">Ledger</a>
+    <a href="#overview">Overview</a>
+    <a href="#chart">Balance</a>
+    <a href="#calendar">Calendar</a>
+    <a href="#history">History</a>
   </nav>
 
   <main class="wrap">
     <div class="lab-bar">
-      <p class="lab-bar-label">Show best data</p>
-      <div class="seg" role="tablist" id="tf-seg" aria-label="Timeframe">
-        <button type="button" class="seg-btn active" data-tf="M5">M5 best</button>
-        <button type="button" class="seg-btn" data-tf="D1">D1 best</button>
+      <p class="lab-bar-label">Best stand</p>
+      <div class="seg" id="tf-seg" role="tablist">
+        <button type="button" class="seg-btn active" data-stand="m5_best">M5 best</button>
+        <button type="button" class="seg-btn" data-stand="d1_best">D1 best</button>
       </div>
     </div>
 
-    <section id="verdict" class="block">
-      <h2>Verdict</h2>
-      <p class="deck" id="verdict-deck">Loading…</p>
-      <div class="verdict-grid" id="verdict-grid"></div>
+    <section id="overview" class="block">
+      <h2>Overview</h2>
+      <p class="deck" id="stand-meta"></p>
+      <dl class="stat-list" id="overview-stats"></dl>
     </section>
 
-    <section id="shipped" class="block">
-      <h2 id="shipped-title">Best stand</h2>
-      <p class="deck" id="shipped-meta">Loading…</p>
-      <dl class="stat-list" id="shipped-stats"></dl>
-      <p class="note" id="shipped-note">Ending balance below is deposit + net on this sample.</p>
+    <section id="chart" class="block">
+      <h2>Balance</h2>
+      <div class="chart-box"><canvas id="chart-balance" height="140"></canvas></div>
     </section>
 
-    <section id="guard" class="block">
-      <h2>Guard grid</h2>
-      <p class="deck" id="guard-deck">Loading…</p>
-      <div class="seg" role="tablist" id="risk-seg">
-        <button type="button" class="seg-btn active" data-risk="1">1% risk</button>
-        <button type="button" class="seg-btn" data-risk="2">2% risk</button>
+    <section id="calendar" class="block">
+      <h2>Calendar</h2>
+      <div class="cal-nav">
+        <button type="button" id="cal-prev" aria-label="Previous month">&lsaquo;</button>
+        <p id="cal-label"></p>
+        <button type="button" id="cal-next" aria-label="Next month">&rsaquo;</button>
       </div>
-      <div class="chart-box">
-        <canvas id="chart-guard" height="140"></canvas>
-      </div>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Preset</th>
-              <th>Net</th>
-              <th>PF</th>
-              <th>Equity DD</th>
-              <th>Trades</th>
-            </tr>
-          </thead>
-          <tbody id="guard-body"></tbody>
-        </table>
-      </div>
+      <div class="cal-grid" id="cal-grid"></div>
     </section>
 
-    <section id="ledger" class="block">
-      <h2>Full ledger</h2>
-      <p class="deck" id="ledger-deck">Stands for the selected timeframe.</p>
-      <label class="filter">
-        <span class="sr">Filter</span>
-        <input id="q" type="search" placeholder="Filter stands…" />
-      </label>
-      <div class="table-scroll">
-        <table>
-          <thead>
-            <tr>
-              <th>Stand</th>
-              <th>TF</th>
-              <th>Deposit</th>
-              <th>Risk</th>
-              <th>Guard</th>
-              <th>Net</th>
-              <th>PF</th>
-              <th>DD%</th>
-              <th>Trades</th>
-            </tr>
-          </thead>
-          <tbody id="ledger-body"></tbody>
-        </table>
+    <section id="history" class="block">
+      <h2>Trade history</h2>
+      <div class="history-layout">
+        <div class="table-scroll">
+          <table>
+            <thead>
+              <tr>
+                <th>Close</th><th>Side</th><th>Lots</th><th>P/L</th><th>Balance</th>
+              </tr>
+            </thead>
+            <tbody id="trade-list"></tbody>
+          </table>
+        </div>
+        <aside class="trade-detail" id="trade-detail">
+          <p class="mute">Select a trade</p>
+        </aside>
+      </div>
+      <div class="pager">
+        <button type="button" id="page-prev">Prev</button>
+        <span id="page-label"></span>
+        <button type="button" id="page-next">Next</button>
       </div>
     </section>
   </main>
 
   <footer class="foot">
     <p>Research software only. Past backtests are not a promise of future profit. Chart overlays do not change entries.</p>
-    <p><a href="https://github.com/randiapriliyadiR/yorick-supply-souls">github.com/randiapriliyadiR/yorick-supply-souls</a> · Randi Apriliyadi</p>
+    <p><a href="https://github.com/randiapriliyadiR/yorick-supply-souls">github.com/randiapriliyadiR/yorick-supply-souls</a> &middot; Randi Apriliyadi</p>
   </footer>
 </body>
 </html>
