@@ -104,69 +104,204 @@ function renderOverview() {
   });
 }
 
+function parseMt5Time(t) {
+  const m = String(t).match(
+    /^(\d{4})\.(\d{2})\.(\d{2})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/
+  );
+  if (!m) return null;
+  return Date.UTC(
+    Number(m[1]),
+    Number(m[2]) - 1,
+    Number(m[3]),
+    Number(m[4] || 0),
+    Number(m[5] || 0),
+    Number(m[6] || 0)
+  );
+}
+
+function formatChartDay(ms) {
+  const d = new Date(ms);
+  const y = d.getUTCFullYear();
+  const mo = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return y + "-" + mo + "-" + day;
+}
+
+/** One point per UTC day (last balance that day), timed on real calendar axis. */
+function toTimeSeries(points) {
+  const byDay = new Map();
+  for (const p of points) {
+    const ms = parseMt5Time(p.t);
+    if (ms == null || p.b == null) continue;
+    const day = Math.floor(ms / 86400000) * 86400000;
+    byDay.set(day, { x: day, y: Number(p.b), t: p.t });
+  }
+  return Array.from(byDay.values()).sort((a, b) => a.x - b.x);
+}
+
+function yearTickValues(minMs, maxMs) {
+  const ticks = [];
+  let y = new Date(minMs).getUTCFullYear();
+  const endY = new Date(maxMs).getUTCFullYear();
+  // Always include start of each calendar year in range
+  for (; y <= endY; y++) {
+    const jan1 = Date.UTC(y, 0, 1);
+    if (jan1 >= minMs && jan1 <= maxMs) ticks.push(jan1);
+  }
+  if (!ticks.length || ticks[0] > minMs) ticks.unshift(minMs);
+  if (ticks[ticks.length - 1] < maxMs) ticks.push(maxMs);
+  return ticks;
+}
+
+function parseMt5Time(t) {
+  const m = String(t).match(
+    /^(\d{4})\.(\d{2})\.(\d{2})(?:\s+(\d{2}):(\d{2})(?::(\d{2}))?)?/
+  );
+  if (!m) return null;
+  return Date.UTC(
+    Number(m[1]),
+    Number(m[2]) - 1,
+    Number(m[3]),
+    Number(m[4] || 0),
+    Number(m[5] || 0),
+    Number(m[6] || 0)
+  );
+}
+
+function formatChartDay(ms) {
+  const d = new Date(ms);
+  const y = d.getUTCFullYear();
+  const mo = String(d.getUTCMonth() + 1).padStart(2, "0");
+  const day = String(d.getUTCDate()).padStart(2, "0");
+  return y + "-" + mo + "-" + day;
+}
+
+/** One point per UTC day (last balance that day), timed on real calendar axis. */
+function toTimeSeries(points) {
+  const byDay = new Map();
+  for (const p of points) {
+    const ms = parseMt5Time(p.t);
+    if (ms == null || p.b == null) continue;
+    const day = Math.floor(ms / 86400000) * 86400000;
+    byDay.set(day, { x: day, y: Number(p.b), t: p.t });
+  }
+  return Array.from(byDay.values()).sort((a, b) => a.x - b.x);
+}
+
+function yearTickValues(minMs, maxMs) {
+  const ticks = [];
+  let y = new Date(minMs).getUTCFullYear();
+  const endY = new Date(maxMs).getUTCFullYear();
+  for (; y <= endY; y++) {
+    const jan1 = Date.UTC(y, 0, 1);
+    if (jan1 >= minMs && jan1 <= maxMs) ticks.push(jan1);
+  }
+  if (!ticks.length || ticks[0] > minMs) ticks.unshift(minMs);
+  if (ticks[ticks.length - 1] < maxMs) ticks.push(maxMs);
+  return ticks;
+}
+
 function renderChart(points) {
   const ctx = document.getElementById("chart-balance");
   if (!ctx || typeof Chart === "undefined") return;
 
-  const labels = points.map((p) => p.t);
-  const values = points.map((p) => p.b);
+  const series = toTimeSeries(points);
+  if (!series.length) {
+    if (equityChart) equityChart.destroy();
+    equityChart = null;
+    return;
+  }
+
+  const minX = series[0].x;
+  const maxX = series[series.length - 1].x;
+  const minY = Math.min(...series.map((p) => p.y));
+  const maxY = Math.max(...series.map((p) => p.y));
+  const useLog = minY > 0 && maxY / minY >= 40;
 
   if (equityChart) equityChart.destroy();
   equityChart = new Chart(ctx, {
     type: "line",
     data: {
-      labels,
       datasets: [
         {
-          data: values,
+          data: series,
           borderColor: "rgba(201,162,39,0.95)",
           backgroundColor: "rgba(201,162,39,0.12)",
-          borderWidth: 1.5,
+          borderWidth: 1.75,
           pointRadius: 0,
-          pointHoverRadius: 3,
+          pointHoverRadius: 4,
           fill: true,
-          tension: 0.15,
+          tension: 0.05,
+          parsing: false,
         },
       ],
     },
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      interaction: { mode: "index", intersect: false },
       plugins: {
         legend: { display: false },
         tooltip: {
           callbacks: {
-            label: (c) => money(c.raw),
+            title: (items) => {
+              const raw = items[0] && items[0].raw;
+              return raw ? formatChartDay(raw.x) : "";
+            },
+            label: (c) => money(c.parsed.y),
           },
         },
       },
       scales: {
         x: {
+          type: "linear",
+          min: minX,
+          max: maxX,
+          afterBuildTicks: (axis) => {
+            axis.ticks = yearTickValues(minX, maxX).map((v) => ({ value: v }));
+          },
           ticks: {
             color: "#a8987c",
-            maxTicksLimit: 8,
-            callback: function (val, i) {
-              const label = this.getLabelForValue(val);
-              return i % Math.ceil(labels.length / 8) === 0
-                ? String(label).slice(0, 10)
-                : "";
+            autoSkip: false,
+            maxRotation: 0,
+            callback: (v) => {
+              const d = new Date(v);
+              if (d.getUTCMonth() === 0 && d.getUTCDate() === 1) {
+                return String(d.getUTCFullYear());
+              }
+              return formatChartDay(v).slice(0, 7);
             },
           },
-          grid: { display: false },
+          grid: { color: "rgba(232,210,160,0.10)" },
         },
         y: {
+          type: useLog ? "logarithmic" : "linear",
           ticks: {
             color: "#a8987c",
-            callback: (v) =>
-              "$" + Number(v).toLocaleString("en-US", { maximumFractionDigits: 0 }),
+            callback: (v) => {
+              const n = Number(v);
+              if (!Number.isFinite(n)) return "";
+              return (
+                "$" +
+                n.toLocaleString("en-US", {
+                  maximumFractionDigits: n >= 1000 ? 0 : 2,
+                })
+              );
+            },
           },
           grid: { color: "rgba(232,210,160,0.08)" },
         },
       },
     },
   });
-}
 
+  const note = document.getElementById("chart-note");
+  if (note) {
+    note.textContent = useLog
+      ? "X = calendar time (even years). Y = log scale so early balance moves stay visible."
+      : "X = calendar time (even years), not trade count.";
+  }
+}
 function renderCalendar() {
   const label = document.getElementById("cal-label");
   const grid = document.getElementById("cal-grid");
