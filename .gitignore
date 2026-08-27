@@ -1,8 +1,13 @@
 # Build
-*.ex5
 *.ex4
 *.log
 compile*.log
+
+# Ship precompiled binaries so users can attach without MetaEditor.
+# (Ignore stray .ex5 elsewhere; keep project EA + Indicators.)
+*.ex5
+!/Yorick Supply of Souls.ex5
+!/Indicators/*.ex5
 
 # Tester noise
 Tester/_run_*.ini

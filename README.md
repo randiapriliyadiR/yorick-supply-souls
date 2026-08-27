@@ -82,13 +82,13 @@ Same tuned soul inputs, 2021.01.01 -> 2026.08.26:
 ## Install (MT5)
 
 1. Clone/copy this folder under `MQL5/Experts/yorick-supply-souls/` (keep that folder name).
-2. Optional (for compiling indicators): link headers once:
+2. **Quick start (no compile):** attach the shipped `Yorick Supply of Souls.ex5` — overlays are already embedded. Refresh Navigator if it does not appear yet.
+3. **From source (optional):** link headers once, then compile indicators before the EA:
 
 ```powershell
 powershell -ExecutionPolicy Bypass -File ".\Tester\link_indicators.ps1"
 ```
 
-3. In MetaEditor, compile in order:
    - `Indicators/Yorick Structure.mq5`
    - `Indicators/Yorick FVG.mq5`
    - `Indicators/Yorick Zones.mq5`
