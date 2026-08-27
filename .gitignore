@@ -1,0 +1,28 @@
+# Build
+*.ex5
+*.ex4
+*.log
+compile*.log
+
+# Tester noise
+Tester/_run_*.ini
+Tester/last_summary_*.txt
+Tester/*.htm
+Tester/*.html
+Tester/*.json
+Tester/opt_*
+Tester/optimize_*
+Tester/_write_*.py
+Tester/reparse_*.py
+Tester/run_refine.py
+Tester/_*.py
+Tester/_*.json
+
+# Local / IDE
+.cursor/
+*.canvas.tsx
+*.canvas.status.json
+canvases/
+node_modules/
+.DS_Store
+Thumbs.db

@@ -1,0 +1,23 @@
+{
+  "platform"    :"mt5",
+  "program_type":"expert",
+  "copyright"   :"Randi Apriliyadi",
+  "link"        :"https:\/\/github.com\/randiapriliyadiR",
+  "version"     :"1.01",
+  "cpu_architecture" :"0",
+  "optimize"    :"1",
+  "fpzerocheck" :"1",
+  "tester_no_cache":"0",
+  "tester_everytick_calculate":"0",
+  "unicode_character_set":"0",
+  "static_libraries":"0",
+
+  "files":
+  [
+    {
+      "path":"Yorick Supply of Souls.mq5",
+      "compile":true,
+      "relative_to_project":true
+    }
+  ]
+}
