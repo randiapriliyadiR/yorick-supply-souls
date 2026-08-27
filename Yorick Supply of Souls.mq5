@@ -7,9 +7,14 @@
 //+------------------------------------------------------------------+
 #property copyright "Randi Apriliyadi"
 #property link      "https://github.com/randiapriliyadiR/yorick-supply-souls"
-#property version   "1.02"
+#property version   "1.03"
 #property strict
 #property description "Yorick Supply of Souls — D1 gold shepherd, tuned 2% soul budget"
+
+// Bundle overlays from this project folder (no MQL5/Indicators copy required).
+#resource "Indicators\\Yorick Structure.ex5"
+#resource "Indicators\\Yorick FVG.ex5"
+#resource "Indicators\\Yorick Zones.ex5"
 
 #include "Include/YorickSoS/Types.mqh"
 #include "Include/YorickSoS/Risk.mqh"
@@ -113,10 +118,10 @@ int OnInit()
    g_yss_view.reason = "idle";
 
    g_hAtr = iATR(_Symbol, g_yss_cfg.tf, InpAtrPeriod);
-   g_hStruct = iCustom(_Symbol, g_yss_cfg.tf, "Yorick Structure",
+   g_hStruct = iCustom(_Symbol, g_yss_cfg.tf, "::Indicators\\Yorick Structure",
                        InpSwingStrength, InpLookback);
-   g_hFvg = iCustom(_Symbol, g_yss_cfg.tf, "Yorick FVG", InpLookback);
-   g_hZones = iCustom(_Symbol, g_yss_cfg.tf, "Yorick Zones",
+   g_hFvg = iCustom(_Symbol, g_yss_cfg.tf, "::Indicators\\Yorick FVG", InpLookback);
+   g_hZones = iCustom(_Symbol, g_yss_cfg.tf, "::Indicators\\Yorick Zones",
                       InpAtrPeriod, InpImpulseAtrMult, InpBodyAtrMult,
                       InpSwingStrength, InpLookback, InpMaxImpulseBars,
                       InpRequireBos, InpRequireFvg, InpSlZoneMult);

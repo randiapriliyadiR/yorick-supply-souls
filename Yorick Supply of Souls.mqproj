@@ -1,4 +1,4 @@
-{
+﻿{
   "platform"    :"mt5",
   "program_type":"expert",
   "copyright"   :"Randi Apriliyadi",
@@ -17,6 +17,113 @@
     {
       "path":"Yorick Supply of Souls.mq5",
       "compile":true,
+      "relative_to_project":true
+    },
+    {
+      "path":"Include\\YorickSoS\\Types.mqh",
+      "compile":false,
+      "relative_to_project":true
+    },
+    {
+      "path":"Include\\YorickSoS\\Risk.mqh",
+      "compile":false,
+      "relative_to_project":true
+    },
+    {
+      "path":"Include\\YorickSoS\\Orders.mqh",
+      "compile":false,
+      "relative_to_project":true
+    },
+    {
+      "path":"MQL5\\Include\\Trade\\Trade.mqh",
+      "compile":false,
+      "relative_to_project":false
+    },
+    {
+      "path":"MQL5\\Include\\Object.mqh",
+      "compile":false,
+      "relative_to_project":false
+    },
+    {
+      "path":"MQL5\\Include\\StdLibErr.mqh",
+      "compile":false,
+      "relative_to_project":false
+    },
+    {
+      "path":"MQL5\\Include\\Trade\\OrderInfo.mqh",
+      "compile":false,
+      "relative_to_project":false
+    },
+    {
+      "path":"MQL5\\Include\\Trade\\HistoryOrderInfo.mqh",
+      "compile":false,
+      "relative_to_project":false
+    },
+    {
+      "path":"MQL5\\Include\\Trade\\PositionInfo.mqh",
+      "compile":false,
+      "relative_to_project":false
+    },
+    {
+      "path":"MQL5\\Include\\Trade\\DealInfo.mqh",
+      "compile":false,
+      "relative_to_project":false
+    },
+    {
+      "path":"Include\\YorickSoS\\Engine.mqh",
+      "compile":false,
+      "relative_to_project":true
+    },
+    {
+      "path":"Include\\YorickSoS\\Zones.mqh",
+      "compile":false,
+      "relative_to_project":true
+    },
+    {
+      "path":"Include\\YorickSoS\\Swings.mqh",
+      "compile":false,
+      "relative_to_project":true
+    },
+    {
+      "path":"Include\\YorickSoS\\Fvg.mqh",
+      "compile":false,
+      "relative_to_project":true
+    },
+    {
+      "path":"Include\\YorickSoS\\Approach.mqh",
+      "compile":false,
+      "relative_to_project":true
+    },
+    {
+      "path":"Include\\YorickSoS\\ChartView.mqh",
+      "compile":false,
+      "relative_to_project":true
+    },
+    {
+      "path":"Include\\YorickSoS\\Panel.mqh",
+      "compile":false,
+      "relative_to_project":true
+    }
+  ],
+
+  "resources":
+  [
+    {
+      "type":"indicator",
+      "path":"Indicators\\Yorick Structure.ex5",
+      "name":"",
+      "relative_to_project":true
+    },
+    {
+      "type":"indicator",
+      "path":"Indicators\\Yorick FVG.ex5",
+      "name":"",
+      "relative_to_project":true
+    },
+    {
+      "type":"indicator",
+      "path":"Indicators\\Yorick Zones.ex5",
+      "name":"",
       "relative_to_project":true
     }
   ]

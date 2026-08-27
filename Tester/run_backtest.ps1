@@ -46,11 +46,9 @@ $SummaryOut = Join-Path $PSScriptRoot ("last_summary_{0}.txt" -f $ReportName)
 if (-not (Test-Path $TerminalExe)) { throw "terminal64.exe not found: $TerminalExe" }
 if (-not (Test-Path $EaMq5)) { throw "EA source not found: $EaMq5" }
 
-New-Item -ItemType Directory -Force -Path $IncDst | Out-Null
-Copy-Item -Path (Join-Path $IncSrc "*.mqh") -Destination $IncDst -Force
-foreach ($name in @("Yorick Structure.mq5", "Yorick FVG.mq5", "Yorick Zones.mq5")) {
-  Copy-Item -Path (Join-Path $IndSrcDir $name) -Destination (Join-Path $IndDstDir $name) -Force
-}
+# Hardlink indicators into MQL5/Indicators (junctions break iCustom in MT5)
+& (Join-Path $PSScriptRoot "link_indicators.ps1")
+$IndDstDir = Join-Path $Mql5 "Indicators"
 
 function Compile-Mq5([string]$src, [string]$logName) {
   $compileLog = Join-Path $ProjectRoot $logName

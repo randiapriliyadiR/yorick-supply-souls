@@ -81,11 +81,23 @@ Same tuned soul inputs, 2021.01.01 -> 2026.08.26:
 
 ## Install (MT5)
 
-1. Copy this folder under `MQL5/Experts/Yorick Supply of Souls/`.
-2. Copy `Indicators/*.mq5` into your terminal `MQL5/Indicators/`, then compile the EA and indicators in MetaEditor.
-3. Attach **Yorick Supply of Souls** to a chart (XAUUSD D1 recommended).
-4. Leave **Flock** / **Souls** inputs at defaults unless you know what you are changing.
-5. Enable Algo Trading.
+1. Clone/copy this folder under `MQL5/Experts/yorick-supply-souls/` (keep that folder name).
+2. Optional (for compiling indicators): link headers once:
+
+```powershell
+powershell -ExecutionPolicy Bypass -File ".\Tester\link_indicators.ps1"
+```
+
+3. In MetaEditor, compile in order:
+   - `Indicators/Yorick Structure.mq5`
+   - `Indicators/Yorick FVG.mq5`
+   - `Indicators/Yorick Zones.mq5`
+   - `Yorick Supply of Souls.mq5` (embeds the three `.ex5` via `#resource`)
+4. Attach **Yorick Supply of Souls** to a chart (XAUUSD D1 recommended).
+5. Leave **Flock** / **Souls** inputs at defaults unless you know what you are changing.
+6. Enable Algo Trading.
+
+Overlays ship inside the EA — no separate copy into `MQL5/Indicators` is required at runtime.
 
 ## Inputs (friendly names)
 
