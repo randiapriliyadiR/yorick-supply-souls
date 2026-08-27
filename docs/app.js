@@ -8,308 +8,371 @@ const money = (n) => {
   return "$" + s;
 };
 const pct = (n) => (n == null ? "\u2014" : n.toFixed(1) + "%");
-const byId = (id) => DATA.reports.find((r) => r.id === id);
 
 let DATA = null;
-let chart = null;
-let risk = 1;
-let period = "M5";
+let standId = "m5_best";
+let equityChart = null;
+let months = [];
+let monthIdx = 0;
+let monthTrades = [];
+let page = 0;
+const PAGE_SIZE = 25;
+let selectedTradeId = null;
+const monthCache = new Map();
 
-function shortGuard(r) {
-  if (String(r.guard) === "false") return "OFF";
-  if (String(r.guard) === "n/a" || r.guard === "") return "TP only";
-  if (String(r.guard) === "true") return r.be + "R trail " + r.trailDist + "R";
-  return "\u2014";
+function stand() {
+  return DATA.stands.find((s) => s.id === standId);
 }
 
-function isBestRow(r) {
-  if (period === "M5") return !!r.shipped || !!r.bestM5;
-  return !!r.bestD1 || r.id === "YorickSoS_XAUUSD_D1_tuned";
+async function loadStands() {
+  DATA = await (await fetch("./data/stands.json")).json();
 }
 
-function m5(riskN) {
-  const tag = riskN === 1 ? "R1p0" : "R2p0";
-  return ["off", "be05_tr05", "be075_tr075", "be1_tr1", "be15_tr1", "be2_tr1"]
-    .map((p) => byId("YorickSoS_M5_200_" + tag + "_" + p))
-    .filter(Boolean);
+async function loadEquity(s) {
+  const data = await (await fetch("./data/" + s.equity)).json();
+  return data.points || [];
 }
 
-function d1() {
-  return [
-    "YorickSoS_XAUUSD_D1_tuned",
-    "YorickSoS_guard_off",
-    "YorickSoS_guard_be05_tr05",
-    "YorickSoS_guard_be075_tr075",
-    "YorickSoS_guard_be1_tr1",
-    "YorickSoS_guard_be15_tr1",
-    "YorickSoS_guard_be2_tr1"
-  ]
-    .map(byId)
-    .filter(Boolean);
+async function loadMonths(s) {
+  const data = await (await fetch("./data/" + s.months)).json();
+  return data.months || [];
 }
 
-function bestStand() {
-  if (period === "M5") return byId("YorickSoS_M5_200_R1p0_be05_tr05");
-  return byId("YorickSoS_XAUUSD_D1_tuned");
+async function loadMonthTrades(s, yyyyMm) {
+  const key = s.id + "/" + yyyyMm;
+  if (monthCache.has(key)) return monthCache.get(key);
+  const url = "./data/" + s.tradesDir + "/" + yyyyMm + ".json";
+  const data = await (await fetch(url)).json();
+  const trades = data.trades || [];
+  monthCache.set(key, trades);
+  return trades;
 }
 
-function vcard(k, r, best) {
-  return (
-    '<div class="vcard' +
-    (best ? " best" : "") +
-    '"><div class="k">' +
-    k +
-    '</div><div class="v ' +
-    (r.net >= 0 ? "up" : "down") +
-    '">' +
-    money(r.net) +
-    '</div><div class="s">PF ' +
-    Number(r.profitFactor).toFixed(2) +
-    " \u00b7 DD " +
-    pct(r.equityDdPct) +
-    "</div></div>"
-  );
-}
+function renderOverview() {
+  const s = stand();
+  const ver = document.getElementById("ver");
+  if (ver) ver.textContent = DATA.version;
 
-function renderVerdict() {
-  const deck = document.getElementById("verdict-deck");
-  const grid = document.getElementById("verdict-grid");
-
-  if (period === "M5") {
-    deck.innerHTML =
-      "On the hard M5 / $200 sample, <strong>Grave Guard at 0.5R</strong> beat TP-only on net, profit factor, and drawdown. Slower guards (1R+) were worse. Defaults ship M5 + Guard ON.";
-    const off1 = byId("YorickSoS_M5_200_R1p0_off");
-    const on1 = byId("YorickSoS_M5_200_R1p0_be05_tr05");
-    const off2 = byId("YorickSoS_M5_200_R2p0_off");
-    const on2 = byId("YorickSoS_M5_200_R2p0_be05_tr05");
-    grid.innerHTML =
-      vcard("Without guard \u00b7 1%", off1, false) +
-      vcard("Best \u00b7 Guard 0.5R \u00b7 1%", on1, true) +
-      vcard("Without guard \u00b7 2%", off2, false) +
-      vcard("Best \u00b7 Guard 0.5R \u00b7 2%", on2, true);
-    return;
-  }
-
-  deck.innerHTML =
-    "On D1 / $100k, <strong>TP-only</strong> is the best lab stand. Grave Guard that helped M5 cut D1 winners \u2014 OFF beats 0.5R; tighter trails were worse.";
-  const tuned = byId("YorickSoS_XAUUSD_D1_tuned");
-  const off = byId("YorickSoS_guard_off");
-  const g05 = byId("YorickSoS_guard_be05_tr05");
-  const g2 = byId("YorickSoS_guard_be2_tr1");
-  grid.innerHTML =
-    vcard("Best \u00b7 TP only", tuned, true) +
-    vcard("Guard OFF", off, false) +
-    vcard("Guard 0.5R (M5 recipe)", g05, false) +
-    vcard("Guard 2R", g2, false);
-}
-
-function renderShipped() {
-  const s = bestStand();
-  const title = document.getElementById("shipped-title");
-  const note = document.getElementById("shipped-note");
-
-  if (period === "M5") {
-    title.textContent = "Best stand \u00b7 M5 shipped";
-    note.textContent =
-      "Ending balance below is deposit + net on this sample. 2% M5 nets compound aggressively \u2014 use them to rank presets, not as a live forecast.";
-  } else {
-    title.textContent = "Best stand \u00b7 D1 lab";
-    note.textContent =
-      "EA defaults still ship M5 + Guard ON. This D1 TP-only row is the strongest daily sample in the ledger \u2014 not the live default.";
-  }
-
-  document.getElementById("shipped-meta").textContent =
+  document.getElementById("stand-meta").textContent =
     s.symbol +
-    " " +
+    " \u00b7 " +
     s.period +
     " \u00b7 deposit $" +
-    s.deposit.toLocaleString("en-US") +
+    Number(s.deposit).toLocaleString("en-US") +
     " \u00b7 risk " +
     s.risk +
     "% \u00b7 " +
-    DATA.range +
+    (s.from || "") +
+    " \u2192 " +
+    (s.to || "") +
     " \u00b7 " +
-    DATA.model +
+    (s.model || "") +
     " \u00b7 " +
-    DATA.broker;
+    (s.broker || "");
 
   const end = s.deposit + s.net;
-  document.getElementById("shipped-stats").innerHTML = [
+  const rows = [
     ["Net profit", money(s.net), s.net >= 0 ? "up" : "down"],
-    ["Ending balance", "$" + end.toLocaleString("en-US", { maximumFractionDigits: 0 }), "up"],
+    [
+      "Ending balance",
+      "$" + end.toLocaleString("en-US", { maximumFractionDigits: 0 }),
+      "up",
+    ],
     ["Profit factor", Number(s.profitFactor).toFixed(2), ""],
     ["Equity drawdown", pct(s.equityDdPct), "down"],
     ["Trades", Number(s.trades).toLocaleString("en-US"), ""],
-    [
-      "Win rate",
-      (s.winRate || "").replace(/^\d+\s*\(/, "").replace(/\)$/, "") || "\u2014",
-      ""
-    ]
-  ]
+    ["Win rate", s.winRate || "\u2014", ""],
+    ["Guard", s.guard || "\u2014", ""],
+    ["Label", s.label || "\u2014", ""],
+  ];
+
+  document.getElementById("overview-stats").innerHTML = rows
     .map(
-      (row) =>
+      ([k, v, cls]) =>
         "<div><dt>" +
-        row[0] +
+        k +
         '</dt><dd class="' +
-        row[2] +
+        cls +
         '">' +
-        row[1] +
+        v +
         "</dd></div>"
     )
     .join("");
+
+  document.querySelectorAll("#tf-seg .seg-btn").forEach((btn) => {
+    btn.classList.toggle("active", btn.dataset.stand === standId);
+  });
 }
 
-function renderGuard() {
-  const riskSeg = document.getElementById("risk-seg");
-  const deck = document.getElementById("guard-deck");
-  const rows = period === "M5" ? m5(risk) : d1();
+function renderChart(points) {
+  const ctx = document.getElementById("chart-balance");
+  if (!ctx || typeof Chart === "undefined") return;
 
-  if (period === "M5") {
-    riskSeg.hidden = false;
-    deck.textContent =
-      "Same soul inputs on XAUUSD M5, deposit $200. Switch risk to see how BEP / trail distance changes the march.";
-  } else {
-    riskSeg.hidden = true;
-    deck.textContent =
-      "Same soul inputs on XAUUSD D1, deposit $100k, risk 2%. TP-only leads; the M5 Guard 0.5R recipe is weaker here.";
-  }
+  const labels = points.map((p) => p.t);
+  const values = points.map((p) => p.b);
 
-  const ctx = document.getElementById("chart-guard");
-  if (chart) chart.destroy();
-  chart = new Chart(ctx, {
-    type: "bar",
+  if (equityChart) equityChart.destroy();
+  equityChart = new Chart(ctx, {
+    type: "line",
     data: {
-      labels: rows.map((r) => {
-        if (String(r.guard) === "false") return "OFF";
-        if (String(r.guard) === "n/a" || !r.be) return "TP";
-        return r.be + "R";
-      }),
+      labels,
       datasets: [
         {
-          data: rows.map((r) => r.net),
-          backgroundColor: rows.map((r) =>
-            isBestRow(r) ? "rgba(201,162,39,0.9)" : "rgba(111,191,138,0.55)"
-          ),
-          borderWidth: 0
-        }
-      ]
+          data: values,
+          borderColor: "rgba(201,162,39,0.95)",
+          backgroundColor: "rgba(201,162,39,0.12)",
+          borderWidth: 1.5,
+          pointRadius: 0,
+          pointHoverRadius: 3,
+          fill: true,
+          tension: 0.15,
+        },
+      ],
     },
     options: {
       responsive: true,
+      maintainAspectRatio: false,
       plugins: {
         legend: { display: false },
-        tooltip: { callbacks: { label: (c) => money(c.raw) } }
+        tooltip: {
+          callbacks: {
+            label: (c) => money(c.raw),
+          },
+        },
       },
       scales: {
-        x: { ticks: { color: "#a8987c" }, grid: { display: false } },
+        x: {
+          ticks: {
+            color: "#a8987c",
+            maxTicksLimit: 8,
+            callback: function (val, i) {
+              const label = this.getLabelForValue(val);
+              return i % Math.ceil(labels.length / 8) === 0
+                ? String(label).slice(0, 10)
+                : "";
+            },
+          },
+          grid: { display: false },
+        },
         y: {
           ticks: {
             color: "#a8987c",
-            callback: (v) => "$" + Number(v).toLocaleString("en-US")
+            callback: (v) =>
+              "$" + Number(v).toLocaleString("en-US", { maximumFractionDigits: 0 }),
           },
-          grid: { color: "rgba(232,210,160,0.08)" }
-        }
-      }
-    }
+          grid: { color: "rgba(232,210,160,0.08)" },
+        },
+      },
+    },
+  });
+}
+
+function renderCalendar() {
+  const label = document.getElementById("cal-label");
+  const grid = document.getElementById("cal-grid");
+  const prev = document.getElementById("cal-prev");
+  const next = document.getElementById("cal-next");
+  const current = months[monthIdx] || "";
+
+  if (label) label.textContent = current || "\u2014";
+  if (prev) prev.disabled = monthIdx <= 0;
+  if (next) next.disabled = monthIdx >= months.length - 1;
+
+  if (!grid) return;
+  grid.innerHTML = months
+    .map((m, i) => {
+      const active = i === monthIdx ? " active" : "";
+      return (
+        '<button type="button" class="cal-cell has' +
+        active +
+        '" data-month-idx="' +
+        i +
+        '">' +
+        m +
+        "</button>"
+      );
+    })
+    .join("");
+}
+
+function renderTradeList() {
+  const tbody = document.getElementById("trade-list");
+  const pageLabel = document.getElementById("page-label");
+  const prev = document.getElementById("page-prev");
+  const next = document.getElementById("page-next");
+  const totalPages = Math.max(1, Math.ceil(monthTrades.length / PAGE_SIZE));
+  if (page >= totalPages) page = totalPages - 1;
+  if (page < 0) page = 0;
+
+  const start = page * PAGE_SIZE;
+  const slice = monthTrades.slice(start, start + PAGE_SIZE);
+
+  if (pageLabel) {
+    pageLabel.textContent =
+      monthTrades.length === 0
+        ? "0 trades"
+        : "Page " +
+          (page + 1) +
+          " / " +
+          totalPages +
+          " \u00b7 " +
+          monthTrades.length +
+          " trades";
+  }
+  if (prev) prev.disabled = page <= 0;
+  if (next) next.disabled = page >= totalPages - 1 || monthTrades.length === 0;
+
+  if (!tbody) return;
+  tbody.innerHTML = slice
+    .map((t) => {
+      const active = String(t.id) === String(selectedTradeId) ? " active" : "";
+      const plCls = t.profit >= 0 ? "up" : "down";
+      return (
+        '<tr class="' +
+        active.trim() +
+        '" data-trade-id="' +
+        t.id +
+        '">' +
+        "<td>" +
+        (t.closeTime || "") +
+        "</td>" +
+        "<td>" +
+        (t.side || "") +
+        "</td>" +
+        "<td>" +
+        Number(t.volume).toLocaleString("en-US") +
+        "</td>" +
+        '<td class="' +
+        plCls +
+        '">' +
+        money(t.profit) +
+        "</td>" +
+        "<td>$" +
+        Number(t.balance).toLocaleString("en-US", { maximumFractionDigits: 0 }) +
+        "</td>" +
+        "</tr>"
+      );
+    })
+    .join("");
+}
+
+function renderTradeDetail(trade) {
+  const el = document.getElementById("trade-detail");
+  if (!el) return;
+  if (!trade) {
+    el.innerHTML = '<p class="mute">Select a trade</p>';
+    return;
+  }
+
+  const rows = [
+    ["Ticket", trade.id],
+    ["Side", trade.side],
+    ["Lots", Number(trade.volume).toLocaleString("en-US")],
+    ["Open", trade.openTime],
+    ["Close", trade.closeTime],
+    ["Open price", Number(trade.openPrice).toLocaleString("en-US")],
+    ["Close price", Number(trade.closePrice).toLocaleString("en-US")],
+    ["P/L", money(trade.profit)],
+    [
+      "Balance",
+      "$" + Number(trade.balance).toLocaleString("en-US", { maximumFractionDigits: 2 }),
+    ],
+  ];
+  if (trade.commission != null) rows.push(["Commission", money(trade.commission)]);
+  if (trade.swap != null) rows.push(["Swap", money(trade.swap)]);
+  if (trade.comment) rows.push(["Comment", trade.comment]);
+
+  el.innerHTML =
+    "<h3>Trade " +
+    trade.id +
+    "</h3><dl>" +
+    rows
+      .map(([k, v]) => "<dt>" + k + "</dt><dd>" + v + "</dd>")
+      .join("") +
+    "</dl>";
+}
+
+async function setStand(id) {
+  standId = id || "m5_best";
+  months = await loadMonths(stand());
+  monthIdx = Math.max(0, months.length - 1);
+  page = 0;
+  selectedTradeId = null;
+  renderOverview();
+  const points = await loadEquity(stand());
+  renderChart(points);
+  await setMonthByIndex(monthIdx);
+}
+
+async function setMonthByIndex(i) {
+  if (!months.length) {
+    monthTrades = [];
+    renderCalendar();
+    renderTradeList();
+    renderTradeDetail(null);
+    return;
+  }
+  monthIdx = Math.max(0, Math.min(i, months.length - 1));
+  page = 0;
+  selectedTradeId = null;
+  monthTrades = await loadMonthTrades(stand(), months[monthIdx]);
+  renderCalendar();
+  renderTradeList();
+  renderTradeDetail(null);
+}
+
+function wireEvents() {
+  document.querySelectorAll("#tf-seg .seg-btn").forEach((btn) => {
+    btn.addEventListener("click", () => {
+      setStand(btn.dataset.stand);
+    });
   });
 
-  document.getElementById("guard-body").innerHTML = rows
-    .map(
-      (r) =>
-        '<tr class="' +
-        (isBestRow(r) ? "shipped" : "") +
-        '"><td>' +
-        shortGuard(r) +
-        '</td><td class="' +
-        (r.net >= 0 ? "up" : "down") +
-        '">' +
-        money(r.net) +
-        "</td><td>" +
-        Number(r.profitFactor).toFixed(2) +
-        "</td><td>" +
-        pct(r.equityDdPct) +
-        "</td><td>" +
-        Number(r.trades).toLocaleString("en-US") +
-        "</td></tr>"
-    )
-    .join("");
-}
+  document.getElementById("cal-prev")?.addEventListener("click", () => {
+    setMonthByIndex(monthIdx - 1);
+  });
+  document.getElementById("cal-next")?.addEventListener("click", () => {
+    setMonthByIndex(monthIdx + 1);
+  });
 
-function renderLedger() {
-  const q = (document.getElementById("q").value || "").toLowerCase();
-  document.getElementById("ledger-deck").textContent =
-    "Stands for " + period + " currently published with this page.";
-  const rows = DATA.reports.filter(
-    (r) =>
-      r.period === period &&
-      (!q || (r.label + " " + r.id).toLowerCase().includes(q))
-  );
-  document.getElementById("ledger-body").innerHTML = rows
-    .map(
-      (r) =>
-        '<tr class="' +
-        (isBestRow(r) ? "shipped" : "") +
-        '"><td>' +
-        r.label +
-        "</td><td>" +
-        r.period +
-        "</td><td>$" +
-        Number(r.deposit).toLocaleString("en-US") +
-        "</td><td>" +
-        r.risk +
-        "%</td><td>" +
-        shortGuard(r) +
-        '</td><td class="' +
-        (r.net >= 0 ? "up" : "down") +
-        '">' +
-        money(r.net) +
-        "</td><td>" +
-        Number(r.profitFactor).toFixed(2) +
-        "</td><td>" +
-        pct(r.equityDdPct) +
-        "</td><td>" +
-        Number(r.trades).toLocaleString("en-US") +
-        "</td></tr>"
-    )
-    .join("");
-}
+  document.getElementById("cal-grid")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-month-idx]");
+    if (!btn) return;
+    setMonthByIndex(Number(btn.dataset.monthIdx));
+  });
 
-function renderAll() {
-  renderVerdict();
-  renderShipped();
-  renderGuard();
-  renderLedger();
+  document.getElementById("trade-list")?.addEventListener("click", (e) => {
+    const row = e.target.closest("tr[data-trade-id]");
+    if (!row) return;
+    selectedTradeId = row.dataset.tradeId;
+    const trade = monthTrades.find((t) => String(t.id) === String(selectedTradeId));
+    renderTradeList();
+    renderTradeDetail(trade || null);
+  });
+
+  document.getElementById("page-prev")?.addEventListener("click", () => {
+    if (page <= 0) return;
+    page -= 1;
+    renderTradeList();
+  });
+  document.getElementById("page-next")?.addEventListener("click", () => {
+    const totalPages = Math.max(1, Math.ceil(monthTrades.length / PAGE_SIZE));
+    if (page >= totalPages - 1) return;
+    page += 1;
+    renderTradeList();
+  });
 }
 
 async function boot() {
-  DATA = await (await fetch("./data/reports.json")).json();
-  document.getElementById("ver").textContent = DATA.version;
-  period = DATA.defaultPeriod || "M5";
-
-  document.querySelectorAll("#tf-seg .seg-btn").forEach((btn) => {
-    btn.classList.toggle("active", btn.dataset.tf === period);
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#tf-seg .seg-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      period = btn.dataset.tf;
-      renderAll();
-    });
-  });
-
-  document.querySelectorAll("#risk-seg .seg-btn").forEach((btn) => {
-    btn.addEventListener("click", () => {
-      document.querySelectorAll("#risk-seg .seg-btn").forEach((b) => b.classList.remove("active"));
-      btn.classList.add("active");
-      risk = Number(btn.dataset.risk);
-      renderGuard();
-    });
-  });
-
-  document.getElementById("q").addEventListener("input", renderLedger);
-  renderAll();
+  await loadStands();
+  standId = DATA.defaultStand || "m5_best";
+  wireEvents();
+  await setStand(standId);
 }
 
 boot().catch((e) => {
-  document.body.innerHTML =
-    "<pre style='padding:2rem;color:#d86b5c'>Failed to load data\\n" + e + "</pre>";
+  document.body.insertAdjacentHTML(
+    "afterbegin",
+    '<p style="padding:2rem;color:#d86b5c">Failed to load data: ' + e + "</p>"
+  );
 });
