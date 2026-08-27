@@ -7,7 +7,18 @@
 > *"A man is very small when he is on his knees."*  
 > An MT5 Expert Advisor named after Yorick - a shepherd of gold who waits for souls to return to marked graves.
 
-**Lab reports (GitHub Pages):** [randiapriliyadiR.github.io/yorick-supply-souls](https://randiapriliyadiR.github.io/yorick-supply-souls/)
+## Trade lab (GitHub Pages)
+
+**URL:** [randiapriliyadir.github.io/yorick-supply-souls](https://randiapriliyadir.github.io/yorick-supply-souls/)
+
+Interactive backtest explorer with two stands:
+
+| Stand | Deposit | Risk | Guard |
+|---|---:|---:|---|
+| **M5 best** | $200 | 2% | Grave Guard 0.5R |
+| **D1 best** | $100,000 | 2% | TP only |
+
+Features: balance equity chart, month calendar filter, and per-trade history with one-by-one detail.
 
 ## What it is
 
