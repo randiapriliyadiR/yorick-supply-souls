@@ -11,7 +11,7 @@
 
 **Yorick Supply of Souls** is a MetaTrader 5 expert that scans for high-quality return setups on gold, sizes each march from balance, and marks protection beyond the grave. Defaults ship **pre-tuned** for a patient **XAUUSD D1** stand.
 
-This is the mirror companion to [Braum Following Trend](https://github.com/randiapriliyadiR/braum-following-trend): Braum shines on **BTCUSD H1** with a small balance; Yorick's edge showed strongest on **gold**, not crypto.
+Companion to [Braum Following Trend](https://github.com/randiapriliyadiR/braum-following-trend) - same soul-budget discipline, different home market: **gold**, not crypto.
 
 ## Best verified stand (defaults)
 
@@ -63,21 +63,18 @@ A coarse-then-refine search on XAUUSD D1 (deposit $100k) beat the earlier strict
 | Older factory-style | -$1,759 | 0.56 | 3 | 4.2% |
 | **Shipped tuned (default)** | **+$23,816** | **1.39** | 49 | 17.2% |
 
-### Gold vs crypto (inverse of Braum)
+### Gold stands at a glance
 
-Same tuned soul inputs, **$200** deposit, 2021.01.01 -> 2026.08.26:
+Same tuned soul inputs, 2021.01.01 -> 2026.08.26:
 
-| Market / TF | Net | Profit factor | Trades | Notes |
+| Stand | Net | Profit factor | Trades | Notes |
 |---|---:|---:|---:|---|
-| **XAUUSD D1 ($100k)** | **+$23,816** | **1.39** | 49 | **Shipped home stand** |
-| **XAUUSD M5 ($200)** | **+$833,623*** | 1.10 | 7,126 | Small-balance gold lab |
-| BTCUSD M15 | -$56 | 0.97 | 1,379 | Unfavorable |
-| BTCUSD H1 | -$94 | 0.74 | 201 | Unfavorable |
-| BTCUSD H4 | -$55 | 0.28 | 30 | Unfavorable |
+| **XAUUSD D1 ($100k)** | **+$23,816** | **1.39** | 49 | **Shipped default** |
+| **XAUUSD M5 ($200)** | **+$833,623*** | 1.10 | 7,126 | Small-balance lab |
 
-*M5 small-balance figures reflect thousands of fills and compounding - thinner edge per soul than D1.
+*M5 figures reflect thousands of fills and compounding - thinner edge per soul than D1.
 
-**Takeaway:** Braum = BTC small account. **Yorick = XAUUSD** - D1 for the tuned default, M5 if you must march gold on a tiny balance.
+**Takeaway:** **D1 + meaningful balance** for the tuned default; **M5** only if you must march gold on a tiny account.
 
 ## Install (MT5)
 
