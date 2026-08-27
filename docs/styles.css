@@ -286,3 +286,21 @@ tr.shipped td:first-child::after {
   .hero-inner { width: min(var(--max), calc(100% - 1.5rem)); }
   .wrap, .foot { width: min(var(--max), calc(100% - 1.5rem)); }
 }
+
+.lab-bar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.85rem 1.25rem;
+  margin: 0 0 2rem;
+  padding: 1rem 0 1.25rem;
+  border-bottom: 1px solid var(--line);
+}
+.lab-bar-label {
+  margin: 0;
+  font-size: 0.75rem;
+  letter-spacing: 0.16em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+.lab-bar .seg { margin-bottom: 0; }

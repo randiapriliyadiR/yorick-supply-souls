@@ -4,7 +4,7 @@
     "range":  "2021.01.01 → 2026.08.26",
     "model":  "1 minute OHLC",
     "broker":  "Exness MT5",
-    "defaultStand":  "XAUUSD M5 · Grave Guard 0.5R",
+    "defaultStand":  "XAUUSD M5 · Grave Guard 0.5R (switch to D1 for TP-only best)",
     "updated":  "2026-08-27",
     "reports":  [
                     {
@@ -51,7 +51,8 @@
                         "equityDdPct":  10.69,
                         "balanceDdPct":  8.74,
                         "label":  "M5 $200 · 1% · Guard 0.5R (shipped)",
-                        "shipped":  true
+                        "shipped":  true,
+                        "bestM5":  true
                     },
                     {
                         "id":  "YorickSoS_M5_200_R1p0_be075_tr075",
@@ -189,7 +190,8 @@
                         "equityDdPct":  19.21,
                         "balanceDdPct":  17.98,
                         "label":  "M5 $200 · 2% · Guard 0.5R (shipped)",
-                        "shipped":  true
+                        "shipped":  true,
+                        "bestM5":  true
                     },
                     {
                         "id":  "YorickSoS_M5_200_R2p0_be075_tr075",
@@ -303,8 +305,9 @@
                         "to":  "2026.08.26",
                         "equityDdPct":  17.21,
                         "balanceDdPct":  9.94,
-                        "label":  "D1 $100k · 2% · TP only (lab)",
-                        "shipped":  false
+                        "label":  "D1 $100k · 2% · TP only (best lab)",
+                        "shipped":  false,
+                        "bestD1":  true
                     },
                     {
                         "id":  "YorickSoS_guard_off",
@@ -351,6 +354,99 @@
                         "balanceDdPct":  8.43,
                         "label":  "D1 $100k · 2% · Guard 0.5R",
                         "shipped":  false
+                    },
+                    {
+                        "id":  "YorickSoS_guard_be075_tr075",
+                        "symbol":  "XAUUSD",
+                        "period":  "D1",
+                        "deposit":  100000,
+                        "risk":  2,
+                        "guard":  "true",
+                        "be":  "0.75",
+                        "trailStart":  "0.75",
+                        "trailDist":  "0.75",
+                        "net":  -4584.51,
+                        "profitFactor":  0.9,
+                        "equityDd":  "13 839.55 (13.13%)",
+                        "balanceDd":  "10 328.89 (10.17%)",
+                        "trades":  58,
+                        "winRate":  "21 (36.21%)",
+                        "from":  "2021.01.01",
+                        "to":  "2026.08.26",
+                        "equityDdPct":  13.13,
+                        "balanceDdPct":  10.17,
+                        "label":  "D1 $100k · 2% · Guard 0.75R",
+                        "shipped":  false
+                    },
+                    {
+                        "id":  "YorickSoS_guard_be1_tr1",
+                        "symbol":  "XAUUSD",
+                        "period":  "D1",
+                        "deposit":  100000,
+                        "risk":  2,
+                        "guard":  "true",
+                        "be":  "1",
+                        "trailStart":  "1",
+                        "trailDist":  "1",
+                        "net":  -16023.35,
+                        "profitFactor":  0.71,
+                        "equityDd":  "19 595.69 (19.00%)",
+                        "balanceDd":  "16 385.17 (16.33%)",
+                        "trades":  58,
+                        "winRate":  "19 (32.76%)",
+                        "from":  "2021.01.01",
+                        "to":  "2026.08.26",
+                        "equityDdPct":  19,
+                        "balanceDdPct":  16.33,
+                        "label":  "D1 $100k · 2% · Guard 1R",
+                        "shipped":  false
+                    },
+                    {
+                        "id":  "YorickSoS_guard_be15_tr1",
+                        "symbol":  "XAUUSD",
+                        "period":  "D1",
+                        "deposit":  100000,
+                        "risk":  2,
+                        "guard":  "true",
+                        "be":  "1.5",
+                        "trailStart":  "1.5",
+                        "trailDist":  "1",
+                        "net":  -5039.99,
+                        "profitFactor":  0.91,
+                        "equityDd":  "19 802.66 (18.52%)",
+                        "balanceDd":  "16 665.76 (15.79%)",
+                        "trades":  55,
+                        "winRate":  "20 (36.36%)",
+                        "from":  "2021.01.01",
+                        "to":  "2026.08.26",
+                        "equityDdPct":  18.52,
+                        "balanceDdPct":  15.79,
+                        "label":  "D1 $100k · 2% · Guard 1.5R",
+                        "shipped":  false
+                    },
+                    {
+                        "id":  "YorickSoS_guard_be2_tr1",
+                        "symbol":  "XAUUSD",
+                        "period":  "D1",
+                        "deposit":  100000,
+                        "risk":  2,
+                        "guard":  "true",
+                        "be":  "2",
+                        "trailStart":  "2",
+                        "trailDist":  "1",
+                        "net":  1870.56,
+                        "profitFactor":  1.03,
+                        "equityDd":  "18 772.88 (18.48%)",
+                        "balanceDd":  "12 405.18 (12.41%)",
+                        "trades":  53,
+                        "winRate":  "21 (39.62%)",
+                        "from":  "2021.01.01",
+                        "to":  "2026.08.26",
+                        "equityDdPct":  18.48,
+                        "balanceDdPct":  12.41,
+                        "label":  "D1 $100k · 2% · Guard 2R",
+                        "shipped":  false
                     }
-                ]
+                ],
+    "defaultPeriod":  "M5"
 }

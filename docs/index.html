@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Yorick Supply of Souls — Backtest Lab</title>
-  <meta name="description" content="Independent backtest lab for Yorick Supply of Souls — XAUUSD M5 with Grave Guard." />
+  <meta name="description" content="Independent backtest lab for Yorick Supply of Souls — best XAUUSD M5 and D1 stands." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -22,35 +22,43 @@
       <p class="hero-lead">Gold graves, measured risk, and a guard that locks the soul after the first touch.</p>
       <div class="hero-actions">
         <a class="btn" href="https://github.com/randiapriliyadiR/yorick-supply-souls">Source on GitHub</a>
-        <a class="btn btn-ghost" href="#shipped">Jump to shipped stand</a>
+        <a class="btn btn-ghost" href="#shipped">Jump to best stand</a>
       </div>
     </div>
   </header>
 
   <nav class="toc" aria-label="Sections">
     <a href="#verdict">Verdict</a>
-    <a href="#shipped">Shipped</a>
+    <a href="#shipped">Best stand</a>
     <a href="#guard">Guard grid</a>
     <a href="#ledger">Ledger</a>
   </nav>
 
   <main class="wrap">
+    <div class="lab-bar">
+      <p class="lab-bar-label">Show best data</p>
+      <div class="seg" role="tablist" id="tf-seg" aria-label="Timeframe">
+        <button type="button" class="seg-btn active" data-tf="M5">M5 best</button>
+        <button type="button" class="seg-btn" data-tf="D1">D1 best</button>
+      </div>
+    </div>
+
     <section id="verdict" class="block">
       <h2>Verdict</h2>
-      <p class="deck">On the hard M5 / $200 sample, <strong>Grave Guard at 0.5R</strong> beat TP-only on net, profit factor, and drawdown. Slower guards (1R+) were worse. Defaults ship M5 + Guard ON.</p>
+      <p class="deck" id="verdict-deck">Loading…</p>
       <div class="verdict-grid" id="verdict-grid"></div>
     </section>
 
     <section id="shipped" class="block">
-      <h2>Shipped stand</h2>
+      <h2 id="shipped-title">Best stand</h2>
       <p class="deck" id="shipped-meta">Loading…</p>
       <dl class="stat-list" id="shipped-stats"></dl>
-      <p class="note">Ending balance below is deposit + net on this sample. 2% M5 nets compound aggressively — use them to rank presets, not as a live forecast.</p>
+      <p class="note" id="shipped-note">Ending balance below is deposit + net on this sample.</p>
     </section>
 
     <section id="guard" class="block">
       <h2>Guard grid</h2>
-      <p class="deck">Same soul inputs on XAUUSD M5, deposit $200. Switch risk to see how BEP / trail distance changes the march.</p>
+      <p class="deck" id="guard-deck">Loading…</p>
       <div class="seg" role="tablist" id="risk-seg">
         <button type="button" class="seg-btn active" data-risk="1">1% risk</button>
         <button type="button" class="seg-btn" data-risk="2">2% risk</button>
@@ -76,7 +84,7 @@
 
     <section id="ledger" class="block">
       <h2>Full ledger</h2>
-      <p class="deck">Every summary currently published with this page.</p>
+      <p class="deck" id="ledger-deck">Stands for the selected timeframe.</p>
       <label class="filter">
         <span class="sr">Filter</span>
         <input id="q" type="search" placeholder="Filter stands…" />
