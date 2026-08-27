@@ -331,15 +331,7 @@ function renderCalendar() {
 }
 
 function renderTradeList() {
-  const tbody = 
-  document.getElementById("history-modal")?.addEventListener("click", (e) => {
-    if (e.target.closest("[data-close-modal]")) closeHistoryModal();
-  });
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape") closeHistoryModal();
-  });
-
-  document.getElementById("trade-list");
+  const tbody = document.getElementById("trade-list");
   const pageLabel = document.getElementById("page-label");
   const prev = document.getElementById("page-prev");
   const next = document.getElementById("page-next");
@@ -512,6 +504,13 @@ function wireEvents() {
     const btn = e.target.closest("[data-month-idx]");
     if (!btn) return;
     setMonthByIndex(Number(btn.dataset.monthIdx), true);
+  });
+
+  document.getElementById("history-modal")?.addEventListener("click", (e) => {
+    if (e.target.closest("[data-close-modal]")) closeHistoryModal();
+  });
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "Escape") closeHistoryModal();
   });
 
   document.getElementById("trade-list")?.addEventListener("click", (e) => {
