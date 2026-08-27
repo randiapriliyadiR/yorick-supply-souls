@@ -48,27 +48,64 @@ async function loadMonthTrades(s, yyyyMm) {
   return trades;
 }
 
+function extremeCard(kind, trade) {
+  if (!trade) {
+    return (
+      '<article class="extreme-card">' +
+      '<p class="extreme-k">' +
+      kind +
+      '</p><p class="mute">\u2014</p></article>'
+    );
+  }
+  const cls = trade.profit >= 0 ? "up" : "down";
+  return (
+    '<article class="extreme-card">' +
+    '<p class="extreme-k">' +
+    kind +
+    '</p>' +
+    '<p class="extreme-v ' +
+    cls +
+    '">' +
+    money(trade.profit) +
+    "</p>" +
+    '<p class="extreme-m">' +
+    (trade.side || "") +
+    " \u00b7 " +
+    Number(trade.volume).toLocaleString("en-US") +
+    " lots</p>" +
+    '<p class="extreme-m">' +
+    (trade.closeTime || "") +
+    "</p>" +
+    '<p class="extreme-m">#' +
+    trade.id +
+    "</p>" +
+    "</article>"
+  );
+}
+
 function renderOverview() {
   const s = stand();
   const ver = document.getElementById("ver");
   if (ver) ver.textContent = DATA.version;
 
   document.getElementById("stand-meta").textContent =
-    s.symbol +
+    (s.label || s.id) +
     " \u00b7 " +
+    s.symbol +
+    " " +
     s.period +
     " \u00b7 deposit $" +
     Number(s.deposit).toLocaleString("en-US") +
     " \u00b7 risk " +
     s.risk +
-    "% \u00b7 " +
+    "% \u00b7 guard " +
+    (s.guard || "\u2014") +
+    " \u00b7 " +
     (s.from || "") +
     " \u2192 " +
     (s.to || "") +
     " \u00b7 " +
-    (s.model || "") +
-    " \u00b7 " +
-    (s.broker || "");
+    (s.model || "");
 
   const end = s.deposit + s.net;
   const rows = [
@@ -82,14 +119,12 @@ function renderOverview() {
     ["Equity drawdown", pct(s.equityDdPct), "down"],
     ["Trades", Number(s.trades).toLocaleString("en-US"), ""],
     ["Win rate", s.winRate || "\u2014", ""],
-    ["Guard", s.guard || "\u2014", ""],
-    ["Label", s.label || "\u2014", ""],
   ];
 
   document.getElementById("overview-stats").innerHTML = rows
     .map(
       ([k, v, cls]) =>
-        "<div><dt>" +
+        '<div class="stat-item"><dt>' +
         k +
         '</dt><dd class="' +
         cls +
@@ -99,6 +134,12 @@ function renderOverview() {
     )
     .join("");
 
+  const extremes = document.getElementById("overview-extremes");
+  if (extremes) {
+    extremes.innerHTML =
+      extremeCard("Largest profit", s.bestWin) +
+      extremeCard("Largest loss", s.worstLoss);
+  }
   document.querySelectorAll("#tf-seg .seg-btn").forEach((btn) => {
     btn.classList.toggle("active", btn.dataset.stand === standId);
   });

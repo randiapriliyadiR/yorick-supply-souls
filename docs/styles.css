@@ -131,7 +131,7 @@ a:hover { color: #fff; }
   padding: 2.5rem 0 4rem;
 }
 
-.block { margin-bottom: 3.5rem; }
+.block { margin-bottom: 4.25rem; }
 .block h2 {
   margin: 0 0 0.65rem;
   font-family: var(--display);
@@ -139,10 +139,10 @@ a:hover { color: #fff; }
   font-weight: 700;
 }
 .deck {
-  margin: 0 0 1.5rem;
+  margin: 0 0 0.35rem;
   color: var(--mute);
-  max-width: 62ch;
-  font-size: 1.02rem;
+  max-width: 70ch;
+  line-height: 1.65;
 }
 .deck strong { color: var(--text); font-weight: 600; }
 .note {
@@ -182,25 +182,74 @@ a:hover { color: #fff; }
 
 .stat-list {
   display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 0;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+}
+.stat-list > div,
+.stat-list .stat-item {
   margin: 0;
-  border-top: 1px solid var(--line);
+  padding: 1.15rem 1.2rem;
+  border: 1px solid var(--line);
+  background: rgba(36, 31, 23, 0.55);
+  display: flex;
+  flex-direction: column;
+  gap: 0.55rem;
+  min-height: 5.5rem;
 }
-.stat-list > div {
-  display: grid;
-  grid-template-columns: 1fr auto;
-  gap: 1rem;
-  padding: 1rem 0;
-  border-bottom: 1px solid var(--line);
+.stat-list dt {
+  margin: 0;
+  color: var(--mute);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
 }
-.stat-list dt { margin: 0; color: var(--mute); font-size: 0.92rem; }
 .stat-list dd {
   margin: 0;
-  text-align: right;
+  text-align: left;
   font-family: var(--display);
-  font-size: 1.15rem;
+  font-size: 1.45rem;
   font-weight: 600;
+  line-height: 1.15;
+}
+
+.extreme-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1rem 1.25rem;
+  margin-top: 1.5rem;
+}
+.extreme-card {
+  border: 1px solid var(--line);
+  padding: 1.25rem 1.3rem 1.35rem;
+  background: rgba(36, 31, 23, 0.35);
+}
+.extreme-k {
+  margin: 0 0 0.65rem;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--gold-soft);
+}
+.extreme-v {
+  margin: 0 0 0.85rem;
+  font-family: var(--display);
+  font-size: clamp(1.6rem, 3vw, 2.1rem);
+  font-weight: 700;
+  line-height: 1.1;
+}
+.extreme-m {
+  margin: 0.2rem 0 0;
+  color: var(--mute);
+  font-size: 0.92rem;
+}
+
+@media (max-width: 720px) {
+  .stat-list,
+  .extreme-grid {
+    grid-template-columns: 1fr;
+  }
 }
 
 .seg {
@@ -282,7 +331,7 @@ tr.shipped td:first-child::after {
 .foot p { margin: 0 0 0.5rem; max-width: 62ch; }
 
 @media (max-width: 720px) {
-  .verdict-grid, .stat-list { grid-template-columns: 1fr; }
+  .verdict-grid { grid-template-columns: 1fr; }
   .hero-inner { width: min(var(--max), calc(100% - 1.5rem)); }
   .wrap, .foot { width: min(var(--max), calc(100% - 1.5rem)); }
 }

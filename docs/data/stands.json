@@ -22,7 +22,23 @@
                        "winRate":  "2299 (27.62%)",
                        "to":  "2026.08.26",
                        "equity":  "m5_best/equity.json",
-                       "guard":  "0.5R"
+                       "guard":  "0.5R",
+                       "bestWin":  {
+                                       "id":  16523,
+                                       "side":  "sell",
+                                       "profit":  522265.68,
+                                       "closeTime":  "2026.08.11 18:00:40",
+                                       "openTime":  "2026.08.11 13:45:40",
+                                       "volume":  141.13
+                                   },
+                       "worstLoss":  {
+                                         "id":  16541,
+                                         "side":  "buy",
+                                         "profit":  -130680.96,
+                                         "closeTime":  "2026.08.13 01:46:40",
+                                         "openTime":  "2026.08.13 00:49:40",
+                                         "volume":  92.8
+                                     }
                    },
                    {
                        "tradesDir":  "d1_best/trades",
@@ -43,7 +59,23 @@
                        "winRate":  "22 (44.90%)",
                        "to":  "2026.08.26",
                        "equity":  "d1_best/equity.json",
-                       "guard":  "TP only"
+                       "guard":  "TP only",
+                       "bestWin":  {
+                                       "id":  61,
+                                       "side":  "buy",
+                                       "profit":  14598.37,
+                                       "closeTime":  "2024.03.05 12:31:40",
+                                       "openTime":  "2023.12.11 16:19:40",
+                                       "volume":  1.58
+                                   },
+                       "worstLoss":  {
+                                         "id":  3,
+                                         "side":  "buy",
+                                         "profit":  -2747.06,
+                                         "closeTime":  "2021.02.04 13:43:40",
+                                         "openTime":  "2021.01.08 17:09:40",
+                                         "volume":  0.39
+                                     }
                    }
                ]
 }
