@@ -117,4 +117,4 @@ Past backtests are not a promise of future profit. Gold can gap; drawdowns above
 **Randi Apriliyadi**  
 Repository: [github.com/randiapriliyadiR/yorick-supply-souls](https://github.com/randiapriliyadiR/yorick-supply-souls)
 
-Art reference: Arclight Yorick (League of Legends) - used here as naming inspiration for a patient gold shepherd.
+Naming inspiration: Yorick (League of Legends) — a patient gold shepherd gathering souls among the graves.
