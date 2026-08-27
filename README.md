@@ -9,80 +9,70 @@
 
 ## What it is
 
-**Yorick Supply of Souls** is a MetaTrader 5 expert that scans for high-quality return setups on gold, sizes each march from balance, and marks protection beyond the grave. Defaults ship **pre-tuned** for a patient **XAUUSD D1** stand.
+**Yorick Supply of Souls** is a MetaTrader 5 expert that scans for high-quality return setups on gold, sizes each march from balance, and marks protection beyond the grave. Defaults ship **pre-tuned** for **XAUUSD M5** with **Grave Guard** (break-even + trailing) so a touched grave does not give the full risk back.
 
 Companion to [Braum Following Trend](https://github.com/randiapriliyadiR/braum-following-trend) - same soul-budget discipline, different home market: **gold**, not crypto.
 
-## Best verified stand (defaults)
+## Best verified stand (defaults) - v1.05
 
 | Setting | Value |
 |---|---|
 | Symbol | XAUUSD |
-| Timeframe | D1 |
+| Timeframe | **M5** |
 | Soul budget | 2% of balance per trade |
+| Grave Guard | **ON** - BEP after **0.5R**, trail **0.5R** behind best |
 | Range | 2021.01.01 -> 2026.08.26 |
 | Model | 1 minute OHLC |
 | Broker sample | Exness MT5 |
 
-### Large balance - $100,000 (shipped default, D1)
+### Is Grave Guard (trailing) better?
 
-| Metric | Result |
-|---|---:|
-| Net profit | **+$23,815.80** |
-| Ending balance | **~$123,816** |
-| Profit factor | **1.39** |
-| Total trades | 49 |
-| Win rate | 44.9% |
-| Equity drawdown max | **17.21%** |
-| Balance drawdown max | 9.94% |
+**Yes on the shipped M5 stand.** Stress tests on **$200** M5 showed the tuned guard beat "TP only" on net, profit factor, and drawdown:
 
-On a **$100k** start, the tuned shepherd returned roughly **+24%** net over the sample with under **18%** equity drawdown - a calm, sparse cadence (~10 fills per year).
+| Soul budget | Guard | Net | Profit factor | Equity DD |
+|---|---|---:|---:|---:|
+| **1%** | OFF (TP only) | +$13,519 | 1.12 | 17.4% |
+| **1%** | **ON 0.5R / 0.5R** | **+$24,756** | **1.31** | **10.7%** |
+| **2%** | OFF (TP only) | +$833,623* | 1.10 | 33.1% |
+| **2%** | **ON 0.5R / 0.5R** | **+$6,063,100*** | **1.34** | **19.2%** |
 
-### Small balance - $200 (M5, same soul inputs)
+\*2% M5 nets are inflated by heavy compounding across thousands of micro-lot fills - use them for ranking presets, not as a live promise.
 
-Daily bars are too sparse for a tiny balance to matter. For small-account lab notes we tested **XAUUSD M5** with the same tuned soul settings at two soul budgets:
+Slower guards (BEP at 1R+) were **worse** than OFF on this sample. Fast lock at **0.5R** is the shipped recipe.
 
-| Metric | Soul budget 2% | Soul budget 1% |
+### Small balance - $200 (M5, shipped guard)
+
+| Metric | Soul budget 2% + guard | Soul budget 1% + guard |
 |---|---:|---:|
-| Net profit | **+$833,622.61*** | **+$13,519.42** |
-| Ending balance | **~$833,823** | **~$13,719** |
-| Profit factor | **1.10** | **1.12** |
-| Total trades | 7,126 | 7,077 |
-| Win rate | 42.1% | 41.5% |
-| Equity drawdown max | **33.05%** | **17.39%** |
-| Balance drawdown max | 31.46% | 15.54% |
+| Net profit | **+$6,063,100.22*** | **+$24,755.98** |
+| Ending balance | **~$6,063,300** | **~$24,956** |
+| Profit factor | **1.34** | **1.31** |
+| Total trades | 8,324 | 8,187 |
+| Equity drawdown max | **19.21%** | **10.69%** |
 
-\*2% M5 net is inflated by heavy compounding across thousands of micro-lot fills.
+Prefer **1%** on a tiny live account if drawdown comfort matters; **2%** is the aggressive lab default.
 
-From **$200**, M5 produces many more fills than D1. **2%** grows harder but deepens drawdown (~33%). **1%** keeps a similar trade count with roughly half the equity DD (~17%) - a calmer small-account march. **Shipped defaults stay D1 / 2%** for the cleaner large-balance edge; M5 is context for tiny gold accounts only.
+### Large balance note - $100,000 (D1, lab only)
 
-### Why these defaults
-
-A coarse-then-refine search on XAUUSD D1 (deposit $100k) beat the earlier strict factory preset by a wide margin:
-
-| Preset | Net | Profit factor | Trades | Equity DD |
-|---|---:|---:|---:|---:|
-| Older factory-style | -$1,759 | 0.56 | 3 | 4.2% |
-| **Shipped tuned (default)** | **+$23,816** | **1.39** | 49 | 17.2% |
+D1 is sparse (~50 trades). With TP-only it once printed about **+$19k–$24k** / PF ~1.3–1.4 / DD ~17–18%. Tight trailing on D1 often cut winners early in our grid - **do not treat D1+guard as the shipped recipe**. Defaults stay **M5 + Grave Guard**.
 
 ### Gold stands at a glance
 
-Same tuned soul inputs, 2021.01.01 -> 2026.08.26:
+Same soul inputs, 2021.01.01 -> 2026.08.26:
 
-| Stand | Net | Profit factor | Trades | Equity DD | Notes |
-|---|---:|---:|---:|---:|---|
-| **XAUUSD D1 ($100k, 2%)** | **+$23,816** | **1.39** | 49 | 17.2% | **Shipped default** |
-| **XAUUSD M5 ($200, 2%)** | **+$833,623*** | 1.10 | 7,126 | 33.1% | Aggressive small-balance lab |
-| **XAUUSD M5 ($200, 1%)** | **+$13,519** | 1.12 | 7,077 | **17.4%** | Calmer small-balance lab |
+| Stand | Net | Profit factor | Equity DD | Notes |
+|---|---:|---:|---:|---|
+| **XAUUSD M5 ($200, 2%, guard ON)** | **+$6.06M*** | **1.34** | **19.2%** | **Shipped default path** |
+| XAUUSD M5 ($200, 1%, guard ON) | +$24,756 | 1.31 | **10.7%** | Calmer small-balance |
+| XAUUSD M5 ($200, 2%, guard OFF) | +$833,623* | 1.10 | 33.1% | No BEP/trail |
+| XAUUSD M5 ($200, 1%, guard OFF) | +$13,519 | 1.12 | 17.4% | No BEP/trail |
 
-*M5 2% figures reflect thousands of fills and compounding - thinner edge per soul than D1.
-
-**Takeaway:** **D1 + meaningful balance** for the tuned default; on a tiny M5 gold account prefer **1% soul budget** over 2% if drawdown matters.
+**Takeaway:** On M5 gold, **Grave Guard ON (0.5R)** is clearly better than TP-only. Ship **M5**; use **1%** soul budget if you want the softer equity path.
 
 ## Install (MT5)
 
 1. Clone/copy this folder under `MQL5/Experts/yorick-supply-souls/` (keep that folder name).
-2. **Quick start (no compile):** attach the shipped `Yorick Supply of Souls.ex5` — overlays are already embedded. Refresh Navigator if it does not appear yet.
+2. **Quick start (no compile):** attach the shipped `Yorick Supply of Souls.ex5` - overlays are already embedded. Refresh Navigator if it does not appear yet.
 3. **From source (optional):** link headers once, then compile indicators before the EA:
 
 ```powershell
@@ -93,11 +83,11 @@ powershell -ExecutionPolicy Bypass -File ".\Tester\link_indicators.ps1"
    - `Indicators/Yorick FVG.mq5`
    - `Indicators/Yorick Zones.mq5`
    - `Yorick Supply of Souls.mq5` (embeds the three `.ex5` via `#resource`)
-4. Attach **Yorick Supply of Souls** to a chart (XAUUSD D1 recommended).
-5. Leave **Flock** / **Souls** inputs at defaults unless you know what you are changing.
+4. Attach **Yorick Supply of Souls** to a chart (**XAUUSD M5** recommended).
+5. Leave **Flock** / **Souls** / **Grave Guard** inputs at defaults unless you know what you are changing.
 6. Enable Algo Trading.
 
-Overlays ship inside the EA — no separate copy into `MQL5/Indicators` is required at runtime.
+Overlays ship inside the EA - no separate copy into `MQL5/Indicators` is required at runtime. Chart overlays are visual only and do not change entries.
 
 ## Inputs (friendly names)
 
@@ -105,16 +95,17 @@ Overlays ship inside the EA — no separate copy into `MQL5/Indicators` is requi
 |---|---|
 | Flock | Grave market filter, shepherd timeframe, soul budget %, identity stamp, slippage, spread fog |
 | Souls | Breath period, surge length/body, structure bars, scan depth, gates, grave buffer |
+| Grave Guard | BEP + trail after a touch (lock the soul so a used grave cannot take full risk again) |
 
 Exact recipes stay in the mist - the published defaults are already the tuned shepherd.
 
 ## Disclaimer
 
-Past backtests are not a promise of future profit. Gold can gap; drawdowns above 17% occurred in sample on large balance (up to ~33% on M5 at 2% soul budget). Use money you can afford to risk. This is research software, not financial advice.
+Past backtests are not a promise of future profit. Gold can gap; drawdowns near **11–19%** occurred in sample on M5 with guard (higher without it). Use money you can afford to risk. This is research software, not financial advice.
 
 ## Author
 
 **Randi Apriliyadi**  
 Repository: [github.com/randiapriliyadiR/yorick-supply-souls](https://github.com/randiapriliyadiR/yorick-supply-souls)
 
-Naming inspiration: Yorick (League of Legends) — a patient gold shepherd gathering souls among the graves.
+Naming inspiration: Yorick (League of Legends) - a patient gold shepherd gathering souls among the graves.
