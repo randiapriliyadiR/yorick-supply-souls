@@ -1,5 +1,5 @@
 ﻿{
-    "version":  "1.16.0",
+    "version":  "1.17.0",
     "updated":  "2026-08-30",
     "defaultStand":  "mtf_200",
     "stands":  [
@@ -70,7 +70,7 @@
                                         "symbol":  "EURUSD_ExnessPro",
                                         "tradesAll":  "eur_200/trades_all.json",
                                         "tradesDir":  "eur_200/trades",
-                                        "enabledDefault":  false
+                                        "enabledDefault":  true
                                     }
                                 ]
                    },
@@ -141,7 +141,7 @@
                                         "symbol":  "EURUSD_ExnessPro",
                                         "tradesAll":  "eur_100k/trades_all.json",
                                         "tradesDir":  "eur_100k/trades",
-                                        "enabledDefault":  false
+                                        "enabledDefault":  true
                                     }
                                 ]
                    },
