@@ -5,13 +5,12 @@
 //+------------------------------------------------------------------+
 #property copyright "Randi Apriliyadi"
 #property link      "https://github.com/randiapriliyadiR/yorick-supply-souls"
-#property version   "1.10"
+#property version   "1.11"
 #property indicator_chart_window
 #property indicator_buffers 1
 #property indicator_plots   1
 #property indicator_label1  "Yorick Zones"
 #property indicator_type1   DRAW_NONE
-#property tester_everytick_calculate
 
 #include <YorickSoS/Types.mqh>
 #include <YorickSoS/Zones.mqh>
@@ -30,6 +29,7 @@ input int    InpExtendBars     = 40;      // How far boxes draw past peak
 
 double g_dummy[];
 int    g_indAtr = INVALID_HANDLE;
+int    g_znLastDrawn = 0;
 #define YSS_ZN_PFX "YSS_ZN_"
 
 void YssZnClear(void)
@@ -113,11 +113,11 @@ void YssZnLine(const string key,
 
 datetime YssZnEndTime(const SYssZone &z)
   {
-   const int peakSh = iBarShift(_Symbol, PERIOD_CURRENT, z.peakTime, false);
+   const int peakSh = YssShiftOf(_Symbol, PERIOD_CURRENT, z.peakTime);
    int endSh = 0;
    if(peakSh >= 0)
       endSh = MathMax(0, peakSh - InpExtendBars);
-   datetime t2 = iTime(_Symbol, PERIOD_CURRENT, endSh);
+   datetime t2 = YssT(_Symbol, PERIOD_CURRENT, endSh);
    if(t2 <= z.baseTime)
       t2 = z.baseTime + PeriodSeconds();
    return t2;
@@ -160,6 +160,8 @@ int OnCalculate(const int rates_total,
       return(rates_total);
    if(BarsCalculated(g_indAtr) < InpAtrPeriod + 2)
       return(prev_calculated);
+   if(!YssSeriesLoad(_Symbol, (ENUM_TIMEFRAMES)Period(), InpLookback + 8))
+      return(prev_calculated);
 
    double atr[];
    ArraySetAsSeries(atr, true);
@@ -180,7 +182,6 @@ int OnCalculate(const int rates_total,
    cfg.requireFvg = InpRequireFvg;
    cfg.slZoneMult = InpSlZoneMult;
 
-   YssZnClear();
    int drawn = 0;
    const int last = InpLookback - cfg.swingStrength - 1;
    const int maxShow = MathMin(InpMaxShowZones, 6);
@@ -192,9 +193,9 @@ int OnCalculate(const int rates_total,
       if(a <= 0.0)
          continue;
       SYssZone z;
-      bool ok = YssBuildZoneAt(cfg, b, 1, a, z, true);
+      bool ok = YssBuildZoneAt(cfg, PERIOD_CURRENT, b, 1, a, z, true);
       if(!ok)
-         ok = YssBuildZoneAt(cfg, b, -1, a, z, true);
+         ok = YssBuildZoneAt(cfg, PERIOD_CURRENT, b, -1, a, z, true);
       if(!ok)
          continue;
 
@@ -221,6 +222,15 @@ int OnCalculate(const int rates_total,
                  (z.dir > 0 ? z.zoneHigh : z.zoneLow), tag, lclr);
       drawn++;
      }
+   for(int i = drawn; i < g_znLastDrawn; i++)
+     {
+      const string id = IntegerToString(i);
+      ObjectDelete(0, YSS_ZN_PFX + "Z" + id);
+      ObjectDelete(0, YSS_ZN_PFX + "B" + id);
+      ObjectDelete(0, YSS_ZN_PFX + "TP" + id);
+      ObjectDelete(0, YSS_ZN_PFX + "L" + id);
+     }
+   g_znLastDrawn = drawn;
    return(rates_total);
   }
 //+------------------------------------------------------------------+

@@ -5,13 +5,12 @@
 //+------------------------------------------------------------------+
 #property copyright "Randi Apriliyadi"
 #property link      "https://github.com/randiapriliyadiR/yorick-supply-souls"
-#property version   "1.10"
+#property version   "1.11"
 #property indicator_chart_window
 #property indicator_buffers 1
 #property indicator_plots   1
 #property indicator_label1  "Yorick FVG"
 #property indicator_type1   DRAW_NONE
-#property tester_everytick_calculate
 
 #include <YorickSoS/Fvg.mqh>
 
@@ -20,6 +19,7 @@ input int InpMaxShowFvg = 4;    // Max gap boxes on chart
 input int InpBoxBars    = 12;   // Box width in bars (not stretched to now)
 
 double g_dummy[];
+int    g_fvgLastDrawn = 0;
 #define YSS_FVG_PFX "YSS_FVG_"
 
 void YssFvgClear(void)
@@ -81,8 +81,9 @@ int OnCalculate(const int rates_total,
       return(0);
    if(prev_calculated == rates_total)
       return(rates_total);
+   if(!YssSeriesLoad(_Symbol, (ENUM_TIMEFRAMES)Period(), InpLookback + 8))
+      return(prev_calculated);
 
-   YssFvgClear();
    const int last = MathMin(InpLookback, rates_total - 3);
    const int maxShow = MathMin(InpMaxShowFvg, 8);
    int drawn = 0;
@@ -90,20 +91,28 @@ int OnCalculate(const int rates_total,
    for(int mid = 2; mid <= last && drawn < maxShow; mid++)
      {
       double top = 0.0, bot = 0.0;
-      const datetime tLeft = iTime(_Symbol, PERIOD_CURRENT, mid + 1);
+      const datetime tLeft = YssT(_Symbol, PERIOD_CURRENT, mid + 1);
       const int endSh = MathMax(0, mid + 1 - InpBoxBars);
-      const datetime tRight = iTime(_Symbol, PERIOD_CURRENT, endSh);
+      const datetime tRight = YssT(_Symbol, PERIOD_CURRENT, endSh);
       if(YssAnyBullishFvg(_Symbol, PERIOD_CURRENT, mid, top, bot))
         {
          YssFvgBox("B" + IntegerToString(drawn), tLeft, tRight, top, bot, C'35,100,65');
+         ObjectDelete(0, YSS_FVG_PFX + "S" + IntegerToString(drawn));
          drawn++;
         }
       else if(YssAnyBearishFvg(_Symbol, PERIOD_CURRENT, mid, top, bot))
         {
          YssFvgBox("S" + IntegerToString(drawn), tLeft, tRight, top, bot, C'120,45,55');
+         ObjectDelete(0, YSS_FVG_PFX + "B" + IntegerToString(drawn));
          drawn++;
         }
      }
+   for(int i = drawn; i < g_fvgLastDrawn; i++)
+     {
+      ObjectDelete(0, YSS_FVG_PFX + "B" + IntegerToString(i));
+      ObjectDelete(0, YSS_FVG_PFX + "S" + IntegerToString(i));
+     }
+   g_fvgLastDrawn = drawn;
    return(rates_total);
   }
 //+------------------------------------------------------------------+

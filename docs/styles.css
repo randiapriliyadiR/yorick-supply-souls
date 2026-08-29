@@ -9,7 +9,7 @@
   --gold-soft: #e6c86a;
   --up: #6fbf8a;
   --down: #d86b5c;
-  --max: 920px;
+  --max: 1360px;
   --font: "Manrope", system-ui, sans-serif;
   --display: "Fraunces", Georgia, serif;
 }
@@ -355,10 +355,37 @@ tr.shipped td:first-child::after {
 .lab-bar .seg { margin-bottom: 0; }
 .cal-nav { display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:1rem; }
 .cal-nav button { appearance:none; border:1px solid var(--line); background:transparent; color:var(--text); width:2.5rem; height:2.5rem; cursor:pointer; font-size:1.25rem; }
-.cal-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(5.6rem,1fr)); gap:0.5rem; margin-bottom:0.5rem; }
+.cal-scroll { overflow-x: auto; margin-bottom: 0.5rem; -webkit-overflow-scrolling: touch; }
+.cal-grid {
+  display: grid;
+  grid-template-columns: 3.25rem repeat(12, minmax(4.6rem, 1fr));
+  gap: 0.4rem;
+  min-width: 62rem;
+}
+.cal-corner,
+.cal-hd,
+.cal-year {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: var(--mute);
+  font-size: 0.72rem;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  min-height: 1.8rem;
+}
+.cal-year {
+  justify-content: flex-start;
+  padding-left: 0.15rem;
+  font-weight: 600;
+  color: var(--gold-soft);
+  letter-spacing: 0.04em;
+  text-transform: none;
+  font-size: 0.82rem;
+}
 .cal-cell {
   border:1px solid var(--line);
-  padding:0.55rem 0.35rem 0.45rem;
+  padding:0.45rem 0.25rem 0.4rem;
   text-align:center;
   cursor:pointer;
   color:var(--mute);
@@ -367,15 +394,21 @@ tr.shipped td:first-child::after {
   display:flex;
   flex-direction:column;
   align-items:center;
-  gap:0.15rem;
-  min-height:4.1rem;
+  justify-content:center;
+  gap:0.12rem;
+  min-height:3.7rem;
 }
 .cal-cell.has { color:var(--text); }
 .cal-cell.empty { opacity: 0.72; }
 .cal-cell.empty .cal-total { color: var(--mute); }
-.cal-cell .cal-id { font-size:0.72rem; letter-spacing:0.02em; color:var(--mute); }
-.cal-cell .cal-total { font-size:0.82rem; font-weight:700; line-height:1.15; }
-.cal-cell .cal-count { font-size:0.65rem; color:var(--mute); }
+.cal-cell .cal-total { font-size:0.78rem; font-weight:700; line-height:1.15; }
+.cal-cell .cal-count { font-size:0.62rem; color:var(--mute); }
+.cal-cell.ghost {
+  opacity: 0.28;
+  cursor: default;
+  pointer-events: none;
+  border-style: dashed;
+}
 .cal-cell.profit {
   border-color: rgba(111, 191, 138, 0.45);
   background: rgba(111, 191, 138, 0.12);
@@ -430,7 +463,7 @@ body.modal-open { overflow: hidden; }
 .modal-panel {
   position: relative;
   z-index: 1;
-  width: min(960px, 100%);
+  width: min(1180px, 100%);
   max-height: min(88vh, 900px);
   overflow: auto;
   background: var(--paper-2);

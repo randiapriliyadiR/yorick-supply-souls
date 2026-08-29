@@ -5,13 +5,12 @@
 //+------------------------------------------------------------------+
 #property copyright "Randi Apriliyadi"
 #property link      "https://github.com/randiapriliyadiR/yorick-supply-souls"
-#property version   "1.10"
+#property version   "1.11"
 #property indicator_chart_window
 #property indicator_buffers 1
 #property indicator_plots   1
 #property indicator_label1  "Yorick Structure"
 #property indicator_type1   DRAW_NONE
-#property tester_everytick_calculate
 
 #include <YorickSoS/Swings.mqh>
 
@@ -21,6 +20,7 @@ input int  InpMaxBos        = 3;     // Max BOS marks (newest first)
 input bool InpShowSwingDots = false; // Swing dots (off = cleaner chart)
 
 double g_dummy[];
+int    g_stLastBos = 0;
 #define YSS_ST_PFX "YSS_ST_"
 
 void YssStClear(void)
@@ -124,20 +124,20 @@ int OnCalculate(const int rates_total,
       return(0);
    if(prev_calculated == rates_total)
       return(rates_total);
+   if(!YssSeriesLoad(_Symbol, (ENUM_TIMEFRAMES)Period(), InpLookback + 8))
+      return(prev_calculated);
 
-   YssStClear();
    const int strength = InpSwingStrength;
    const int last = MathMin(InpLookback, rates_total - strength - 2);
    const int maxBos = MathMin(InpMaxBos, 8);
    int bosN = 0;
 
-   // Walk newest -> oldest so BOS labels stay on recent breaks.
    for(int s = strength + 1; s <= last && bosN < maxBos; s++)
      {
       if(YssIsSwingHigh(_Symbol, (ENUM_TIMEFRAMES)Period(), s, strength))
         {
-         const datetime t = iTime(_Symbol, PERIOD_CURRENT, s);
-         const double p = iHigh(_Symbol, PERIOD_CURRENT, s);
+         const datetime t = YssT(_Symbol, PERIOD_CURRENT, s);
+         const double p = YssH(_Symbol, PERIOD_CURRENT, s);
          if(InpShowSwingDots)
             YssStDot("SH" + IntegerToString(s), t, p, clrDodgerBlue, 159);
          datetime bosTime = 0;
@@ -145,6 +145,8 @@ int OnCalculate(const int rates_total,
            {
             YssStBos("BH" + IntegerToString(bosN), t, p, bosTime, p,
                      C'70,150,220', bosN == 0);
+            ObjectDelete(0, YSS_ST_PFX + "BL" + IntegerToString(bosN));
+            ObjectDelete(0, YSS_ST_PFX + "BL" + IntegerToString(bosN) + "_L");
             bosN++;
            }
         }
@@ -152,8 +154,8 @@ int OnCalculate(const int rates_total,
          break;
       if(YssIsSwingLow(_Symbol, (ENUM_TIMEFRAMES)Period(), s, strength))
         {
-         const datetime t = iTime(_Symbol, PERIOD_CURRENT, s);
-         const double p = iLow(_Symbol, PERIOD_CURRENT, s);
+         const datetime t = YssT(_Symbol, PERIOD_CURRENT, s);
+         const double p = YssL(_Symbol, PERIOD_CURRENT, s);
          if(InpShowSwingDots)
             YssStDot("SL" + IntegerToString(s), t, p, clrOrchid, 159);
          datetime bosTime = 0;
@@ -161,10 +163,20 @@ int OnCalculate(const int rates_total,
            {
             YssStBos("BL" + IntegerToString(bosN), t, p, bosTime, p,
                      C'190,120,210', bosN == 0);
+            ObjectDelete(0, YSS_ST_PFX + "BH" + IntegerToString(bosN));
+            ObjectDelete(0, YSS_ST_PFX + "BH" + IntegerToString(bosN) + "_L");
             bosN++;
            }
         }
      }
+   for(int i = bosN; i < g_stLastBos; i++)
+     {
+      ObjectDelete(0, YSS_ST_PFX + "BH" + IntegerToString(i));
+      ObjectDelete(0, YSS_ST_PFX + "BH" + IntegerToString(i) + "_L");
+      ObjectDelete(0, YSS_ST_PFX + "BL" + IntegerToString(i));
+      ObjectDelete(0, YSS_ST_PFX + "BL" + IntegerToString(i) + "_L");
+     }
+   g_stLastBos = bosN;
    return(rates_total);
   }
 //+------------------------------------------------------------------+

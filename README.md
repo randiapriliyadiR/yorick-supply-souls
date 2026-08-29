@@ -15,10 +15,10 @@ Interactive backtest explorer on **Exness real ticks** (`XAUUSD_Exness`, Model 4
 
 | Stand | Deposit | Risk | Net | Return | PF | Equity DD | WR | Trades |
 |---|---:|---:|---:|---:|---:|---:|---:|---:|
-| **Best (default)** | $200 | 0.5% | +$126 | **+63%** | 1.26 | **25.7%** | **53%** | **153** |
-| Growth | $200 | 1% | +$282 | +141% | 1.22 | 46.9% | **53%** | **153** |
+| **Best $200** | $200 | 0.5% | +$71 | **+35%** | 1.12 | **24.7%** | **51%** | **166** |
+| **Best $100k** | $100,000 | 0.5% | +$46,021 | **+46%** | 1.13 | **28.0%** | **51%** | **167** |
 
-Same filters: **H4 trend** (beats D1), zones **M5+M15** (adding M30+H1 hurt), Slow ON, MinRR OFF, SL ×2.0, Guard 0.5R.
+Same filters on both: **H4 trend**, zones **M5+M15**, Slow ON, MinRR OFF, SL ×2.0, Guard 0.5R.
 
 ## What it is
 
@@ -39,14 +39,14 @@ Same filters: **H4 trend** (beats D1), zones **M5+M15** (adding M30+H1 hurt), Sl
 | SL buffer | **SlZoneMult = 2.0** (1× zone depth outside zone) |
 | Grave Guard | **ON** — BEP / trail at **0.5R** |
 | Commission (tester) | **$3.50 / lot / side** |
-| Range | 2021.01.01 → 2025.07.15 |
+| Range | 2021.01.01 → 2025.12.31 |
 | Model | **Every tick based on real ticks** |
 
 ### Retune takeaway (round 4)
 
 | Focus | Net | PF | DD | WR | N |
 |---|---:|---:|---:|---:|---:|
-| **Shipped (Slow, no MinRR, 0.5%)** | **+$83k** | **1.29** | **25%** | **53%** | **153** |
+| **Shipped (Slow, no MinRR, 0.5%)** | **+$46k** | **1.13** | **28%** | **51%** | **167** |
 | Growth (same, 1%) | +$209k | 1.31 | 29% | 53% | 153 |
 | Slow + MinRR 1.5 | +$13k | 1.31 | 16% | 23% | 30 |
 | No Slow | blown | &lt;1 | ~100% | low | 1200+ |

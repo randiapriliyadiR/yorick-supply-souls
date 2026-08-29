@@ -8,9 +8,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Manrope:wght@400;500;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="styles.css?v=20260829e" />
+  <link rel="stylesheet" href="styles.css?v=20260829f" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js" defer></script>
-  <script src="app.js?v=20260829e" defer></script>
+  <script src="app.js?v=20260829f" defer></script>
 </head>
 <body>
   <header class="hero">
@@ -57,13 +57,15 @@
 
     <section id="calendar" class="block">
       <h2>Calendar</h2>
-      <p class="deck">Every month in the backtest range is shown (empty months = $0 / 0 trades). Green = profit, red = loss. Click a month for trade history.</p>
+      <p class="deck">Rows = years, columns = Jan–Dec. Empty months = $0 / 0 trades. Green = profit, red = loss. Click a month for trade history.</p>
       <div class="cal-nav">
         <button type="button" id="cal-prev" aria-label="Previous month">&lsaquo;</button>
         <p id="cal-label"></p>
         <button type="button" id="cal-next" aria-label="Next month">&rsaquo;</button>
       </div>
-      <div class="cal-grid" id="cal-grid"></div>
+      <div class="cal-scroll">
+        <div class="cal-grid" id="cal-grid" role="grid" aria-label="Monthly P/L by year"></div>
+      </div>
     </section>
   </main>
 

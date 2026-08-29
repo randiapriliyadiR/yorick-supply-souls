@@ -421,6 +421,21 @@ function renderChart(points) {
       : "X = calendar time (even years), not trade count.";
   }
 }
+const MONTH_COLS = [
+  "Jan",
+  "Feb",
+  "Mar",
+  "Apr",
+  "May",
+  "Jun",
+  "Jul",
+  "Aug",
+  "Sep",
+  "Oct",
+  "Nov",
+  "Dec",
+];
+
 function renderCalendar() {
   const label = document.getElementById("cal-label");
   const grid = document.getElementById("cal-grid");
@@ -433,9 +448,39 @@ function renderCalendar() {
   if (next) next.disabled = monthIdx >= months.length - 1;
 
   if (!grid) return;
-  grid.innerHTML = months
-    .map((m, i) => {
-      const id = monthKey(m);
+  if (!months.length) {
+    grid.innerHTML = "";
+    return;
+  }
+
+  const byId = new Map();
+  months.forEach((m, i) => byId.set(monthKey(m), { m, i }));
+
+  const years = [];
+  const seen = new Set();
+  months.forEach((m) => {
+    const y = Number(monthKey(m).slice(0, 4));
+    if (!Number.isFinite(y) || seen.has(y)) return;
+    seen.add(y);
+    years.push(y);
+  });
+  years.sort((a, b) => a - b);
+
+  const parts = ['<div class="cal-corner" aria-hidden="true"></div>'];
+  MONTH_COLS.forEach((name) => {
+    parts.push('<div class="cal-hd">' + name + "</div>");
+  });
+
+  years.forEach((year) => {
+    parts.push('<div class="cal-year">' + year + "</div>");
+    for (let mo = 1; mo <= 12; mo++) {
+      const id = year + "-" + String(mo).padStart(2, "0");
+      const hit = byId.get(id);
+      if (!hit) {
+        parts.push('<div class="cal-cell ghost" aria-hidden="true"></div>');
+        continue;
+      }
+      const { m, i } = hit;
       const net = monthNet(m);
       const active = i === monthIdx ? " active" : "";
       let tone = " empty";
@@ -456,23 +501,24 @@ function renderCalendar() {
             "</span>"
           : "";
       const emptyCls = m && m.trades === 0 ? " empty" : " has";
-      return (
+      parts.push(
         '<button type="button" class="cal-cell' +
-        emptyCls +
-        tone +
-        active +
-        '" data-month-idx="' +
-        i +
-        '">' +
-        '<span class="cal-id">' +
-        id +
-        "</span>" +
-        totalHtml +
-        countHtml +
-        "</button>"
+          emptyCls +
+          tone +
+          active +
+          '" data-month-idx="' +
+          i +
+          '" title="' +
+          id +
+          '">' +
+          totalHtml +
+          countHtml +
+          "</button>"
       );
-    })
-    .join("");
+    }
+  });
+
+  grid.innerHTML = parts.join("");
 }
 
 function renderTradeList() {

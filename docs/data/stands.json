@@ -4,7 +4,7 @@
     "defaultStand":  "mtf_200",
     "stands":  [
                    {
-                       "to":  "2025.07.15",
+                       "to":  "2025.12.31",
                        "period":  "M5 (zones M5/M15)",
                        "id":  "mtf_200",
                        "worstLoss":  {
@@ -21,16 +21,16 @@
                                          "commission":  0,
                                          "swap":  0
                                      },
-                       "trades":  153,
+                       "trades":  166,
                        "tradesDir":  "mtf_200/trades",
                        "model":  "Every tick based on real ticks",
                        "months":  "mtf_200/months.json",
-                       "net":  125.79,
+                       "net":  70.63,
                        "label":  "Best $200 · H4 + M5/M15 · 0.5% · Guard 0.5R",
-                       "profitFactor":  1.26,
+                       "profitFactor":  1.12,
                        "equity":  "mtf_200/equity.json",
-                       "winRate":  "81 (52.94%)",
-                       "equityDdPct":  25.7,
+                       "winRate":  "85 (51.20%)",
+                       "equityDdPct":  24.7,
                        "broker":  "XAUUSD_Exness + commission $3.5/lot/side",
                        "bestWin":  {
                                        "id":  189,
@@ -46,7 +46,7 @@
                                        "commission":  0,
                                        "swap":  0
                                    },
-                       "returnPct":  62.9,
+                       "returnPct":  35.3,
                        "from":  "2021.01.01",
                        "symbol":  "XAUUSD_Exness",
                        "guard":  "0.5R BEP+trail",
@@ -54,7 +54,7 @@
                        "risk":  0.5
                    },
                    {
-                       "to":  "2025.07.15",
+                       "to":  "2025.12.31",
                        "period":  "M5 (zones M5/M15)",
                        "id":  "mtf_100k",
                        "worstLoss":  {
@@ -71,16 +71,16 @@
                                          "commission":  0,
                                          "swap":  0
                                      },
-                       "trades":  153,
+                       "trades":  167,
                        "tradesDir":  "mtf_100k/trades",
                        "model":  "Every tick based on real ticks",
                        "months":  "mtf_100k/months.json",
-                       "net":  83237.81,
+                       "net":  46021.1,
                        "label":  "Best $100k · H4 + M5/M15 · 0.5% · Guard 0.5R",
-                       "profitFactor":  1.29,
+                       "profitFactor":  1.13,
                        "equity":  "mtf_100k/equity.json",
-                       "winRate":  "81 (52.94%)",
-                       "equityDdPct":  25.23,
+                       "winRate":  "85 (50.90%)",
+                       "equityDdPct":  28,
                        "broker":  "XAUUSD_Exness + commission $3.5/lot/side",
                        "bestWin":  {
                                        "id":  189,
@@ -96,7 +96,7 @@
                                        "commission":  0,
                                        "swap":  0
                                    },
-                       "returnPct":  83.2,
+                       "returnPct":  46,
                        "from":  "2021.01.01",
                        "symbol":  "XAUUSD_Exness",
                        "guard":  "0.5R BEP+trail",

@@ -1,0 +1,18 @@
+{
+    "trades":  [
+                   {
+                       "id":  331,
+                       "side":  "sell",
+                       "volume":  0.01,
+                       "openTime":  "2025.10.30 10:52:08",
+                       "closeTime":  "2025.10.30 11:18:15",
+                       "openPrice":  3985.69,
+                       "closePrice":  3973.834,
+                       "profit":  11.86,
+                       "balance":  281.09,
+                       "comment":  "YSS M5 supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}
