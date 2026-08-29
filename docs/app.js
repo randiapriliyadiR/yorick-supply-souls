@@ -400,7 +400,10 @@ function renderCalendar() {
           : '<span class="cal-total">' + moneyShort(net) + "</span>";
       const countHtml =
         m && typeof m.trades === "number"
-          ? '<span class="cal-count">' + m.trades + "t</span>"
+          ? '<span class="cal-count">' +
+            m.trades +
+            (m.trades === 1 ? " trade" : " trades") +
+            "</span>"
           : "";
       return (
         '<button type="button" class="cal-cell has' +
