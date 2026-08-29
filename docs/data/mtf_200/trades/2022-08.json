@@ -1,30 +1,16 @@
 {
     "trades":  [
                    {
-                       "id":  137,
+                       "id":  79,
                        "side":  "buy",
                        "volume":  0.04,
-                       "openTime":  "2022.08.25 07:36:31",
-                       "closeTime":  "2022.08.25 08:23:06",
-                       "openPrice":  1762.87,
-                       "closePrice":  1763.657,
-                       "profit":  3.15,
-                       "balance":  256.86,
+                       "openTime":  "2022.08.25 07:36:33",
+                       "closeTime":  "2022.08.25 08:23:07",
+                       "openPrice":  1762.84,
+                       "closePrice":  1763.68,
+                       "profit":  3.36,
+                       "balance":  234.87,
                        "comment":  "YSS M5 demand",
-                       "commission":  0,
-                       "swap":  0
-                   },
-                   {
-                       "id":  139,
-                       "side":  "sell",
-                       "volume":  0.12,
-                       "openTime":  "2022.08.29 19:30:32",
-                       "closeTime":  "2022.08.29 19:47:58",
-                       "openPrice":  1736.89,
-                       "closePrice":  1736.029,
-                       "profit":  10.33,
-                       "balance":  267.19,
-                       "comment":  "YSS M5 supply",
                        "commission":  0,
                        "swap":  0
                    }

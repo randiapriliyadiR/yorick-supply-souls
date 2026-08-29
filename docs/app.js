@@ -38,21 +38,126 @@ let page = 0;
 const PAGE_SIZE = 25;
 let selectedTradeId = null;
 const monthCache = new Map();
+const legTradesCache = new Map();
+let enabledLegs = new Set();
+let viewBundle = null;
 
 function stand() {
   return DATA.stands.find((s) => s.id === standId);
+}
+
+function standLegs() {
+  const s = stand();
+  return (s && Array.isArray(s.legs) && s.legs.length) ? s.legs : null;
+}
+
+function activeLegLabels() {
+  const legs = standLegs() || [];
+  return legs.filter((l) => enabledLegs.has(l.id)).map((l) => l.label || l.id);
+}
+
+function viewMetrics() {
+  const s = stand();
+  if (viewBundle) {
+    return {
+      label: s.label,
+      symbol: activeLegLabels().join("+") || s.symbol,
+      period: s.period,
+      deposit: s.deposit,
+      risk: s.risk,
+      guard: s.guard,
+      from: s.from,
+      to: s.to,
+      model: s.model,
+      broker: s.broker,
+      net: viewBundle.net,
+      profitFactor: viewBundle.profitFactor,
+      equityDdMoney: viewBundle.equityDdMoney,
+      equityDdPct: viewBundle.equityDdPct,
+      dailyDdMoney: viewBundle.dailyDdMoney,
+      dailyDdPct: viewBundle.dailyDdPct,
+      trades: viewBundle.trades,
+      winRate: viewBundle.winRate,
+      bestWin: viewBundle.bestWin,
+      worstLoss: viewBundle.worstLoss,
+      returnPct: viewBundle.returnPct,
+    };
+  }
+  return s;
 }
 
 async function loadStands() {
   DATA = await (await fetch("./data/stands.json")).json();
 }
 
+async function loadLegTrades(leg) {
+  const key = leg.tradesAll || leg.tradesDir || leg.id;
+  if (legTradesCache.has(key)) return legTradesCache.get(key);
+  let trades = [];
+  if (leg.tradesAll) {
+    const res = await fetch("./data/" + leg.tradesAll);
+    if (res.ok) {
+      const data = await res.json();
+      trades = data.trades || [];
+    }
+  } else if (leg.tradesDir) {
+    // fallback: try months list from sibling months.json if present is not used
+    trades = [];
+  }
+  legTradesCache.set(key, trades);
+  return trades;
+}
+
+async function rebuildView() {
+  const s = stand();
+  const legs = standLegs();
+  if (!legs) {
+    viewBundle = null;
+    return;
+  }
+  const active = legs.filter((l) => enabledLegs.has(l.id));
+  if (!active.length) {
+    viewBundle = {
+      deposit: s.deposit,
+      net: 0,
+      returnPct: 0,
+      profitFactor: 0,
+      equityDdMoney: 0,
+      equityDdPct: 0,
+      dailyDdMoney: 0,
+      dailyDdPct: 0,
+      trades: 0,
+      wins: 0,
+      winRate: "0 (0%)",
+      ending: s.deposit,
+      equityPoints: [],
+      months: [],
+      tradesList: [],
+      bestWin: null,
+      worstLoss: null,
+    };
+    return;
+  }
+  const tagged = [];
+  for (const leg of active) {
+    const list = await loadLegTrades(leg);
+    for (const t of list) {
+      tagged.push(Object.assign({}, t, { legId: leg.id, legLabel: leg.label || leg.id }));
+    }
+  }
+  viewBundle = window.YssPortfolio.mergeLegs(Number(s.deposit), tagged);
+}
+
 async function loadEquity(s) {
+  if (viewBundle) return viewBundle.equityPoints || [];
   const data = await (await fetch("./data/" + s.equity)).json();
   return data.points || [];
 }
 
 async function loadMonths(s) {
+  if (viewBundle) {
+    return fillAllMonths(viewBundle.months || [], s.from, s.to);
+  }
   const data = await (await fetch("./data/" + s.months)).json();
   const raw = data.months || [];
   const sparse = raw.map((m) => {
@@ -68,6 +173,11 @@ async function loadMonths(s) {
 
 async function loadMonthTrades(s, yyyyMm) {
   const id = monthKey(yyyyMm);
+  if (viewBundle) {
+    return (viewBundle.tradesList || []).filter(
+      (t) => window.YssPortfolio.monthIdFromClose(t.closeTime) === id
+    );
+  }
   const key = s.id + "/" + id;
   if (monthCache.has(key)) return monthCache.get(key);
   const url = "./data/" + s.tradesDir + "/" + id + ".json";
@@ -162,16 +272,21 @@ function extremeCard(kind, trade) {
 }
 
 function renderOverview() {
-  const s = stand();
+  const s = viewMetrics();
+  const base = stand();
   const ver = document.getElementById("ver");
   if (ver) ver.textContent = DATA.version;
 
+  const pairNote = standLegs()
+    ? " \u00b7 " + (activeLegLabels().join(" + ") || "none") + " \u00b7 shared 0.5% rescale"
+    : "";
+
   document.getElementById("stand-meta").textContent =
-    (s.label || s.id) +
+    (s.label || base.id) +
     " \u00b7 " +
-    s.symbol +
+    (s.symbol || "") +
     " " +
-    s.period +
+    (s.period || "") +
     " \u00b7 deposit $" +
     Number(s.deposit).toLocaleString("en-US") +
     " \u00b7 risk " +
@@ -183,9 +298,10 @@ function renderOverview() {
     " \u2192 " +
     (s.to || "") +
     " \u00b7 " +
-    (s.model || "");
+    (s.model || "") +
+    pairNote;
 
-  const end = s.deposit + s.net;
+  const end = Number(s.deposit) + Number(s.net || 0);
   const ddFmt = (amt, p) => {
     const hasAmt = typeof amt === "number" && !Number.isNaN(amt);
     const hasPct = typeof p === "number" && !Number.isNaN(p);
@@ -575,19 +691,21 @@ function renderTradeList() {
   if (!tbody) return;
   tbody.innerHTML = slice
     .map((t) => {
-      const active = String(t.id) === String(selectedTradeId) ? " active" : "";
+      const tid = (t.legId ? t.legId + ":" : "") + t.id;
+      const active = String(tid) === String(selectedTradeId) ? " active" : "";
       const plCls = t.profit >= 0 ? "up" : "down";
+      const side = (t.legLabel ? t.legLabel + " " : "") + (t.side || "");
       return (
         '<tr class="' +
         active.trim() +
         '" data-trade-id="' +
-        t.id +
+        tid +
         '">' +
         "<td>" +
         (t.closeTime || "") +
         "</td>" +
         "<td>" +
-        (t.side || "") +
+        side +
         "</td>" +
         "<td>" +
         Number(t.volume).toLocaleString("en-US") +
@@ -665,6 +783,15 @@ function closeHistoryModal() {
 }
 async function setStand(id) {
   standId = id || "mtf_200";
+  const legs = standLegs();
+  enabledLegs = new Set();
+  if (legs) {
+    for (const leg of legs) {
+      if (leg.enabledDefault !== false) enabledLegs.add(leg.id);
+    }
+  }
+  renderPairToggles();
+  await rebuildView();
   months = await loadMonths(stand());
   monthIdx = Math.max(0, months.length - 1);
   page = 0;
@@ -672,6 +799,52 @@ async function setStand(id) {
   renderOverview();
   const points = await loadEquity(stand());
   renderChart(points);
+  const note = document.getElementById("chart-note");
+  if (note) {
+    note.textContent = standLegs()
+      ? "Shared-wallet equity (rescale B) for selected pairs."
+      : "Calendar-timed equity curve.";
+  }
+  await setMonthByIndex(monthIdx);
+}
+
+function renderPairToggles() {
+  const host = document.getElementById("pair-seg");
+  if (!host) return;
+  const legs = standLegs();
+  if (!legs) {
+    host.innerHTML = "";
+    return;
+  }
+  host.innerHTML = legs
+    .map((leg) => {
+      const on = enabledLegs.has(leg.id);
+      return (
+        '<button type="button" class="seg-btn' +
+        (on ? " active" : "") +
+        '" data-leg="' +
+        leg.id +
+        '" aria-pressed="' +
+        (on ? "true" : "false") +
+        '">' +
+        (leg.label || leg.id) +
+        "</button>"
+      );
+    })
+    .join("");
+}
+
+async function toggleLeg(legId) {
+  if (enabledLegs.has(legId)) enabledLegs.delete(legId);
+  else enabledLegs.add(legId);
+  renderPairToggles();
+  await rebuildView();
+  months = await loadMonths(stand());
+  monthIdx = Math.max(0, Math.min(monthIdx, Math.max(0, months.length - 1)));
+  page = 0;
+  selectedTradeId = null;
+  renderOverview();
+  renderChart(await loadEquity(stand()));
   await setMonthByIndex(monthIdx);
 }
 
@@ -708,6 +881,12 @@ function wireEvents() {
     });
   });
 
+  document.getElementById("pair-seg")?.addEventListener("click", (e) => {
+    const btn = e.target.closest("[data-leg]");
+    if (!btn) return;
+    toggleLeg(btn.dataset.leg);
+  });
+
   document.getElementById("cal-prev")?.addEventListener("click", () => {
     setMonthByIndex(monthIdx - 1);
   });
@@ -732,7 +911,10 @@ function wireEvents() {
     const row = e.target.closest("tr[data-trade-id]");
     if (!row) return;
     selectedTradeId = row.dataset.tradeId;
-    const trade = monthTrades.find((t) => String(t.id) === String(selectedTradeId));
+    const trade = monthTrades.find((t) => {
+      const tid = (t.legId ? t.legId + ":" : "") + t.id;
+      return String(tid) === String(selectedTradeId);
+    });
     renderTradeList();
     renderTradeDetail(trade || null);
   });

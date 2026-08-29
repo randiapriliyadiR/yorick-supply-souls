@@ -1,44 +1,16 @@
 {
     "trades":  [
                    {
-                       "id":  183,
-                       "side":  "buy",
-                       "volume":  0.05,
-                       "openTime":  "2023.04.10 07:12:58",
-                       "closeTime":  "2023.04.10 07:17:16",
-                       "openPrice":  1995.19,
-                       "closePrice":  1996.623,
-                       "profit":  7.17,
-                       "balance":  301.27,
-                       "comment":  "YSS M5 demand",
-                       "commission":  0,
-                       "swap":  0
-                   },
-                   {
-                       "id":  185,
+                       "id":  103,
                        "side":  "sell",
                        "volume":  0.04,
                        "openTime":  "2023.04.14 03:16:38",
-                       "closeTime":  "2023.04.14 03:28:21",
-                       "openPrice":  2045.32,
-                       "closePrice":  2043.891,
-                       "profit":  5.72,
-                       "balance":  306.99,
+                       "closeTime":  "2023.04.14 03:28:46",
+                       "openPrice":  2045.29,
+                       "closePrice":  2043.797,
+                       "profit":  5.97,
+                       "balance":  279.99,
                        "comment":  "YSS M5 supply",
-                       "commission":  0,
-                       "swap":  0
-                   },
-                   {
-                       "id":  187,
-                       "side":  "sell",
-                       "volume":  0.05,
-                       "openTime":  "2023.04.24 02:36:47",
-                       "closeTime":  "2023.04.24 04:39:13",
-                       "openPrice":  1982.97,
-                       "closePrice":  1978.621,
-                       "profit":  21.75,
-                       "balance":  328.74,
-                       "comment":  "YSS M15 supply",
                        "commission":  0,
                        "swap":  0
                    }

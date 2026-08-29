@@ -1,7 +1,7 @@
 {
     "trades":  [
                    {
-                       "id":  221,
+                       "id":  117,
                        "side":  "buy",
                        "volume":  0.12,
                        "openTime":  "2023.12.13 09:15:51",
@@ -9,35 +9,21 @@
                        "openPrice":  1980.64,
                        "closePrice":  1981.783,
                        "profit":  13.72,
-                       "balance":  281.8,
+                       "balance":  280.16,
                        "comment":  "YSS M5 demand",
                        "commission":  0,
                        "swap":  0
                    },
                    {
-                       "id":  223,
-                       "side":  "buy",
-                       "volume":  0.01,
-                       "openTime":  "2023.12.13 20:47:22",
-                       "closeTime":  "2023.12.13 20:58:50",
-                       "openPrice":  2019.51,
-                       "closePrice":  2022.251,
-                       "profit":  2.74,
-                       "balance":  284.54,
-                       "comment":  "YSS M5 demand",
-                       "commission":  0,
-                       "swap":  0
-                   },
-                   {
-                       "id":  225,
+                       "id":  119,
                        "side":  "sell",
-                       "volume":  0.06,
-                       "openTime":  "2023.12.28 17:16:05",
-                       "closeTime":  "2023.12.28 18:02:42",
-                       "openPrice":  2074.2,
-                       "closePrice":  2072.166,
-                       "profit":  12.2,
-                       "balance":  296.74,
+                       "volume":  0.16,
+                       "openTime":  "2023.12.27 03:19:24",
+                       "closeTime":  "2023.12.27 03:25:34",
+                       "openPrice":  2065.18,
+                       "closePrice":  2066.05,
+                       "profit":  -13.92,
+                       "balance":  266.24,
                        "comment":  "YSS M5 supply",
                        "commission":  0,
                        "swap":  0

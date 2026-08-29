@@ -246,6 +246,9 @@ $deals = Parse-DealsTable -Html $html
 $trades = Build-TradesFromDeals -Deals $deals -Deposit $Deposit
 if ($trades.Count -ne $summary.totalTrades) { Write-Warning "Trade count mismatch: parsed $($trades.Count) vs summary $($summary.totalTrades)" }
 $standDir = Join-Path $DocsData $StandId
+$tradesOutDir = Join-Path $standDir "trades"
+if (Test-Path $tradesOutDir) { Remove-Item -LiteralPath $tradesOutDir -Recurse -Force }
+
 $tradesDir = Join-Path $standDir "trades"
 New-Item -ItemType Directory -Path $tradesDir -Force | Out-Null
 $byMonth = @{}

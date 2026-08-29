@@ -1,18 +1,18 @@
 {
     "trades":  [
                    {
-                       "id":  167,
+                       "id":  93,
                        "side":  "buy",
-                       "volume":  12.84,
+                       "volume":  11,
                        "openTime":  "2023.01.04 21:41:00",
-                       "closeTime":  "2023.01.05 01:20:43",
-                       "openPrice":  1854.46,
-                       "closePrice":  1857.142,
-                       "profit":  3152.48,
-                       "balance":  144017.82,
+                       "closeTime":  "2023.01.05 01:20:45",
+                       "openPrice":  1854.41,
+                       "closePrice":  1857.206,
+                       "profit":  2867.7,
+                       "balance":  123040.54,
                        "comment":  "YSS M15 demand",
                        "commission":  0,
-                       "swap":  -291.21
+                       "swap":  -207.9
                    }
                ]
 }

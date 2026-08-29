@@ -26,7 +26,7 @@ param(
   [string]$RequireBos = "true",
   [string]$RequireFvg = "true",
   [string]$RequireSlow = "false",
-  [double]$SlowMaxAtr = 0.8,
+  [double]$SlowMaxAtr = 0.7,
   [double]$SharpAtr = 1.2,
   [int]$MinApproachBars = 2,
   [double]$SlZoneMult = 2.5,
@@ -41,7 +41,7 @@ param(
   [double]$BeTriggerR = 1.0,
   [double]$TrailStartR = 1.0,
   [double]$TrailDistR = 1.0,
-  [string]$SimCommission = "true",
+  [string]$SimCommission = "false",
   [double]$CommissionPerLot = 3.5,
   [switch]$SkipCompile
 )

@@ -1,0 +1,42 @@
+; Yorick Supply of Souls ? best Exness Pro (spread-in, no commission sim)
+; Symbol: XAUUSD_ExnessPro | Model 4 | 2021.01.01-2025.07.31 (Pro tick coverage)
+; Verified: +43% / PF 1.38 / DD 14% ($200); +45% / PF 1.35 / DD 15% ($100k)
+; Diff vs Raw best: SlowMaxAtr 0.7 (was 0.8), SimCommission false
+InpSymbol=XAUUSD||XAUUSD||0||N||N
+InpTF=5||5||0||N||N
+InpTrendTF=16388||16388||0||N||N
+InpZoneTFs=M5,M15||M5,M15||0||N||N
+InpOnePosPerTf=false||false||0||N||N
+InpRiskPct=0.5||0.5||0.010000||100.000000||0.010000||N
+InpQualityMode=0||0||0||N||N
+InpRiskMinPct=0.5||0.5||0.010000||100.000000||0.010000||N
+InpRiskMaxPct=2.0||2.0||0.010000||100.000000||0.010000||N
+InpMagic=26082603||26082603||1||N||N
+InpDeviation=50||50||1||N||N
+InpMaxSpreadPoints=0||0||1||N||N
+InpAtrPeriod=14||14||1||N||N
+InpImpulseAtrMult=1.25||1.25||0.010000||10.000000||0.010000||N
+InpBodyAtrMult=0.65||0.65||0.010000||10.000000||0.010000||N
+InpSwingStrength=3||3||1||N||N
+InpLookback=200||200||1||N||N
+InpMaxImpulseBars=15||15||1||N||N
+InpRequireBos=true||true||0||N||N
+InpRequireFvg=true||true||0||N||N
+InpRequireSlow=true||true||0||N||N
+InpSlowMaxAtr=0.7||0.7||0.010000||10.000000||0.010000||N
+InpSharpAtr=1.2||1.2||0.010000||10.000000||0.010000||N
+InpMinApproachBars=2||2||1||N||N
+InpSlZoneMult=2.0||2.0||0.010000||10.000000||0.010000||N
+InpRequireTrend=true||true||0||N||N
+InpTrendOnZoneTf=false||false||0||N||N
+InpRequireMinRr=false||false||0||N||N
+InpMinRiskReward=2.5||2.5||0.010000||20.000000||0.010000||N
+InpUseAtrRegime=true||true||0||N||N
+InpAtrRegimeBars=50||50||1||N||N
+InpAtrRegimeMult=1.5||1.5||0.010000||10.000000||0.010000||N
+InpUseGuard=true||true||0||N||N
+InpBeTriggerR=0.5||0.5||0.010000||10.000000||0.010000||N
+InpTrailStartR=0.5||0.5||0.010000||10.000000||0.010000||N
+InpTrailDistR=0.5||0.5||0.010000||10.000000||0.010000||N
+InpSimCommission=false||false||0||N||N
+InpCommissionPerLot=3.5||3.5||0.010000||100.000000||0.010000||N

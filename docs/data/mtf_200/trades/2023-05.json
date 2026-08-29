@@ -1,15 +1,15 @@
 {
     "trades":  [
                    {
-                       "id":  189,
+                       "id":  105,
                        "side":  "sell",
-                       "volume":  0.04,
+                       "volume":  0.03,
                        "openTime":  "2023.05.16 17:17:10",
-                       "closeTime":  "2023.05.16 18:31:32",
-                       "openPrice":  1987.11,
-                       "closePrice":  1990.981,
-                       "profit":  -15.48,
-                       "balance":  313.26,
+                       "closeTime":  "2023.05.16 18:31:18",
+                       "openPrice":  1987.08,
+                       "closePrice":  1990.882,
+                       "profit":  -11.41,
+                       "balance":  268.58,
                        "comment":  "YSS M5 supply",
                        "commission":  0,
                        "swap":  0

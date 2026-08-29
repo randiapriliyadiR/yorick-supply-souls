@@ -47,7 +47,7 @@ input int    InpMaxImpulseBars  = 15;       // Max surge bars
 input bool   InpRequireBos      = true;     // Structure gate (hard when quality risk OFF)
 input bool   InpRequireFvg      = true;     // Gap gate (hard when quality risk OFF)
 input bool   InpRequireSlow     = true;     // Gentle return gate
-input double InpSlowMaxAtr      = 0.8;      // Gentle: max bar breath
+input double InpSlowMaxAtr      = 0.7;      // Gentle: max bar breath (Pro-tuned)
 input double InpSharpAtr        = 1.2;      // Sharp: reject bar breath
 input int    InpMinApproachBars = 2;        // Min return bars
 input double InpSlZoneMult      = 2.0;      // Grave buffer (× zone depth; 2.0 tuned on real ticks)
@@ -68,7 +68,7 @@ input double InpTrailStartR     = 0.5;      // Start trail after this many R
 input double InpTrailDistR      = 0.5;      // Trail distance (R behind best)
 
 input group "=== Debug (commission sim) ==="
-input bool   InpSimCommission      = true;  // Strategy Tester only (ignored live)
+input bool   InpSimCommission      = false; // Strategy Tester only (ignored live)
 input double InpCommissionPerLot   = 3.5;   // USD per lot per side (Exness Raw ≈ 3.5)
 
 bool YssSymbolAllowed(void)
