@@ -1,0 +1,60 @@
+{
+    "trades":  [
+                   {
+                       "id":  113,
+                       "side":  "sell",
+                       "volume":  44.91,
+                       "openTime":  "2022.04.13 01:00:05",
+                       "closeTime":  "2022.04.13 01:04:11",
+                       "openPrice":  1964.83,
+                       "closePrice":  1964.915,
+                       "profit":  -381.74,
+                       "balance":  114791.87,
+                       "comment":  "YSS M5 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  115,
+                       "side":  "buy",
+                       "volume":  18.03,
+                       "openTime":  "2022.04.21 13:01:23",
+                       "closeTime":  "2022.04.21 13:06:04",
+                       "openPrice":  1947.29,
+                       "closePrice":  1948.986,
+                       "profit":  3057.89,
+                       "balance":  117849.76,
+                       "comment":  "YSS M5 demand",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  117,
+                       "side":  "buy",
+                       "volume":  32.14,
+                       "openTime":  "2022.04.25 22:51:24",
+                       "closeTime":  "2022.04.26 00:10:17",
+                       "openPrice":  1899.61,
+                       "closePrice":  1900.588,
+                       "profit":  2576.34,
+                       "balance":  120426.1,
+                       "comment":  "YSS M5 demand",
+                       "commission":  0,
+                       "swap":  -566.95
+                   },
+                   {
+                       "id":  119,
+                       "side":  "buy",
+                       "volume":  17.55,
+                       "openTime":  "2022.04.28 18:37:20",
+                       "closeTime":  "2022.04.28 18:59:19",
+                       "openPrice":  1890.18,
+                       "closePrice":  1892.467,
+                       "profit":  4013.69,
+                       "balance":  124439.79,
+                       "comment":  "YSS M15 demand",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

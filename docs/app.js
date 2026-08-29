@@ -29,7 +29,7 @@ function monthNet(m) {
 }
 
 let DATA = null;
-let standId = "mtf_healthy";
+let standId = "mtf_200";
 let equityChart = null;
 let months = [];
 let monthIdx = 0;
@@ -539,7 +539,7 @@ function closeHistoryModal() {
   document.body.classList.remove("modal-open");
 }
 async function setStand(id) {
-  standId = id || "mtf_healthy";
+  standId = id || "mtf_200";
   months = await loadMonths(stand());
   monthIdx = Math.max(0, months.length - 1);
   page = 0;
@@ -627,7 +627,7 @@ function wireEvents() {
 
 async function boot() {
   await loadStands();
-  standId = DATA.defaultStand || "mtf_healthy";
+  standId = DATA.defaultStand || "mtf_200";
   wireEvents();
   await setStand(standId);
 }

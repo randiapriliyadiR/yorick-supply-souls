@@ -157,8 +157,29 @@ function Write-JsonFile {
   [IO.File]::WriteAllText($Path, $json, [Text.UTF8Encoding]::new($false))
 }
 
+function Convert-TradeSummary {
+  param($Trade)
+  if ($null -eq $Trade) { return $null }
+  return [ordered]@{
+    id = $Trade.id
+    side = $Trade.side
+    volume = $Trade.volume
+    openTime = $Trade.openTime
+    closeTime = $Trade.closeTime
+    openPrice = $Trade.openPrice
+    closePrice = $Trade.closePrice
+    profit = $Trade.profit
+    balance = $Trade.balance
+    comment = $Trade.comment
+    commission = $Trade.commission
+    swap = $Trade.swap
+  }
+}
+
 function Update-StandsJson {
   param([string]$StandsPath, [string]$StandId, [hashtable]$StandEntry, [bool]$ReplaceCatalog)
+  # Round-trip through JSON so nested trade extremes survive PSCustomObject casts.
+  $entryObj = ($StandEntry | ConvertTo-Json -Depth 20 | ConvertFrom-Json)
   if ((-not $ReplaceCatalog) -and (Test-Path -LiteralPath $StandsPath)) {
     $catalog = Get-Content -LiteralPath $StandsPath -Raw -Encoding UTF8 | ConvertFrom-Json
   } else {
@@ -168,10 +189,10 @@ function Update-StandsJson {
   $found = $false
   foreach ($s in @($catalog.stands)) {
     if ($null -eq $s) { continue }
-    if ($s.id -eq $StandId) { $standsList.Add([pscustomobject]$StandEntry); $found = $true }
+    if ($s.id -eq $StandId) { $standsList.Add($entryObj); $found = $true }
     else { $standsList.Add($s) }
   }
-  if (-not $found) { $standsList.Add([pscustomobject]$StandEntry) }
+  if (-not $found) { $standsList.Add($entryObj) }
   $out = [pscustomobject]@{
     version="1.11.0"; updated=(Get-Date -Format "yyyy-MM-dd")
     defaultStand= if ($ReplaceCatalog) { $StandId } elseif ($catalog.defaultStand) { $catalog.defaultStand } else { $StandId }
@@ -211,13 +232,25 @@ $months = $monthKeys
 $equityPoints = New-Object System.Collections.Generic.List[object]
 foreach ($t in $trades) { $equityPoints.Add([pscustomobject]@{ t = $t.closeTime; b = $t.balance }) }
 Write-JsonFile -Path (Join-Path $standDir "equity.json") -Object @{ points = $equityPoints.ToArray() }
+
+$bestWin = $null
+$worstLoss = $null
+foreach ($t in $trades) {
+  if ($null -eq $bestWin -or [double]$t.profit -gt [double]$bestWin.profit) { $bestWin = $t }
+  if ($null -eq $worstLoss -or [double]$t.profit -lt [double]$worstLoss.profit) { $worstLoss = $t }
+}
+
 $standEntry = @{
   id=$StandId; label= if ($Label) { $Label } else { $StandId }; symbol=$summary.symbol
   period= if ($Period) { $Period } else { "M5" }; deposit=$Deposit; risk=$Risk
   guard= if ($GuardLabel) { $GuardLabel } else { "" }; from=$summary.from; to=$summary.to
   model=$ModelLabel; broker=$Broker; net=[math]::Round($summary.net, 2)
+  returnPct= if ($Deposit -gt 0) { [math]::Round(100.0 * $summary.net / $Deposit, 1) } else { 0 }
   profitFactor=[math]::Round($summary.profitFactor, 2); equityDdPct=[math]::Round($summary.equityDdPct, 2)
-  trades=$trades.Count; winRate=$summary.winRate; equity="$StandId/equity.json"; months="$StandId/months.json"; tradesDir="$StandId/trades"
+  trades=$trades.Count; winRate=$summary.winRate
+  equity="$StandId/equity.json"; months="$StandId/months.json"; tradesDir="$StandId/trades"
+  bestWin=(Convert-TradeSummary $bestWin)
+  worstLoss=(Convert-TradeSummary $worstLoss)
 }
 Update-StandsJson -StandsPath (Join-Path $DocsData "stands.json") -StandId $StandId -StandEntry $standEntry -ReplaceCatalog:$ReplaceCatalog
 Write-Host "Exported $($trades.Count) trades across $($months.Count) months -> $standDir"
