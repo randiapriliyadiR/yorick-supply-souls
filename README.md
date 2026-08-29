@@ -11,14 +11,14 @@
 
 **URL:** [randiapriliyadir.github.io/yorick-supply-souls](https://randiapriliyadir.github.io/yorick-supply-souls/)
 
-Interactive backtest explorer on **Exness real ticks** (`XAUUSD_Exness`, Model 4) with commission sim ($3.5/lot/side).
+Interactive backtest explorer on **Exness real ticks** (`XAUUSD_Exness`, Model 4) with commission sim ($3.5/lot/side). Lab deposit: **$200**.
 
-| Stand | Risk | Net | Return | PF | Equity DD | WR | Trades |
-|---|---:|---:|---:|---:|---:|---:|---:|
-| **Best (default)** | 0.5% | +$83,238 | **+83%** | 1.29 | **25.2%** | **53%** | **153** |
-| Growth | 1% | +$209,032 | +209% | 1.31 | 28.8% | **53%** | **153** |
+| Stand | Deposit | Risk | Net | Return | PF | Equity DD | WR | Trades |
+|---|---:|---:|---:|---:|---:|---:|---:|---:|
+| **Best (default)** | $200 | 0.5% | +$126 | **+63%** | 1.26 | **25.7%** | **53%** | **153** |
+| Growth | $200 | 1% | +$282 | +141% | 1.22 | 46.9% | **53%** | **153** |
 
-Same filters: H4 trend, zones M5+M15, **Slow ON**, **MinRR OFF**, **SL ×2.0**, Guard BEP/trail **0.5R**. Confirmed re-run: `YorickSoS_best_final`.
+Same filters: **H4 trend** (beats D1), zones **M5+M15** (adding M30+H1 hurt), Slow ON, MinRR OFF, SL ×2.0, Guard 0.5R.
 
 ## What it is
 
@@ -34,6 +34,7 @@ Same filters: H4 trend, zones M5+M15, **Slow ON**, **MinRR OFF**, **SL ×2.0**, 
 | Entry zones | **M5, M15** |
 | Position mode | 1 position global |
 | Soul budget | **0.5%** of balance |
+| Lab deposit | **$200** (challenging small-account stand) |
 | Gates | Trend + BOS + FVG + **Slow** (MinRR off) |
 | SL buffer | **SlZoneMult = 2.0** (1× zone depth outside zone) |
 | Grave Guard | **ON** — BEP / trail at **0.5R** |

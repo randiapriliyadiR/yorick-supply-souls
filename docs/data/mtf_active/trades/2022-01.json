@@ -3,13 +3,13 @@
                    {
                        "id":  89,
                        "side":  "buy",
-                       "volume":  53.73,
+                       "volume":  0.09,
                        "openTime":  "2022.01.05 03:53:37",
                        "closeTime":  "2022.01.05 06:16:20",
                        "openPrice":  1815.63,
                        "closePrice":  1816.461,
-                       "profit":  4464.96,
-                       "balance":  135040.06,
+                       "profit":  7.48,
+                       "balance":  232.96,
                        "comment":  "YSS M15 demand",
                        "commission":  0,
                        "swap":  0
