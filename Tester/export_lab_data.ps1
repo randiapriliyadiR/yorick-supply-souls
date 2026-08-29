@@ -196,11 +196,18 @@ foreach ($t in $trades) {
   if (-not $byMonth.ContainsKey($month)) { $byMonth[$month] = New-Object System.Collections.Generic.List[object] }
   $byMonth[$month].Add($t)
 }
-$months = @($byMonth.Keys | Sort-Object)
-Write-JsonFile -Path (Join-Path $standDir "months.json") -Object @{ months = $months }
-foreach ($month in $months) {
+$monthKeys = @($byMonth.Keys | Sort-Object)
+$monthSummaries = foreach ($month in $monthKeys) {
+  $list = $byMonth[$month]
+  $net = 0.0
+  foreach ($t in $list) { $net += [double]$t.profit }
+  [pscustomobject]@{ id = $month; net = [math]::Round($net, 2); trades = $list.Count }
+}
+Write-JsonFile -Path (Join-Path $standDir "months.json") -Object @{ months = @($monthSummaries) }
+foreach ($month in $monthKeys) {
   Write-JsonFile -Path (Join-Path $tradesDir "$month.json") -Object @{ trades = $byMonth[$month].ToArray() }
 }
+$months = $monthKeys
 $equityPoints = New-Object System.Collections.Generic.List[object]
 foreach ($t in $trades) { $equityPoints.Add([pscustomobject]@{ t = $t.closeTime; b = $t.balance }) }
 Write-JsonFile -Path (Join-Path $standDir "equity.json") -Object @{ points = $equityPoints.ToArray() }

@@ -7,7 +7,26 @@ const money = (n) => {
   if (n < 0) return "-$" + s;
   return "$" + s;
 };
+const moneyShort = (n) => {
+  if (n == null || Number.isNaN(n)) return "\u2014";
+  const abs = Math.abs(n);
+  let body;
+  if (abs >= 10000) body = Math.round(abs / 1000) + "k";
+  else if (abs >= 1000) body = (abs / 1000).toFixed(1).replace(/\.0$/, "") + "k";
+  else body = Math.round(abs).toString();
+  if (n > 0) return "+$" + body;
+  if (n < 0) return "-$" + body;
+  return "$0";
+};
 const pct = (n) => (n == null ? "\u2014" : n.toFixed(1) + "%");
+
+function monthKey(m) {
+  return typeof m === "string" ? m : m && m.id ? m.id : "";
+}
+function monthNet(m) {
+  if (m == null || typeof m === "string") return null;
+  return typeof m.net === "number" ? m.net : null;
+}
 
 let DATA = null;
 let standId = "mtf_healthy";
@@ -35,13 +54,22 @@ async function loadEquity(s) {
 
 async function loadMonths(s) {
   const data = await (await fetch("./data/" + s.months)).json();
-  return data.months || [];
+  const raw = data.months || [];
+  return raw.map((m) => {
+    if (typeof m === "string") return { id: m, net: null, trades: null };
+    return {
+      id: m.id || m.month || "",
+      net: typeof m.net === "number" ? m.net : null,
+      trades: typeof m.trades === "number" ? m.trades : null,
+    };
+  });
 }
 
 async function loadMonthTrades(s, yyyyMm) {
-  const key = s.id + "/" + yyyyMm;
+  const id = monthKey(yyyyMm);
+  const key = s.id + "/" + id;
   if (monthCache.has(key)) return monthCache.get(key);
-  const url = "./data/" + s.tradesDir + "/" + yyyyMm + ".json";
+  const url = "./data/" + s.tradesDir + "/" + id + ".json";
   const data = await (await fetch(url)).json();
   const trades = data.trades || [];
   monthCache.set(key, trades);
@@ -348,7 +376,7 @@ function renderCalendar() {
   const grid = document.getElementById("cal-grid");
   const prev = document.getElementById("cal-prev");
   const next = document.getElementById("cal-next");
-  const current = months[monthIdx] || "";
+  const current = monthKey(months[monthIdx]);
 
   if (label) label.textContent = current || "\u2014";
   if (prev) prev.disabled = monthIdx <= 0;
@@ -357,14 +385,35 @@ function renderCalendar() {
   if (!grid) return;
   grid.innerHTML = months
     .map((m, i) => {
+      const id = monthKey(m);
+      const net = monthNet(m);
       const active = i === monthIdx ? " active" : "";
+      let tone = "";
+      if (net != null) {
+        if (net > 0) tone = " profit";
+        else if (net < 0) tone = " loss";
+        else tone = " flat";
+      }
+      const totalHtml =
+        net == null
+          ? ""
+          : '<span class="cal-total">' + moneyShort(net) + "</span>";
+      const countHtml =
+        m && typeof m.trades === "number"
+          ? '<span class="cal-count">' + m.trades + "t</span>"
+          : "";
       return (
         '<button type="button" class="cal-cell has' +
+        tone +
         active +
         '" data-month-idx="' +
         i +
         '">' +
-        m +
+        '<span class="cal-id">' +
+        id +
+        "</span>" +
+        totalHtml +
+        countHtml +
         "</button>"
       );
     })
@@ -475,7 +524,7 @@ function openHistoryModal() {
   const title = document.getElementById("history-modal-title");
   if (title) {
     title.textContent =
-      "Trade history \u00b7 " + (months[monthIdx] || standId);
+      "Trade history \u00b7 " + (monthKey(months[monthIdx]) || standId);
   }
   modal.hidden = false;
   modal.setAttribute("aria-hidden", "false");
@@ -522,7 +571,7 @@ async function setMonthByIndex(i, openModal) {
     const title = document.getElementById("history-modal-title");
     if (title) {
       title.textContent =
-        "Trade history \u00b7 " + (months[monthIdx] || standId);
+        "Trade history \u00b7 " + (monthKey(months[monthIdx]) || standId);
     }
   }
 }

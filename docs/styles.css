@@ -355,10 +355,41 @@ tr.shipped td:first-child::after {
 .lab-bar .seg { margin-bottom: 0; }
 .cal-nav { display:flex; align-items:center; justify-content:center; gap:1rem; margin-bottom:1rem; }
 .cal-nav button { appearance:none; border:1px solid var(--line); background:transparent; color:var(--text); width:2.5rem; height:2.5rem; cursor:pointer; font-size:1.25rem; }
-.cal-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(4.5rem,1fr)); gap:0.5rem; margin-bottom:0.5rem; }
-.cal-cell { border:1px solid var(--line); padding:0.55rem 0.25rem; text-align:center; cursor:pointer; color:var(--mute); background:transparent; font:inherit; }
+.cal-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(5.6rem,1fr)); gap:0.5rem; margin-bottom:0.5rem; }
+.cal-cell {
+  border:1px solid var(--line);
+  padding:0.55rem 0.35rem 0.45rem;
+  text-align:center;
+  cursor:pointer;
+  color:var(--mute);
+  background:transparent;
+  font:inherit;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:0.15rem;
+  min-height:4.1rem;
+}
 .cal-cell.has { color:var(--text); }
-.cal-cell.active { border-color:var(--gold); background:rgba(201,162,39,0.15); color:var(--gold-soft); }
+.cal-cell .cal-id { font-size:0.72rem; letter-spacing:0.02em; color:var(--mute); }
+.cal-cell .cal-total { font-size:0.82rem; font-weight:700; line-height:1.15; }
+.cal-cell .cal-count { font-size:0.65rem; color:var(--mute); }
+.cal-cell.profit {
+  border-color: rgba(111, 191, 138, 0.45);
+  background: rgba(111, 191, 138, 0.12);
+}
+.cal-cell.profit .cal-total { color: var(--up); }
+.cal-cell.loss {
+  border-color: rgba(216, 107, 92, 0.45);
+  background: rgba(216, 107, 92, 0.12);
+}
+.cal-cell.loss .cal-total { color: var(--down); }
+.cal-cell.flat .cal-total { color: var(--mute); }
+.cal-cell.active {
+  border-color:var(--gold);
+  box-shadow: inset 0 0 0 1px rgba(201,162,39,0.35);
+}
+.cal-cell.active .cal-id { color:var(--gold-soft); }
 .cal-cell:disabled { opacity:0.35; cursor:default; }
 .history-layout { display:grid; gap:1.25rem; }
 @media (min-width:900px) {
