@@ -4,8 +4,9 @@ Load in MT5: attach EA → Inputs → Load → pick a file from this folder.
 
 | File | Account / ticks | Notes |
 |------|-----------------|-------|
-| `YorickSoS_XAU_RawBest.set` | `XAUUSD_Exness` Raw + $3.5/lot/side | SlowMax **0.8**, ATR regime 1.5, Guard 0.5R |
-| `YorickSoS_XAU_ProBest.set` | `XAUUSD_ExnessPro` Pro spread-in | SlowMax **0.7**, no commission sim, ATR regime 1.5 |
-| `YorickSoS_EUR_ProBest.set` | `EURUSD_ExnessPro` Pro spread-in | Chart **M15**, zones M15, Slow **OFF**, Slx **3.5**, MinRR **1.8** |
+| `YorickSoS_XAU_RawBest.set` | `XAUUSD_Exness` Raw + $3.5/lot/side | SlowMax **0.8** |
+| `YorickSoS_XAU_ProBest.set` | `XAUUSD_ExnessPro` | SlowMax **0.7** |
+| `YorickSoS_EUR_ProBest.set` | `EURUSD_ExnessPro` | M15 · Risk **1.5%** · MinRR **1.5** · Slx **3.5** (~+42% / DD ~18%) |
+| `YorickSoS_EUR_ProSafe.set` | `EURUSD_ExnessPro` | Same stack, Risk **0.5%** · MinRR **1.8** (~+9% / DD ~3%) |
 
-`USTEC_ExnessPro` ticks are imported; no shippable edge yet (and `$200` cannot size min-lot CFD stops). Tune continues before a USTEC `.set`.
+USTEC Pro: ticks imported; small-TF sizing experiments ongoing.

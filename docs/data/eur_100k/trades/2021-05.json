@@ -1,32 +1,32 @@
 {
     "trades":  [
                    {
-                       "id":  27,
+                       "id":  31,
                        "side":  "sell",
-                       "volume":  2.18,
-                       "openTime":  "2021.05.13 12:39:59",
-                       "closeTime":  "2021.05.13 13:53:55",
-                       "openPrice":  1.20929,
-                       "closePrice":  1.20934,
-                       "profit":  -10.9,
-                       "balance":  100954.89,
+                       "volume":  6.07,
+                       "openTime":  "2021.05.13 12:31:19",
+                       "closeTime":  "2021.05.13 16:49:12",
+                       "openPrice":  1.20901,
+                       "closePrice":  1.20908,
+                       "profit":  -42.49,
+                       "balance":  104841.15,
                        "comment":  "YSS M15 supply",
                        "commission":  0,
                        "swap":  0
                    },
                    {
-                       "id":  29,
+                       "id":  33,
                        "side":  "sell",
-                       "volume":  4.07,
-                       "openTime":  "2021.05.13 19:37:07",
-                       "closeTime":  "2021.05.14 02:05:51",
-                       "openPrice":  1.20847,
-                       "closePrice":  1.20852,
-                       "profit":  -24.42,
-                       "balance":  100930.47,
+                       "volume":  11.47,
+                       "openTime":  "2021.05.13 19:30:38",
+                       "closeTime":  "2021.05.14 01:40:36",
+                       "openPrice":  1.20834,
+                       "closePrice":  1.20839,
+                       "profit":  -68.82,
+                       "balance":  104772.33,
                        "comment":  "YSS M15 supply",
                        "commission":  0,
-                       "swap":  -4.07
+                       "swap":  -11.47
                    }
                ]
 }

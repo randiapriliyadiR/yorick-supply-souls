@@ -1,0 +1,60 @@
+{
+    "trades":  [
+                   {
+                       "id":  133,
+                       "side":  "sell",
+                       "volume":  0.02,
+                       "openTime":  "2022.02.07 08:29:21",
+                       "closeTime":  "2022.02.07 08:44:48",
+                       "openPrice":  1.14448,
+                       "closePrice":  1.14454,
+                       "profit":  -0.12,
+                       "balance":  212.41,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  135,
+                       "side":  "sell",
+                       "volume":  0.01,
+                       "openTime":  "2022.02.21 03:25:36",
+                       "closeTime":  "2022.02.21 08:01:41",
+                       "openPrice":  1.1362,
+                       "closePrice":  1.13797,
+                       "profit":  -1.77,
+                       "balance":  210.64,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  137,
+                       "side":  "sell",
+                       "volume":  0.01,
+                       "openTime":  "2022.02.22 10:51:55",
+                       "closeTime":  "2022.02.22 12:17:17",
+                       "openPrice":  1.13552,
+                       "closePrice":  1.13557,
+                       "profit":  -0.05,
+                       "balance":  210.59,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  139,
+                       "side":  "sell",
+                       "volume":  0.02,
+                       "openTime":  "2022.02.25 07:45:17",
+                       "closeTime":  "2022.02.25 08:09:47",
+                       "openPrice":  1.12169,
+                       "closePrice":  1.11969,
+                       "profit":  4,
+                       "balance":  214.59,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

@@ -1,13 +1,13 @@
-﻿; Yorick Supply of Souls — best Exness Pro EURUSD
+﻿; Yorick Supply of Souls — best Exness Pro EURUSD (aggressive)
 ; Symbol: EURUSD_ExnessPro | Model 4 | 2021.01.01-2025.12.31
-; Verified: +8.6% / PF 1.34 / DD 3.2% ($200); +8.8% / PF 1.17 / DD 6.8% ($100k)
-; Diff vs XAU Pro: chart M15, zones M15 only, Slow OFF, Slx 3.5, MinRR 1.8
+; Verified: +42% / PF 1.23 / DD 18% ($200); +42% / PF 1.19 / DD 20% ($100k)
+; Prior conservative: Risk 0.5 + MinRR 1.8 (~+9% / DD 3%)
 InpSymbol=EURUSD||EURUSD||0||N||N
 InpTF=15||15||0||N||N
 InpTrendTF=16388||16388||0||N||N
 InpZoneTFs=M15||M15||0||N||N
 InpOnePosPerTf=false||false||0||N||N
-InpRiskPct=0.5||0.5||0.010000||100.000000||0.010000||N
+InpRiskPct=1.5||1.5||0.010000||100.000000||0.010000||N
 InpQualityMode=0||0||0||N||N
 InpRiskMinPct=0.5||0.5||0.010000||100.000000||0.010000||N
 InpRiskMaxPct=2.0||2.0||0.010000||100.000000||0.010000||N
@@ -30,7 +30,7 @@ InpSlZoneMult=3.5||3.5||0.010000||10.000000||0.010000||N
 InpRequireTrend=true||true||0||N||N
 InpTrendOnZoneTf=false||false||0||N||N
 InpRequireMinRr=true||true||0||N||N
-InpMinRiskReward=1.8||1.8||0.010000||20.000000||0.010000||N
+InpMinRiskReward=1.5||1.5||0.010000||20.000000||0.010000||N
 InpUseAtrRegime=true||true||0||N||N
 InpAtrRegimeBars=50||50||1||N||N
 InpAtrRegimeMult=1.5||1.5||0.010000||10.000000||0.010000||N
