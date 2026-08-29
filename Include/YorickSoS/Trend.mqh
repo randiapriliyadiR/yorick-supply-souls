@@ -19,7 +19,7 @@ int YssTrendBias(const string symbol,
    int lo = 0;
 
    const int start = lookback - strength;
-   const int stop  = strength + 1;
+   const int stop = strength + 1;
    if(start <= stop)
       return 0;
 
@@ -64,3 +64,4 @@ bool YssTrendGateAllows(const int zoneDir, const int trendBias, const bool requi
   }
 
 #endif
+//+------------------------------------------------------------------+

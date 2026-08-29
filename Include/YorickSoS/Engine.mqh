@@ -266,12 +266,13 @@ void YssTryEnterOne(const int tfIdx, const double ask, const double bid)
    const ENUM_YSS_APPROACH app = YssClassifyApproach(g_yss_cfg, z, zoneAtr);
    g_yss_view.approach = app;
 
-   if(!YssSeriesLoad(g_yss_cfg.symbol, g_yss_cfg.trendTf, g_yss_cfg.lookback + 5))
+   const ENUM_TIMEFRAMES trendTf = (g_yss_cfg.trendOnZoneTf ? z.zoneTf : g_yss_cfg.trendTf);
+   if(!YssSeriesLoad(g_yss_cfg.symbol, trendTf, g_yss_cfg.lookback + 5))
      {
       g_yss_view.reason = "trend series fail";
       return;
      }
-   const int trendBias = YssTrendBias(g_yss_cfg.symbol, g_yss_cfg.trendTf,
+   const int trendBias = YssTrendBias(g_yss_cfg.symbol, trendTf,
                                       g_yss_cfg.swingStrength, g_yss_cfg.lookback);
    if(!YssTrendGateAllows(z.dir, trendBias, g_yss_cfg.requireTrend))
      {

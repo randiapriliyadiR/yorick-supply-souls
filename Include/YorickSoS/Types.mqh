@@ -68,6 +68,7 @@ struct SYssCfg
    double          trailStartR;
    double          trailDistR;
    bool            requireTrend;
+   bool            trendOnZoneTf;     // true=HH/HL on entry zone TF; false=use trendTf
    bool            requireMinRr;
    double          minRiskReward;
    bool            simCommission;     // Strategy Tester only

@@ -29,6 +29,7 @@ param(
   [double]$SlZoneMult = 2.5,
   [string]$UseGuard = "true",
   [string]$RequireTrend = "false",
+  [string]$TrendOnZoneTf = "false",
   [string]$RequireMinRr = "false",
   [double]$MinRiskReward = 2.5,
   [double]$BeTriggerR = 1.0,
@@ -165,6 +166,11 @@ if ($ini -match "(?m)^InpRequireTrend=") {
 } else {
   $ini = $ini.TrimEnd() + "`r`nInpRequireTrend=$RequireTrend`r`nInpRequireMinRr=$RequireMinRr`r`nInpMinRiskReward=$rrStr`r`n"
 }
+if ($ini -match "(?m)^InpTrendOnZoneTf=") {
+  $ini = $ini -replace "(?m)^InpTrendOnZoneTf=.*$", "InpTrendOnZoneTf=$TrendOnZoneTf"
+} else {
+  $ini = $ini.TrimEnd() + "`r`nInpTrendOnZoneTf=$TrendOnZoneTf`r`n"
+}
 $commStr = $CommissionPerLot.ToString($inv)
 if ($ini -match "(?m)^InpSimCommission=") {
   $ini = $ini -replace "(?m)^InpSimCommission=.*$", "InpSimCommission=$SimCommission"
@@ -189,7 +195,7 @@ Start-Sleep -Seconds 2
 
 Write-Host "== Launch Strategy Tester (headless) =="
 Write-Host "Config: $IniRun"
-Write-Host "Range: $FromDate -> $ToDate | Deposit=$Deposit | Model=$Model | $Period $Symbol | trendTF=$TrendTF zones=$ZoneTFs onePosPerTf=$OnePosPerTf | risk=$riskStr% | imp=$impStr body=$bodyStr fvg=$RequireFvg slow=$RequireSlow slx=$slStr trend=$RequireTrend rr=$RequireMinRr($rrStr) | guard=$UseGuard | comm=$SimCommission($commStr)"
+Write-Host "Range: $FromDate -> $ToDate | Deposit=$Deposit | Model=$Model | $Period $Symbol | trendTF=$TrendTF zoneTrend=$TrendOnZoneTf zones=$ZoneTFs onePosPerTf=$OnePosPerTf | risk=$riskStr% | imp=$impStr body=$bodyStr fvg=$RequireFvg slow=$RequireSlow slx=$slStr trend=$RequireTrend rr=$RequireMinRr($rrStr) | guard=$UseGuard | comm=$SimCommission($commStr)"
 $before = Get-Date
 $p = Start-Process -FilePath $TerminalExe -ArgumentList "/config:`"$IniRun`"" -PassThru
 
@@ -234,7 +240,7 @@ function Get-Stat([string]$label) {
 
 $lines = @(
   "Report: $reportPath",
-  "Symbol=$Symbol Period=$Period TrendTF=$TrendTF ZoneTFs=$ZoneTFs OnePosPerTf=$OnePosPerTf Deposit=$Deposit Model=$Model",
+  "Symbol=$Symbol Period=$Period TrendTF=$TrendTF TrendOnZoneTf=$TrendOnZoneTf ZoneTFs=$ZoneTFs OnePosPerTf=$OnePosPerTf Deposit=$Deposit Model=$Model",
   "Risk=$riskStr Impulse=$impStr Body=$bodyStr Bos=$RequireBos Fvg=$RequireFvg Slow=$RequireSlow SlowMax=$slowStr Slx=$slStr Trend=$RequireTrend MinRr=$RequireMinRr Rr=$rrStr Guard=$UseGuard Comm=$SimCommission($commStr)",
   "From=$FromDate To=$ToDate",
   "Total Net Profit: $(Get-Stat 'Total Net Profit')",

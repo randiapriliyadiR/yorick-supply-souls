@@ -51,6 +51,7 @@ input double InpSlZoneMult      = 2.0;      // Grave buffer (× zone depth; 2.0 
 
 input group "=== Structure filters (video 2) ==="
 input bool   InpRequireTrend    = true;     // Demand in uptrend, supply in downtrend
+input bool   InpTrendOnZoneTf   = false;    // true=HH/HL on entry TF; false=use Trend TF (H4)
 input bool   InpRequireMinRr     = false;    // Skip if reward/risk too low (OFF = usable frequency)
 input double InpMinRiskReward   = 2.5;      // Minimum TP distance vs SL (R)
 
@@ -133,6 +134,7 @@ int OnInit()
    g_yss_cfg.minApproachBars = InpMinApproachBars;
    g_yss_cfg.slZoneMult      = InpSlZoneMult;
    g_yss_cfg.requireTrend    = InpRequireTrend;
+   g_yss_cfg.trendOnZoneTf   = InpTrendOnZoneTf;
    g_yss_cfg.requireMinRr    = InpRequireMinRr;
    g_yss_cfg.minRiskReward   = InpMinRiskReward;
    g_yss_cfg.useGuard        = InpUseGuard;
