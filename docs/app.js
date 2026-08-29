@@ -55,7 +55,7 @@ async function loadEquity(s) {
 async function loadMonths(s) {
   const data = await (await fetch("./data/" + s.months)).json();
   const raw = data.months || [];
-  return raw.map((m) => {
+  const sparse = raw.map((m) => {
     if (typeof m === "string") return { id: m, net: null, trades: null };
     return {
       id: m.id || m.month || "",
@@ -63,6 +63,7 @@ async function loadMonths(s) {
       trades: typeof m.trades === "number" ? m.trades : null,
     };
   });
+  return fillAllMonths(sparse, s.from, s.to);
 }
 
 async function loadMonthTrades(s, yyyyMm) {
@@ -70,10 +71,59 @@ async function loadMonthTrades(s, yyyyMm) {
   const key = s.id + "/" + id;
   if (monthCache.has(key)) return monthCache.get(key);
   const url = "./data/" + s.tradesDir + "/" + id + ".json";
-  const data = await (await fetch(url)).json();
-  const trades = data.trades || [];
-  monthCache.set(key, trades);
-  return trades;
+  try {
+    const res = await fetch(url);
+    if (!res.ok) {
+      monthCache.set(key, []);
+      return [];
+    }
+    const data = await res.json();
+    const trades = data.trades || [];
+    monthCache.set(key, trades);
+    return trades;
+  } catch (e) {
+    monthCache.set(key, []);
+    return [];
+  }
+}
+
+function toYearMonth(raw) {
+  if (!raw) return null;
+  const s = String(raw).trim();
+  let m = s.match(/^(\d{4})[.\-](\d{2})/);
+  if (m) return m[1] + "-" + m[2];
+  m = s.match(/^(\d{4})(\d{2})$/);
+  if (m) return m[1] + "-" + m[2];
+  return null;
+}
+
+function fillAllMonths(sparse, fromRaw, toRaw) {
+  const byId = new Map();
+  for (const m of sparse) {
+    if (m && m.id) byId.set(m.id, m);
+  }
+  let start = toYearMonth(fromRaw);
+  let end = toYearMonth(toRaw);
+  if (!start || !end) {
+    const ids = sparse.map((m) => m.id).filter(Boolean).sort();
+    if (!ids.length) return sparse;
+    start = start || ids[0];
+    end = end || ids[ids.length - 1];
+  }
+  const out = [];
+  let [y, mo] = start.split("-").map(Number);
+  const [ey, emo] = end.split("-").map(Number);
+  while (y < ey || (y === ey && mo <= emo)) {
+    const id = y + "-" + String(mo).padStart(2, "0");
+    if (byId.has(id)) out.push(byId.get(id));
+    else out.push({ id: id, net: 0, trades: 0 });
+    mo += 1;
+    if (mo > 12) {
+      mo = 1;
+      y += 1;
+    }
+  }
+  return out;
 }
 
 function extremeCard(kind, trade) {
@@ -388,7 +438,7 @@ function renderCalendar() {
       const id = monthKey(m);
       const net = monthNet(m);
       const active = i === monthIdx ? " active" : "";
-      let tone = "";
+      let tone = " empty";
       if (net != null) {
         if (net > 0) tone = " profit";
         else if (net < 0) tone = " loss";
@@ -405,8 +455,10 @@ function renderCalendar() {
             (m.trades === 1 ? " trade" : " trades") +
             "</span>"
           : "";
+      const emptyCls = m && m.trades === 0 ? " empty" : " has";
       return (
-        '<button type="button" class="cal-cell has' +
+        '<button type="button" class="cal-cell' +
+        emptyCls +
         tone +
         active +
         '" data-month-idx="' +

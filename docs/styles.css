@@ -371,6 +371,8 @@ tr.shipped td:first-child::after {
   min-height:4.1rem;
 }
 .cal-cell.has { color:var(--text); }
+.cal-cell.empty { opacity: 0.72; }
+.cal-cell.empty .cal-total { color: var(--mute); }
 .cal-cell .cal-id { font-size:0.72rem; letter-spacing:0.02em; color:var(--mute); }
 .cal-cell .cal-total { font-size:0.82rem; font-weight:700; line-height:1.15; }
 .cal-cell .cal-count { font-size:0.65rem; color:var(--mute); }
