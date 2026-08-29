@@ -14,7 +14,7 @@
 #define YSS_PNL_ROW      17
 #define YSS_PNL_TITLE_H  22
 #define YSS_PNL_WIDTH    392
-#define YSS_PNL_ROWS     12
+#define YSS_PNL_ROWS     13
 
 #define YSS_PNL_BG       C'18,16,22'
 #define YSS_PNL_BORDER   C'62,58,72'
@@ -190,6 +190,15 @@ void YssPanelUpdate(void)
    y += YSS_PNL_ROW;
    YssPnlLabel("FVG", tx, y, "FVG       " + fvgTxt, fvgClr, 8, false);
    y += YSS_PNL_ROW;
+   if(YssQualityRiskOn(g_yss_cfg) && z.valid)
+     {
+      YssPnlLabel("SCORE", tx, y,
+                  "SCORE     " + IntegerToString(z.qualityScore) + "/" +
+                  IntegerToString(z.qualityMax) + "  → " +
+                  DoubleToString(z.riskPctUsed, 2) + "% risk",
+                  YSS_PNL_ACCENT, 8, false);
+      y += YSS_PNL_ROW;
+     }
    YssPnlLabel("APP", tx, y, "APPROACH  " + appTxt, appClr, 8, false);
    y += YSS_PNL_ROW;
    YssPnlLabel("POS", tx, y, "POS       " + posTxt +
@@ -202,8 +211,9 @@ void YssPanelUpdate(void)
                "  EQ " + DoubleToString(v.equity, 2),
                YSS_PNL_TITLE, 8, false);
    y += YSS_PNL_ROW;
+   const double riskShow = (v.riskPctUsed > 0.0 ? v.riskPctUsed : g_yss_cfg.riskPct);
    YssPnlLabel("RISK", tx, y,
-               "RISK      " + DoubleToString(g_yss_cfg.riskPct, 1) + "%  $" +
+               "RISK      " + DoubleToString(riskShow, 2) + "%  $" +
                DoubleToString(v.riskMoney, 2) + "  next " +
                DoubleToString(v.nextLots, 2) + " lot",
                YSS_PNL_ACCENT, 8, false);

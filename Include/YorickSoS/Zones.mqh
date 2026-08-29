@@ -167,7 +167,10 @@ bool YssBuildZoneAt(const SYssCfg &cfg,
    const bool hasFvg = (dir > 0
                         ? YssBullishFvgAtBase(symbol, tf, baseShift, fvgTop, fvgBot)
                         : YssBearishFvgAtBase(symbol, tf, baseShift, fvgTop, fvgBot));
-   if(cfg.requireFvg && !hasFvg)
+   // Mode A: FVG soft. Mode C/OFF: hard when requireFvg (C always requires).
+   const bool softFvgBos = (cfg.qualityMode == YSS_QMODE_A);
+   const bool needFvg = softFvgBos ? false : (cfg.qualityMode == YSS_QMODE_C || cfg.requireFvg);
+   if(needFvg && !hasFvg)
       return false;
 
    double swingLvl = 0.0;
@@ -187,7 +190,8 @@ bool YssBuildZoneAt(const SYssCfg &cfg,
                            swingLvl, swingWhen))
          hasBos = YssBosSupply(symbol, tf, first, endShift, swingLvl, bosTime);
      }
-   if(cfg.requireBos && !hasBos)
+   const bool needBos = softFvgBos ? false : (cfg.qualityMode == YSS_QMODE_C || cfg.requireBos);
+   if(needBos && !hasBos)
       return false;
 
    const int peak = YssPeakShift(symbol, tf, first, endShift, dir);
@@ -205,6 +209,9 @@ bool YssBuildZoneAt(const SYssCfg &cfg,
    z.fvgBot = fvgBot;
    z.hasBos = hasBos;
    z.hasFvg = hasFvg;
+   z.impulseAtrRatio = (atr > 0.0 ? disp / atr : 0.0);
+   z.bodyAtrRatio = (atr > 0.0 ? maxBody / atr : 0.0);
+   YssApplyZoneQuality(cfg, z);
    YssFillZoneStops(z, cfg.slZoneMult);
 
    if(z.baseTime == 0 || z.zoneHigh <= z.zoneLow)

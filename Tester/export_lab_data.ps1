@@ -220,7 +220,7 @@ function Update-StandsJson {
   if ((-not $ReplaceCatalog) -and (Test-Path -LiteralPath $StandsPath)) {
     $catalog = Get-Content -LiteralPath $StandsPath -Raw -Encoding UTF8 | ConvertFrom-Json
   } else {
-    $catalog = [pscustomobject]@{ version="1.11.0"; updated=(Get-Date -Format "yyyy-MM-dd"); defaultStand=$StandId; stands=@() }
+    $catalog = [pscustomobject]@{ version="1.12.0"; updated=(Get-Date -Format "yyyy-MM-dd"); defaultStand=$StandId; stands=@() }
   }
   $standsList = [System.Collections.Generic.List[object]]@()
   $found = $false
@@ -231,7 +231,7 @@ function Update-StandsJson {
   }
   if (-not $found) { $standsList.Add($entryObj) }
   $out = [pscustomobject]@{
-    version="1.11.0"; updated=(Get-Date -Format "yyyy-MM-dd")
+    version="1.12.0"; updated=(Get-Date -Format "yyyy-MM-dd")
     defaultStand= if ($ReplaceCatalog) { $StandId } elseif ($catalog.defaultStand) { $catalog.defaultStand } else { $StandId }
     stands=@($standsList)
   }

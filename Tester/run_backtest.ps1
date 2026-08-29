@@ -16,6 +16,9 @@ param(
   [int]$TimeoutSec = 3600,
   [string]$ReportName = "YorickSoS_XAUUSD_M5_100k",
   [double]$RiskPct = 2.0,
+  [string]$QualityMode = "0",
+  [double]$RiskMinPct = 0.5,
+  [double]$RiskMaxPct = 2.0,
   [int]$AtrPeriod = 14,
   [double]$ImpulseAtrMult = 1.25,
   [double]$BodyAtrMult = 0.65,
@@ -32,6 +35,9 @@ param(
   [string]$TrendOnZoneTf = "false",
   [string]$RequireMinRr = "false",
   [double]$MinRiskReward = 2.5,
+  [string]$UseAtrRegime = "true",
+  [int]$AtrRegimeBars = 50,
+  [double]$AtrRegimeMult = 1.5,
   [double]$BeTriggerR = 1.0,
   [double]$TrailStartR = 1.0,
   [double]$TrailDistR = 1.0,
@@ -130,6 +136,8 @@ if ($ini -match "(?m)^InpOnePosPerTf=") {
 }
 $inv = [System.Globalization.CultureInfo]::InvariantCulture
 $riskStr = $RiskPct.ToString($inv)
+$riskMinStr = $RiskMinPct.ToString($inv)
+$riskMaxStr = $RiskMaxPct.ToString($inv)
 $impStr = $ImpulseAtrMult.ToString($inv)
 $bodyStr = $BodyAtrMult.ToString($inv)
 $slowStr = $SlowMaxAtr.ToString($inv)
@@ -139,7 +147,29 @@ $beStr = $BeTriggerR.ToString($inv)
 $tsStr = $TrailStartR.ToString($inv)
 $tdStr = $TrailDistR.ToString($inv)
 $rrStr = $MinRiskReward.ToString($inv)
+$atrRegMultStr = $AtrRegimeMult.ToString($inv)
 $ini = $ini -replace "(?m)^InpRiskPct=.*$", "InpRiskPct=$riskStr"
+# Map aliases: false/true/A/C/off/0/1/2 → enum int
+$qMode = $QualityMode.Trim().ToLowerInvariant()
+switch ($qMode) {
+  { $_ -in @("0","off","false","no") } { $qMode = "0" }
+  { $_ -in @("1","a","true","yes") } { $qMode = "1" }
+  { $_ -in @("2","c") } { $qMode = "2" }
+  default { if ($qMode -notmatch '^[012]$') { throw "QualityMode must be 0/1/2 or off/A/C (got '$QualityMode')" } }
+}
+if ($ini -match "(?m)^InpQualityMode=") {
+  $ini = $ini -replace "(?m)^InpQualityMode=.*$", "InpQualityMode=$qMode"
+} elseif ($ini -match "(?m)^InpUseQualityRisk=") {
+  $ini = $ini -replace "(?m)^InpUseQualityRisk=.*$", "InpQualityMode=$qMode"
+} else {
+  $ini = $ini.TrimEnd() + "`r`nInpQualityMode=$qMode`r`n"
+}
+if ($ini -match "(?m)^InpRiskMinPct=") {
+  $ini = $ini -replace "(?m)^InpRiskMinPct=.*$", "InpRiskMinPct=$riskMinStr"
+  $ini = $ini -replace "(?m)^InpRiskMaxPct=.*$", "InpRiskMaxPct=$riskMaxStr"
+} else {
+  $ini = $ini.TrimEnd() + "`r`nInpRiskMinPct=$riskMinStr`r`nInpRiskMaxPct=$riskMaxStr`r`n"
+}
 $ini = $ini -replace "(?m)^InpAtrPeriod=.*$", "InpAtrPeriod=$AtrPeriod"
 $ini = $ini -replace "(?m)^InpImpulseAtrMult=.*$", "InpImpulseAtrMult=$impStr"
 $ini = $ini -replace "(?m)^InpBodyAtrMult=.*$", "InpBodyAtrMult=$bodyStr"
@@ -165,6 +195,13 @@ if ($ini -match "(?m)^InpRequireTrend=") {
   $ini = $ini -replace "(?m)^InpMinRiskReward=.*$", "InpMinRiskReward=$rrStr"
 } else {
   $ini = $ini.TrimEnd() + "`r`nInpRequireTrend=$RequireTrend`r`nInpRequireMinRr=$RequireMinRr`r`nInpMinRiskReward=$rrStr`r`n"
+}
+if ($ini -match "(?m)^InpUseAtrRegime=") {
+  $ini = $ini -replace "(?m)^InpUseAtrRegime=.*$", "InpUseAtrRegime=$UseAtrRegime"
+  $ini = $ini -replace "(?m)^InpAtrRegimeBars=.*$", "InpAtrRegimeBars=$AtrRegimeBars"
+  $ini = $ini -replace "(?m)^InpAtrRegimeMult=.*$", "InpAtrRegimeMult=$atrRegMultStr"
+} else {
+  $ini = $ini.TrimEnd() + "`r`nInpUseAtrRegime=$UseAtrRegime`r`nInpAtrRegimeBars=$AtrRegimeBars`r`nInpAtrRegimeMult=$atrRegMultStr`r`n"
 }
 if ($ini -match "(?m)^InpTrendOnZoneTf=") {
   $ini = $ini -replace "(?m)^InpTrendOnZoneTf=.*$", "InpTrendOnZoneTf=$TrendOnZoneTf"
@@ -195,7 +232,7 @@ Start-Sleep -Seconds 2
 
 Write-Host "== Launch Strategy Tester (headless) =="
 Write-Host "Config: $IniRun"
-Write-Host "Range: $FromDate -> $ToDate | Deposit=$Deposit | Model=$Model | $Period $Symbol | trendTF=$TrendTF zoneTrend=$TrendOnZoneTf zones=$ZoneTFs onePosPerTf=$OnePosPerTf | risk=$riskStr% | imp=$impStr body=$bodyStr fvg=$RequireFvg slow=$RequireSlow slx=$slStr trend=$RequireTrend rr=$RequireMinRr($rrStr) | guard=$UseGuard | comm=$SimCommission($commStr)"
+Write-Host "Range: $FromDate -> $ToDate | Deposit=$Deposit | Model=$Model | $Period $Symbol | trendTF=$TrendTF zoneTrend=$TrendOnZoneTf zones=$ZoneTFs onePosPerTf=$OnePosPerTf | risk=$riskStr% qMode=$qMode($riskMinStr..$riskMaxStr) atrReg=$UseAtrRegime($AtrRegimeBars x$atrRegMultStr) | imp=$impStr body=$bodyStr fvg=$RequireFvg slow=$RequireSlow slx=$slStr trend=$RequireTrend rr=$RequireMinRr($rrStr) | guard=$UseGuard | comm=$SimCommission($commStr)"
 $before = Get-Date
 $p = Start-Process -FilePath $TerminalExe -ArgumentList "/config:`"$IniRun`"" -PassThru
 
@@ -241,7 +278,7 @@ function Get-Stat([string]$label) {
 $lines = @(
   "Report: $reportPath",
   "Symbol=$Symbol Period=$Period TrendTF=$TrendTF TrendOnZoneTf=$TrendOnZoneTf ZoneTFs=$ZoneTFs OnePosPerTf=$OnePosPerTf Deposit=$Deposit Model=$Model",
-  "Risk=$riskStr Impulse=$impStr Body=$bodyStr Bos=$RequireBos Fvg=$RequireFvg Slow=$RequireSlow SlowMax=$slowStr Slx=$slStr Trend=$RequireTrend MinRr=$RequireMinRr Rr=$rrStr Guard=$UseGuard Comm=$SimCommission($commStr)",
+  "Risk=$riskStr QMode=$qMode($riskMinStr..$riskMaxStr) AtrReg=$UseAtrRegime($AtrRegimeBars x$atrRegMultStr) Impulse=$impStr Body=$bodyStr Bos=$RequireBos Fvg=$RequireFvg Slow=$RequireSlow SlowMax=$slowStr Slx=$slStr Trend=$RequireTrend MinRr=$RequireMinRr Rr=$rrStr Guard=$UseGuard Comm=$SimCommission($commStr)",
   "From=$FromDate To=$ToDate",
   "Total Net Profit: $(Get-Stat 'Total Net Profit')",
   "Gross Profit: $(Get-Stat 'Gross Profit')",

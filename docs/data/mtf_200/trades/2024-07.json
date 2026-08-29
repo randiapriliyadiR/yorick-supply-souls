@@ -1,35 +1,35 @@
 {
     "trades":  [
                    {
-                       "id":  265,
+                       "id":  261,
                        "side":  "sell",
-                       "volume":  0.08,
+                       "volume":  0.09,
                        "openTime":  "2024.07.05 07:10:59",
                        "closeTime":  "2024.07.05 07:23:22",
                        "openPrice":  2364.3,
                        "closePrice":  2362.82,
-                       "profit":  11.84,
-                       "balance":  297.08,
+                       "profit":  13.32,
+                       "balance":  321.16,
                        "comment":  "YSS M5 supply",
                        "commission":  0,
                        "swap":  0
                    },
                    {
-                       "id":  267,
+                       "id":  263,
                        "side":  "buy",
-                       "volume":  0.02,
+                       "volume":  0.03,
                        "openTime":  "2024.07.11 09:49:36",
                        "closeTime":  "2024.07.11 12:30:01",
                        "openPrice":  2382.47,
                        "closePrice":  2386.556,
-                       "profit":  8.17,
-                       "balance":  305.25,
+                       "profit":  12.26,
+                       "balance":  333.42,
                        "comment":  "YSS M15 demand",
                        "commission":  0,
                        "swap":  0
                    },
                    {
-                       "id":  269,
+                       "id":  265,
                        "side":  "buy",
                        "volume":  0.01,
                        "openTime":  "2024.07.19 16:25:50",
@@ -37,7 +37,7 @@
                        "openPrice":  2401.77,
                        "closePrice":  2411.56,
                        "profit":  9.73,
-                       "balance":  314.98,
+                       "balance":  343.15,
                        "comment":  "YSS M15 demand",
                        "commission":  0,
                        "swap":  -0.06

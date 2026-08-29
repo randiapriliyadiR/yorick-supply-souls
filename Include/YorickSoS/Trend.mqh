@@ -4,6 +4,7 @@
 #ifndef YORICKSOS_TREND_MQH
 #define YORICKSOS_TREND_MQH
 
+#include "Types.mqh"
 #include "Swings.mqh"
 
 int YssTrendBias(const string symbol,
@@ -61,6 +62,43 @@ bool YssTrendGateAllows(const int zoneDir, const int trendBias, const bool requi
    if(trendBias == 0)
       return false;
    return ((zoneDir > 0 && trendBias > 0) || (zoneDir < 0 && trendBias < 0));
+  }
+
+// Skip entries when trend-TF ATR is expanded vs its recent mean (chaos / news regime).
+// Uses last closed bar ATR[1] vs mean of ATR[2 .. bars+1]. Fail-open if data missing.
+bool YssAtrRegimeAllows(const SYssCfg &cfg)
+  {
+   if(!cfg.useAtrRegime)
+      return true;
+   if(g_hAtrTrend == INVALID_HANDLE || cfg.atrRegimeBars < 5 || cfg.atrRegimeMult <= 1.0)
+      return true;
+
+   const int need = cfg.atrRegimeBars + 3;
+   double atr[];
+   ArraySetAsSeries(atr, true);
+   if(CopyBuffer(g_hAtrTrend, 0, 0, need, atr) < need)
+      return true;
+
+   const double now = atr[1];
+   if(now <= 0.0)
+      return true;
+
+   double sum = 0.0;
+   int n = 0;
+   for(int i = 2; i < 2 + cfg.atrRegimeBars; i++)
+     {
+      if(atr[i] <= 0.0)
+         continue;
+      sum += atr[i];
+      n++;
+     }
+   if(n < 5)
+      return true;
+   const double mean = sum / (double)n;
+   if(mean <= 0.0)
+      return true;
+   // Extreme expansion only (first experiment)
+   return (now <= mean * cfg.atrRegimeMult);
   }
 
 #endif

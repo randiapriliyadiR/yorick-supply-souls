@@ -39,6 +39,13 @@ string YssTfText(const ENUM_TIMEFRAMES tf)
    return s;
   }
 
+enum ENUM_YSS_QMODE
+  {
+   YSS_QMODE_OFF = 0,   // fixed riskPct; FVG/BOS per require flags
+   YSS_QMODE_A   = 1,   // soft FVG/BOS score (tested: worse)
+   YSS_QMODE_C   = 2    // hard FVG/BOS; extras (strong impulse + pure slow)
+  };
+
 struct SYssCfg
   {
    string          symbol;
@@ -46,7 +53,10 @@ struct SYssCfg
    ENUM_TIMEFRAMES trendTf;
    ENUM_TIMEFRAMES zoneTfs[YSS_MAX_ZONE_TFS];
    int             zoneTfCount;
-   double          riskPct;
+   double          riskPct;           // fixed risk when qualityMode=OFF
+   double          riskMinPct;        // score 0 → this
+   double          riskMaxPct;        // score max → this
+   ENUM_YSS_QMODE  qualityMode;
    ulong           magic;
    ulong           deviation;
    int             maxSpreadPoints;
@@ -71,6 +81,9 @@ struct SYssCfg
    bool            trendOnZoneTf;     // true=HH/HL on entry zone TF; false=use trendTf
    bool            requireMinRr;
    double          minRiskReward;
+   bool            useAtrRegime;      // skip entries when trend-TF ATR is extreme vs its mean
+   int             atrRegimeBars;     // lookback for ATR mean (closed bars)
+   double          atrRegimeMult;     // skip if ATR[1] > mult * mean(ATR)
    bool            simCommission;     // Strategy Tester only
    double          commissionPerLot;  // USD per lot per side (open or close)
    bool            onePosPerTf;       // true=1 pos per entry TF; false=1 pos global
@@ -94,6 +107,11 @@ struct SYssZone
    double   fvgBot;
    bool     hasBos;
    bool     hasFvg;
+   double   impulseAtrRatio; // displacement / ATR at build
+   double   bodyAtrRatio;    // max impulse body / ATR at build
+   int      qualityScore;    // soft / extra points
+   int      qualityMax;
+   double   riskPctUsed;     // effective risk % for this zone
    bool     consumed;
    bool     invalidated;
   };
@@ -111,6 +129,7 @@ struct SYssView
    double            posProfit;
    double            nextLots;
    double            riskMoney;
+   double            riskPctUsed;     // preview / last sized risk %
    double            balance;
    double            equity;
    double            atr;
@@ -129,6 +148,7 @@ ENUM_TIMEFRAMES g_yss_usedTf[YSS_MAX_USED];
 int             g_yss_usedCount = 0;
 
 int      g_hAtr = INVALID_HANDLE;
+int      g_hAtrTrend = INVALID_HANDLE; // ATR on trend TF (regime filter)
 int      g_hAtrZone[YSS_MAX_ZONE_TFS];
 datetime g_yss_lastBarZone[YSS_MAX_ZONE_TFS];
 int      g_hStruct = INVALID_HANDLE;
@@ -322,6 +342,11 @@ void YssReleaseZoneAtr(void)
          IndicatorRelease(g_hAtrZone[i]);
       g_hAtrZone[i] = INVALID_HANDLE;
       g_yss_lastBarZone[i] = 0;
+     }
+   if(g_hAtrTrend != INVALID_HANDLE)
+     {
+      IndicatorRelease(g_hAtrTrend);
+      g_hAtrTrend = INVALID_HANDLE;
      }
    g_hAtr = INVALID_HANDLE;
    g_yss_cfg.zoneTfCount = 0;

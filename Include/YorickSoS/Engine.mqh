@@ -128,6 +128,7 @@ void YssFillView(const double atr, const bool inTrade, const ulong ticket)
    g_yss_view.zone = z;
    double entry = z.entry;
    double sl = z.sl;
+   double riskPct = (z.valid && z.riskPctUsed > 0.0 ? z.riskPctUsed : g_yss_cfg.riskPct);
    if(z.valid)
      {
       entry = (z.dir > 0
@@ -137,11 +138,12 @@ void YssFillView(const double atr, const bool inTrade, const ulong ticket)
       double tp = z.tp;
       YssAdjustStops(g_yss_cfg.symbol, z.dir > 0, entry, sl, tp);
      }
+   g_yss_view.riskPctUsed = riskPct;
    g_yss_view.nextLots = (z.valid
                           ? YssLotsForRisk(g_yss_cfg.symbol, g_yss_view.balance,
-                                           g_yss_cfg.riskPct, entry, sl)
+                                           riskPct, entry, sl)
                           : 0.0);
-   g_yss_view.riskMoney = g_yss_view.balance * g_yss_cfg.riskPct / 100.0;
+   g_yss_view.riskMoney = g_yss_view.balance * riskPct / 100.0;
   }
 
 bool YssEnter(const SYssZone &signal, string &reason)
@@ -198,7 +200,10 @@ bool YssEnter(const SYssZone &signal, string &reason)
      }
 
    const double balance = AccountInfoDouble(ACCOUNT_BALANCE);
-   double lots = YssLotsForRisk(symbol, balance, g_yss_cfg.riskPct, entry, sl);
+   double riskPct = (signal.riskPctUsed > 0.0 ? signal.riskPctUsed : g_yss_cfg.riskPct);
+   if(riskPct <= 0.0)
+      riskPct = g_yss_cfg.riskPct;
+   double lots = YssLotsForRisk(symbol, balance, riskPct, entry, sl);
    if(lots <= 0.0)
      {
       reason = "lot size 0";
@@ -241,6 +246,10 @@ bool YssEnter(const SYssZone &signal, string &reason)
      }
 
    reason = (dir > 0 ? "demand touch + slow return" : "supply touch + slow return");
+   if(YssQualityRiskOn(g_yss_cfg))
+      reason += " score " + IntegerToString(signal.qualityScore) + "/" +
+                IntegerToString(signal.qualityMax) + " risk " +
+                DoubleToString(riskPct, 2) + "%";
    return true;
   }
 
@@ -263,7 +272,8 @@ void YssTryEnterOne(const int tfIdx, const double ask, const double bid)
       return;
      }
    const double zoneAtr = YssAtrForZoneTf(z.zoneTf);
-   const ENUM_YSS_APPROACH app = YssClassifyApproach(g_yss_cfg, z, zoneAtr);
+   double approachMaxRange = 0.0;
+   const ENUM_YSS_APPROACH app = YssClassifyApproach(g_yss_cfg, z, zoneAtr, approachMaxRange);
    g_yss_view.approach = app;
 
    const ENUM_TIMEFRAMES trendTf = (g_yss_cfg.trendOnZoneTf ? z.zoneTf : g_yss_cfg.trendTf);
@@ -293,6 +303,17 @@ void YssTryEnterOne(const int tfIdx, const double ask, const double bid)
       return;
      }
 
+   if(!YssAtrRegimeAllows(g_yss_cfg))
+     {
+      g_yss_view.state = YSS_WAIT_RETURN;
+      g_yss_view.reason = "ATR regime extreme, skip";
+      YssUsedAdd(z.baseTime, z.zoneTf);
+      YssZoneRemoveAt(tfIdx, slot);
+      return;
+     }
+
+   YssFinalizeZoneQuality(g_yss_cfg, z, app, approachMaxRange, zoneAtr);
+   g_yss_view.riskPctUsed = z.riskPctUsed;
    if(YssEnter(z, g_yss_view.reason))
      {
       YssUsedAdd(z.baseTime, z.zoneTf);

@@ -1,21 +1,21 @@
 {
     "trades":  [
                    {
-                       "id":  195,
+                       "id":  193,
                        "side":  "buy",
-                       "volume":  13,
+                       "volume":  13.66,
                        "openTime":  "2023.08.04 13:15:57",
                        "closeTime":  "2023.08.04 13:36:26",
                        "openPrice":  1941.96,
                        "closePrice":  1944.649,
-                       "profit":  3495.7,
-                       "balance":  166620.85,
+                       "profit":  3673.17,
+                       "balance":  175088.52,
                        "comment":  "YSS M5 demand",
                        "commission":  0,
                        "swap":  0
                    },
                    {
-                       "id":  197,
+                       "id":  195,
                        "side":  "buy",
                        "volume":  100,
                        "openTime":  "2023.08.10 04:12:27",
@@ -23,7 +23,7 @@
                        "openPrice":  1918.39,
                        "closePrice":  1918.302,
                        "profit":  -880,
-                       "balance":  165740.85,
+                       "balance":  174208.52,
                        "comment":  "YSS M5 demand",
                        "commission":  0,
                        "swap":  0

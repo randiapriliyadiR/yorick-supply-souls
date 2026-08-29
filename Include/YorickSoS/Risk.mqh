@@ -6,6 +6,104 @@
 
 #include "Types.mqh"
 
+bool YssQualityRiskOn(const SYssCfg &cfg)
+  {
+   return (cfg.qualityMode == YSS_QMODE_A || cfg.qualityMode == YSS_QMODE_C);
+  }
+
+int YssQualityMax(const SYssCfg &cfg)
+  {
+   if(cfg.qualityMode == YSS_QMODE_A || cfg.qualityMode == YSS_QMODE_C)
+      return 2;
+   return 0;
+  }
+
+// Mode A: FVG + BOS soft points.
+int YssQualityScoreA(const bool hasFvg, const bool hasBos)
+  {
+   return (hasFvg ? 1 : 0) + (hasBos ? 1 : 0);
+  }
+
+// Mode C: extras only (FVG/BOS already hard). Strong impulse + pure slow.
+int YssQualityScoreC(const SYssCfg &cfg,
+                     const SYssZone &z,
+                     const ENUM_YSS_APPROACH app,
+                     const double approachMaxRange,
+                     const double atr)
+  {
+   int score = 0;
+   // Strong surge: ≥1.75× minimum impulse ATR threshold
+   if(z.impulseAtrRatio + 1e-12 >= cfg.impulseAtrMult * 1.75)
+      score++;
+   // Pure slow return: slow gate already passed; max bar ≤ half of slow ceiling
+   if(app == YSS_APP_SLOW && atr > 0.0 &&
+      approachMaxRange + 1e-12 <= cfg.slowMaxAtr * atr * 0.5)
+      score++;
+   return score;
+  }
+
+double YssRiskPctFromScore(const SYssCfg &cfg, const int score, const int maxScore)
+  {
+   if(!YssQualityRiskOn(cfg) || maxScore <= 0)
+      return cfg.riskPct;
+
+   double lo = cfg.riskMinPct;
+   double hi = cfg.riskMaxPct;
+   if(lo <= 0.0)
+      lo = cfg.riskPct;
+   if(hi < lo)
+      hi = lo;
+
+   const int s = MathMax(0, MathMin(score, maxScore));
+   return lo + (hi - lo) * ((double)s / (double)maxScore);
+  }
+
+void YssApplyZoneQuality(const SYssCfg &cfg, SYssZone &z)
+  {
+   // Build-time preview (A uses FVG/BOS; C fills score later at entry).
+   z.qualityMax = YssQualityMax(cfg);
+   if(cfg.qualityMode == YSS_QMODE_A)
+     {
+      z.qualityScore = YssQualityScoreA(z.hasFvg, z.hasBos);
+      z.riskPctUsed = YssRiskPctFromScore(cfg, z.qualityScore, z.qualityMax);
+      return;
+     }
+   if(cfg.qualityMode == YSS_QMODE_C)
+     {
+      z.qualityScore = 0;
+      z.riskPctUsed = cfg.riskMinPct > 0.0 ? cfg.riskMinPct : cfg.riskPct;
+      return;
+     }
+   z.qualityScore = 0;
+   z.qualityMax = 0;
+   z.riskPctUsed = cfg.riskPct;
+  }
+
+void YssFinalizeZoneQuality(const SYssCfg &cfg,
+                            SYssZone &z,
+                            const ENUM_YSS_APPROACH app,
+                            const double approachMaxRange,
+                            const double atr)
+  {
+   z.qualityMax = YssQualityMax(cfg);
+   if(cfg.qualityMode == YSS_QMODE_A)
+     {
+      z.qualityScore = YssQualityScoreA(z.hasFvg, z.hasBos);
+     }
+   else if(cfg.qualityMode == YSS_QMODE_C)
+     {
+      z.qualityScore = YssQualityScoreC(cfg, z, app, approachMaxRange, atr);
+     }
+   else
+     {
+      z.qualityScore = 0;
+      z.qualityMax = 0;
+      z.riskPctUsed = cfg.riskPct;
+      return;
+     }
+   z.riskPctUsed = YssRiskPctFromScore(cfg, z.qualityScore, z.qualityMax);
+  }
+
 double YssNormalizePrice(const string symbol, const double price)
   {
    double tick = SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);

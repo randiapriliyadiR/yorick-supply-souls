@@ -9,8 +9,10 @@
 
 ENUM_YSS_APPROACH YssClassifyApproach(const SYssCfg &cfg,
                                       const SYssZone &z,
-                                      const double atr)
+                                      const double atr,
+                                      double &maxRangeOut)
   {
+   maxRangeOut = 0.0;
    if(!z.valid || z.peakTime == 0 || atr <= 0.0)
       return YSS_APP_NA;
 
@@ -34,6 +36,7 @@ ENUM_YSS_APPROACH YssClassifyApproach(const SYssCfg &cfg,
          sharpToward = true;
      }
 
+   maxRangeOut = maxRange;
    if(bars < cfg.minApproachBars)
       return YSS_APP_NA;
    if(sharpToward)
@@ -41,6 +44,14 @@ ENUM_YSS_APPROACH YssClassifyApproach(const SYssCfg &cfg,
    if(maxRange <= cfg.slowMaxAtr * atr)
       return YSS_APP_SLOW;
    return YSS_APP_MID;
+  }
+
+ENUM_YSS_APPROACH YssClassifyApproach(const SYssCfg &cfg,
+                                      const SYssZone &z,
+                                      const double atr)
+  {
+   double unused = 0.0;
+   return YssClassifyApproach(cfg, z, atr, unused);
   }
 
 #endif

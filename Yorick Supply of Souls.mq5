@@ -29,7 +29,10 @@ input ENUM_TIMEFRAMES  InpTF              = PERIOD_M5;  // Chart / tick clock
 input ENUM_TIMEFRAMES  InpTrendTF         = PERIOD_H4;  // Major trend (video 2 gate)
 input string           InpZoneTFs         = "M5,M15"; // Entry zone TFs (comma-separated, max 4)
 input bool             InpOnePosPerTf     = false;    // true=1 pos per entry TF; false=1 pos global
-input double           InpRiskPct         = 0.5;        // Soul budget (% of balance)
+input double           InpRiskPct         = 0.5;        // Fixed soul budget when quality mode OFF
+input ENUM_YSS_QMODE   InpQualityMode     = YSS_QMODE_OFF; // OFF | A soft FVG/BOS | C extras
+input double           InpRiskMinPct      = 0.5;        // Score 0 → this % (quality mode)
+input double           InpRiskMaxPct      = 2.0;        // Score max → this % (quality mode)
 input ulong            InpMagic           = 26082603;   // Identity stamp
 input ulong            InpDeviation       = 50;         // Slippage allowance (points)
 input int              InpMaxSpreadPoints = 0;          // Max fog / spread (0 = off)
@@ -41,8 +44,8 @@ input double InpBodyAtrMult     = 0.65;     // Surge body (ATR)
 input int    InpSwingStrength   = 3;        // Structure bars
 input int    InpLookback        = 200;      // Grave scan depth (bars)
 input int    InpMaxImpulseBars  = 15;       // Max surge bars
-input bool   InpRequireBos      = true;     // Structure gate
-input bool   InpRequireFvg      = true;     // Gap gate
+input bool   InpRequireBos      = true;     // Structure gate (hard when quality risk OFF)
+input bool   InpRequireFvg      = true;     // Gap gate (hard when quality risk OFF)
 input bool   InpRequireSlow     = true;     // Gentle return gate
 input double InpSlowMaxAtr      = 0.8;      // Gentle: max bar breath
 input double InpSharpAtr        = 1.2;      // Sharp: reject bar breath
@@ -54,6 +57,9 @@ input bool   InpRequireTrend    = true;     // Demand in uptrend, supply in down
 input bool   InpTrendOnZoneTf   = false;    // true=HH/HL on entry TF; false=use Trend TF (H4)
 input bool   InpRequireMinRr     = false;    // Skip if reward/risk too low (OFF = usable frequency)
 input double InpMinRiskReward   = 2.5;      // Minimum TP distance vs SL (R)
+input bool   InpUseAtrRegime    = true;     // Skip if trend-TF ATR >> its mean
+input int    InpAtrRegimeBars   = 50;       // ATR mean lookback (closed bars)
+input double InpAtrRegimeMult   = 1.5;      // Skip when ATR > mult × mean
 
 input group "=== Grave Guard ==="
 input bool   InpUseGuard        = true;     // BEP + trail (lock soul after touch)
@@ -106,17 +112,22 @@ int OnInit()
      }
    if(StringLen(InpZoneTFs) <= 0)
       return(INIT_PARAMETERS_INCORRECT);
-   if(InpRiskPct <= 0.0 || InpAtrPeriod < 1 || InpImpulseAtrMult <= 0.0 ||
+   if(InpRiskPct <= 0.0 || InpRiskMinPct <= 0.0 || InpRiskMaxPct < InpRiskMinPct ||
+      InpAtrPeriod < 1 || InpImpulseAtrMult <= 0.0 ||
       InpBodyAtrMult <= 0.0 || InpSwingStrength < 1 || InpLookback < 30 ||
       InpMaxImpulseBars < 2 || InpSlZoneMult < 1.0 || InpMinApproachBars < 1 ||
       InpBeTriggerR <= 0.0 || InpTrailStartR <= 0.0 || InpTrailDistR <= 0.0 ||
-      InpMinRiskReward <= 0.0 || InpCommissionPerLot < 0.0)
+      InpMinRiskReward <= 0.0 || InpCommissionPerLot < 0.0 ||
+      InpAtrRegimeBars < 5 || InpAtrRegimeMult <= 1.0)
       return(INIT_PARAMETERS_INCORRECT);
 
    g_yss_cfg.symbol          = _Symbol;
    g_yss_cfg.tf              = YssResolveTf(InpTF);
    g_yss_cfg.trendTf         = YssResolveTf(InpTrendTF);
    g_yss_cfg.riskPct         = InpRiskPct;
+   g_yss_cfg.riskMinPct      = InpRiskMinPct;
+   g_yss_cfg.riskMaxPct      = InpRiskMaxPct;
+   g_yss_cfg.qualityMode     = InpQualityMode;
    g_yss_cfg.magic           = InpMagic;
    g_yss_cfg.deviation       = InpDeviation;
    g_yss_cfg.maxSpreadPoints = InpMaxSpreadPoints;
@@ -137,6 +148,9 @@ int OnInit()
    g_yss_cfg.trendOnZoneTf   = InpTrendOnZoneTf;
    g_yss_cfg.requireMinRr    = InpRequireMinRr;
    g_yss_cfg.minRiskReward   = InpMinRiskReward;
+   g_yss_cfg.useAtrRegime    = InpUseAtrRegime;
+   g_yss_cfg.atrRegimeBars   = InpAtrRegimeBars;
+   g_yss_cfg.atrRegimeMult   = InpAtrRegimeMult;
    g_yss_cfg.useGuard        = InpUseGuard;
    g_yss_cfg.beTriggerR      = InpBeTriggerR;
    g_yss_cfg.trailStartR     = InpTrailStartR;
@@ -167,6 +181,24 @@ int OnInit()
       return(INIT_FAILED);
      }
 
+   if(g_hAtrTrend != INVALID_HANDLE)
+     {
+      IndicatorRelease(g_hAtrTrend);
+      g_hAtrTrend = INVALID_HANDLE;
+     }
+   g_hAtrTrend = iATR(g_yss_cfg.symbol, g_yss_cfg.trendTf, g_yss_cfg.atrPeriod);
+   if(g_hAtrTrend == INVALID_HANDLE)
+     {
+      Print("YSS: trend ATR handle failed tf=", EnumToString(g_yss_cfg.trendTf));
+      YssRelease();
+      return(INIT_FAILED);
+     }
+
+   if(InpUseAtrRegime)
+      Print("YSS: ATR regime ON — skip if ", YssTfText(g_yss_cfg.trendTf),
+            " ATR > ", DoubleToString(InpAtrRegimeMult, 2), "× mean(",
+            IntegerToString(InpAtrRegimeBars), ")");
+
    if(InpOnePosPerTf)
      {
       const long mm = AccountInfoInteger(ACCOUNT_MARGIN_MODE);
@@ -176,6 +208,15 @@ int OnInit()
      }
    else
       Print("YSS: position mode = 1 global for all entry TFs");
+
+   if(InpQualityMode == YSS_QMODE_A)
+      Print("YSS: quality A — soft FVG/BOS score → risk ",
+            DoubleToString(InpRiskMinPct, 2), "%..", DoubleToString(InpRiskMaxPct, 2), "%");
+   else if(InpQualityMode == YSS_QMODE_C)
+      Print("YSS: quality C — hard FVG/BOS; impulse+pure-slow extras → risk ",
+            DoubleToString(InpRiskMinPct, 2), "%..", DoubleToString(InpRiskMaxPct, 2), "%");
+   else
+      Print("YSS: fixed risk ", DoubleToString(InpRiskPct, 2), "% (FVG/BOS hard gates)");
 
    if(YssCommissionActive())
       Print("YSS: tester commission sim ON — $",

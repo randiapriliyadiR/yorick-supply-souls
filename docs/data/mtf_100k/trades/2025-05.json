@@ -1,29 +1,29 @@
 {
     "trades":  [
                    {
-                       "id":  303,
+                       "id":  295,
                        "side":  "sell",
-                       "volume":  13.91,
+                       "volume":  16.4,
                        "openTime":  "2025.05.06 05:30:02",
                        "closeTime":  "2025.05.06 05:34:51",
                        "openPrice":  3357.08,
                        "closePrice":  3354.289,
-                       "profit":  3882.28,
-                       "balance":  170387.72,
+                       "profit":  4577.24,
+                       "balance":  200831.36,
                        "comment":  "YSS M5 supply",
                        "commission":  0,
                        "swap":  0
                    },
                    {
-                       "id":  305,
+                       "id":  297,
                        "side":  "sell",
-                       "volume":  13.91,
+                       "volume":  16.4,
                        "openTime":  "2025.05.12 16:55:58",
                        "closeTime":  "2025.05.12 16:57:35",
                        "openPrice":  3227.51,
                        "closePrice":  3224.714,
-                       "profit":  3889.24,
-                       "balance":  174276.96,
+                       "profit":  4585.44,
+                       "balance":  205416.8,
                        "comment":  "YSS M5 supply",
                        "commission":  0,
                        "swap":  0

@@ -1,7 +1,7 @@
 {
     "trades":  [
                    {
-                       "id":  219,
+                       "id":  215,
                        "side":  "sell",
                        "volume":  0.04,
                        "openTime":  "2023.11.20 12:48:49",
@@ -9,35 +9,35 @@
                        "openPrice":  1972.29,
                        "closePrice":  1970.652,
                        "profit":  6.55,
-                       "balance":  257.97,
+                       "balance":  282.47,
                        "comment":  "YSS M15 supply",
                        "commission":  0,
                        "swap":  0
                    },
                    {
-                       "id":  221,
+                       "id":  217,
                        "side":  "sell",
-                       "volume":  0.1,
+                       "volume":  0.11,
                        "openTime":  "2023.11.20 19:21:58",
                        "closeTime":  "2023.11.20 19:30:17",
                        "openPrice":  1976.73,
                        "closePrice":  1977.986,
-                       "profit":  -12.56,
-                       "balance":  245.41,
+                       "profit":  -13.82,
+                       "balance":  268.65,
                        "comment":  "YSS M5 supply",
                        "commission":  0,
                        "swap":  0
                    },
                    {
-                       "id":  223,
+                       "id":  219,
                        "side":  "sell",
-                       "volume":  0.07,
+                       "volume":  0.08,
                        "openTime":  "2023.11.29 02:35:57",
                        "closeTime":  "2023.11.29 02:41:20",
                        "openPrice":  2047.51,
                        "closePrice":  2047.581,
-                       "profit":  -0.5,
-                       "balance":  244.91,
+                       "profit":  -0.57,
+                       "balance":  268.08,
                        "comment":  "YSS M5 supply",
                        "commission":  0,
                        "swap":  0
