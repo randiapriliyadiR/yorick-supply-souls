@@ -1,4 +1,4 @@
-#Requires -Version 5.1
+﻿#Requires -Version 5.1
 param(
   [Parameter(Mandatory)][string]$HtmlPath,
   [Parameter(Mandatory)][string]$StandId,
@@ -220,7 +220,7 @@ function Update-StandsJson {
   if ((-not $ReplaceCatalog) -and (Test-Path -LiteralPath $StandsPath)) {
     $catalog = Get-Content -LiteralPath $StandsPath -Raw -Encoding UTF8 | ConvertFrom-Json
   } else {
-    $catalog = [pscustomobject]@{ version="1.12.0"; updated=(Get-Date -Format "yyyy-MM-dd"); defaultStand=$StandId; stands=@() }
+    $catalog = [pscustomobject]@{ version="1.15.0"; updated=(Get-Date -Format "yyyy-MM-dd"); defaultStand=$StandId; stands=@() }
   }
   $standsList = [System.Collections.Generic.List[object]]@()
   $found = $false
@@ -231,7 +231,7 @@ function Update-StandsJson {
   }
   if (-not $found) { $standsList.Add($entryObj) }
   $out = [pscustomobject]@{
-    version="1.12.0"; updated=(Get-Date -Format "yyyy-MM-dd")
+    version="1.15.0"; updated=(Get-Date -Format "yyyy-MM-dd")
     defaultStand= if ($ReplaceCatalog) { $StandId } elseif ($catalog.defaultStand) { $catalog.defaultStand } else { $StandId }
     stands=@($standsList)
   }
@@ -272,6 +272,7 @@ $months = $monthKeys
 $equityPoints = New-Object System.Collections.Generic.List[object]
 foreach ($t in $trades) { $equityPoints.Add([pscustomobject]@{ t = $t.closeTime; b = $t.balance }) }
 Write-JsonFile -Path (Join-Path $standDir "equity.json") -Object @{ points = $equityPoints.ToArray() }
+Write-JsonFile -Path (Join-Path $standDir "trades_all.json") -Object @{ trades = $trades }
 
 $bestWin = $null
 $worstLoss = $null

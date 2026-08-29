@@ -1,0 +1,60 @@
+{
+    "trades":  [
+                   {
+                       "id":  309,
+                       "side":  "buy",
+                       "volume":  3,
+                       "openTime":  "2023.08.31 13:42:00",
+                       "closeTime":  "2023.09.01 06:22:26",
+                       "openPrice":  1.08515,
+                       "closePrice":  1.08335,
+                       "profit":  -542.1,
+                       "balance":  107617.33,
+                       "comment":  "YSS M15 demand",
+                       "commission":  0,
+                       "swap":  -2.1
+                   },
+                   {
+                       "id":  311,
+                       "side":  "buy",
+                       "volume":  3.14,
+                       "openTime":  "2023.09.01 13:49:15",
+                       "closeTime":  "2023.09.01 14:00:26",
+                       "openPrice":  1.08476,
+                       "closePrice":  1.08304,
+                       "profit":  -540.08,
+                       "balance":  107077.25,
+                       "comment":  "YSS M15 demand",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  313,
+                       "side":  "sell",
+                       "volume":  12.74,
+                       "openTime":  "2023.09.21 08:18:56",
+                       "closeTime":  "2023.09.21 09:11:42",
+                       "openPrice":  1.06616,
+                       "closePrice":  1.06621,
+                       "profit":  -63.7,
+                       "balance":  107013.55,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  315,
+                       "side":  "buy",
+                       "volume":  8.91,
+                       "openTime":  "2023.09.28 02:32:22",
+                       "closeTime":  "2023.09.28 04:23:25",
+                       "openPrice":  1.0503,
+                       "closePrice":  1.0497,
+                       "profit":  -534.6,
+                       "balance":  106478.95,
+                       "comment":  "YSS M15 demand",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

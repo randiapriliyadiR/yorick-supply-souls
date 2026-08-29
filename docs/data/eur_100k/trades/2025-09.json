@@ -1,0 +1,46 @@
+{
+    "trades":  [
+                   {
+                       "id":  505,
+                       "side":  "buy",
+                       "volume":  2,
+                       "openTime":  "2025.09.03 07:18:37",
+                       "closeTime":  "2025.09.05 08:18:58",
+                       "openPrice":  1.16204,
+                       "closePrice":  1.16826,
+                       "profit":  1238.4,
+                       "balance":  109258.71,
+                       "comment":  "YSS M15 demand",
+                       "commission":  0,
+                       "swap":  -5.6
+                   },
+                   {
+                       "id":  507,
+                       "side":  "sell",
+                       "volume":  6.27,
+                       "openTime":  "2025.09.18 07:10:22",
+                       "closeTime":  "2025.09.18 07:17:04",
+                       "openPrice":  1.18099,
+                       "closePrice":  1.18187,
+                       "profit":  -551.76,
+                       "balance":  108706.95,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  509,
+                       "side":  "sell",
+                       "volume":  2.65,
+                       "openTime":  "2025.09.29 04:54:26",
+                       "closeTime":  "2025.09.29 07:16:29",
+                       "openPrice":  1.17318,
+                       "closePrice":  1.17325,
+                       "profit":  -18.55,
+                       "balance":  108688.4,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}
