@@ -60,7 +60,13 @@ function Parse-Summary {
   $totalTrades = [int](Parse-Mt5Number (Get-Metric "Total Trades"))
   $equityDdRaw = Get-Metric "Equity Drawdown Maximal"
   $equityDdPct = 0.0
-  if ($equityDdRaw -match '\(([\d.,\s]+)%\)') { $equityDdPct = Parse-Mt5Number $Matches[1] }
+  $equityDdMoney = 0.0
+  if ($equityDdRaw -match '^\s*([\d\s.,]+)\s*\(([\d.,\s]+)%\)') {
+    $equityDdMoney = Parse-Mt5Number $Matches[1]
+    $equityDdPct = Parse-Mt5Number $Matches[2]
+  } elseif ($equityDdRaw -match '\(([\d.,\s]+)%\)') {
+    $equityDdPct = Parse-Mt5Number $Matches[1]
+  }
   $profitTradesRaw = Get-Metric "Profit Trades (% of total)"
   $winRate = if ($profitTradesRaw) { $profitTradesRaw } else { "" }
   $symbol = "XAUUSD"
@@ -72,7 +78,38 @@ function Parse-Summary {
     $range = $periodMatch.Groups[1].Value.Trim()
     if ($range -match '(\d{4}\.\d{2}\.\d{2})\s*-\s*(\d{4}\.\d{2}\.\d{2})') { $from = $Matches[1]; $to = $Matches[2] }
   }
-  return [pscustomobject]@{ net=$net; profitFactor=$pf; equityDdPct=$equityDdPct; totalTrades=$totalTrades; winRate=$winRate; symbol=$symbol; from=$from; to=$to }
+  return [pscustomobject]@{
+    net=$net; profitFactor=$pf; equityDdPct=$equityDdPct; equityDdMoney=$equityDdMoney
+    totalTrades=$totalTrades; winRate=$winRate; symbol=$symbol; from=$from; to=$to
+  }
+}
+
+function Get-DailyDrawdown {
+  param([System.Collections.Generic.List[object]]$Trades, [double]$Deposit)
+  $prevBal = $Deposit
+  $day = $null
+  $dayPeak = $Deposit
+  $maxDaily = 0.0
+  $maxDailyPct = 0.0
+  foreach ($t in $Trades) {
+    $d = if ($t.closeTime -match '^(\d{4}\.\d{2}\.\d{2})') { $Matches[1] } else { "" }
+    $bal = [double]$t.balance
+    if ($d -ne $day) {
+      $day = $d
+      $dayPeak = $prevBal
+    }
+    if ($bal -gt $dayPeak) { $dayPeak = $bal }
+    $ddd = $dayPeak - $bal
+    if ($ddd -gt $maxDaily -and $dayPeak -gt 0) {
+      $maxDaily = $ddd
+      $maxDailyPct = 100.0 * $ddd / $dayPeak
+    }
+    $prevBal = $bal
+  }
+  return [pscustomobject]@{
+    money = [math]::Round($maxDaily, 2)
+    pct = [math]::Round($maxDailyPct, 2)
+  }
 }
 
 function Parse-DealsTable {
@@ -240,13 +277,18 @@ foreach ($t in $trades) {
   if ($null -eq $worstLoss -or [double]$t.profit -lt [double]$worstLoss.profit) { $worstLoss = $t }
 }
 
+$dailyDd = Get-DailyDrawdown -Trades $trades -Deposit $Deposit
 $standEntry = @{
   id=$StandId; label= if ($Label) { $Label } else { $StandId }; symbol=$summary.symbol
   period= if ($Period) { $Period } else { "M5" }; deposit=$Deposit; risk=$Risk
   guard= if ($GuardLabel) { $GuardLabel } else { "" }; from=$summary.from; to=$summary.to
   model=$ModelLabel; broker=$Broker; net=[math]::Round($summary.net, 2)
   returnPct= if ($Deposit -gt 0) { [math]::Round(100.0 * $summary.net / $Deposit, 1) } else { 0 }
-  profitFactor=[math]::Round($summary.profitFactor, 2); equityDdPct=[math]::Round($summary.equityDdPct, 2)
+  profitFactor=[math]::Round($summary.profitFactor, 2)
+  equityDdPct=[math]::Round($summary.equityDdPct, 2)
+  equityDdMoney=[math]::Round($summary.equityDdMoney, 2)
+  dailyDdPct=$dailyDd.pct
+  dailyDdMoney=$dailyDd.money
   trades=$trades.Count; winRate=$summary.winRate
   equity="$StandId/equity.json"; months="$StandId/months.json"; tradesDir="$StandId/trades"
   bestWin=(Convert-TradeSummary $bestWin)

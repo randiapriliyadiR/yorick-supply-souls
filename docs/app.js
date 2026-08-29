@@ -186,6 +186,29 @@ function renderOverview() {
     (s.model || "");
 
   const end = s.deposit + s.net;
+  const ddFmt = (amt, p) => {
+    const hasAmt = typeof amt === "number" && !Number.isNaN(amt);
+    const hasPct = typeof p === "number" && !Number.isNaN(p);
+    if (!hasAmt && !hasPct) return "\u2014";
+    if (hasAmt && hasPct) {
+      return (
+        "$" +
+        amt.toLocaleString("en-US", {
+          maximumFractionDigits: amt >= 100 ? 0 : 2,
+        }) +
+        " (" +
+        p.toFixed(1) +
+        "%)"
+      );
+    }
+    if (hasPct) return pct(p);
+    return (
+      "$" +
+      amt.toLocaleString("en-US", {
+        maximumFractionDigits: amt >= 100 ? 0 : 2,
+      })
+    );
+  };
   const rows = [
     ["Net profit", money(s.net), s.net >= 0 ? "up" : "down"],
     [
@@ -194,7 +217,8 @@ function renderOverview() {
       "up",
     ],
     ["Profit factor", Number(s.profitFactor).toFixed(2), ""],
-    ["Equity drawdown", pct(s.equityDdPct), "down"],
+    ["Max drawdown", ddFmt(s.equityDdMoney, s.equityDdPct), "down"],
+    ["Daily drawdown max", ddFmt(s.dailyDdMoney, s.dailyDdPct), "down"],
     ["Trades", Number(s.trades).toLocaleString("en-US"), ""],
     ["Win rate", s.winRate || "\u2014", ""],
   ];
