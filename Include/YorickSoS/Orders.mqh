@@ -29,6 +29,12 @@ void YssOrdersInit(const ulong magic, const ulong deviation)
 
 bool YssSelectPosition(const string symbol, const ulong magic, ulong &ticket)
   {
+   if(ticket != 0 && PositionSelectByTicket(ticket))
+     {
+      if(PositionGetString(POSITION_SYMBOL) == symbol &&
+         (ulong)PositionGetInteger(POSITION_MAGIC) == magic)
+         return true;
+     }
    ticket = 0;
    for(int i = PositionsTotal() - 1; i >= 0; i--)
      {
@@ -43,6 +49,70 @@ bool YssSelectPosition(const string symbol, const ulong magic, ulong &ticket)
       return true;
      }
    return false;
+  }
+
+string YssPosCommentTag(const ENUM_TIMEFRAMES tf, const int dir)
+  {
+   return ("YSS " + YssTfText(tf) + " " + (dir > 0 ? "demand" : "supply"));
+  }
+
+bool YssCommentMatchesTf(const string comment, const ENUM_TIMEFRAMES tf)
+  {
+   const string tag = "YSS " + YssTfText(tf) + " ";
+   return (StringFind(comment, tag) == 0);
+  }
+
+int YssCountOurPositions(const string symbol, const ulong magic)
+  {
+   int n = 0;
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+     {
+      const ulong t = PositionGetTicket(i);
+      if(t == 0)
+         continue;
+      if(PositionGetString(POSITION_SYMBOL) != symbol)
+         continue;
+      if((ulong)PositionGetInteger(POSITION_MAGIC) != magic)
+         continue;
+      n++;
+     }
+   return n;
+  }
+
+bool YssSelectPositionForTf(const string symbol,
+                            const ulong magic,
+                            const ENUM_TIMEFRAMES tf,
+                            ulong &ticket)
+  {
+   ticket = 0;
+   for(int i = PositionsTotal() - 1; i >= 0; i--)
+     {
+      const ulong t = PositionGetTicket(i);
+      if(t == 0)
+         continue;
+      if(PositionGetString(POSITION_SYMBOL) != symbol)
+         continue;
+      if((ulong)PositionGetInteger(POSITION_MAGIC) != magic)
+         continue;
+      if(!YssCommentMatchesTf(PositionGetString(POSITION_COMMENT), tf))
+         continue;
+      ticket = t;
+      return true;
+     }
+   return false;
+  }
+
+bool YssHasOpenBlock(const string symbol,
+                     const ulong magic,
+                     const ENUM_TIMEFRAMES entryTf)
+  {
+   if(g_yss_cfg.onePosPerTf)
+      {
+       ulong t = 0;
+       return YssSelectPositionForTf(symbol, magic, entryTf, t);
+      }
+   ulong t = 0;
+   return YssSelectPosition(symbol, magic, t);
   }
 
 int YssPosDir(const ulong ticket)

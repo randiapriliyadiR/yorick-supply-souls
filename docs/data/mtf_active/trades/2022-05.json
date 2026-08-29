@@ -1,0 +1,18 @@
+{
+    "trades":  [
+                   {
+                       "id":  121,
+                       "side":  "buy",
+                       "volume":  54.62,
+                       "openTime":  "2022.05.31 08:46:46",
+                       "closeTime":  "2022.05.31 08:56:15",
+                       "openPrice":  1855.28,
+                       "closePrice":  1852.41,
+                       "profit":  -15675.94,
+                       "balance":  137449.61,
+                       "comment":  "YSS M15 demand",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

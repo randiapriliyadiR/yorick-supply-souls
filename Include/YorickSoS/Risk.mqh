@@ -118,5 +118,75 @@ double YssLotsForRisk(const string symbol,
    return YssNormalizeLots(symbol, riskMoney / lossPerLot);
   }
 
+bool YssCommissionActive(void)
+  {
+   return (g_yss_cfg.simCommission &&
+           g_yss_cfg.commissionPerLot > 0.0 &&
+           (bool)MQLInfoInteger(MQL_TESTER));
+  }
+
+double YssCommissionMoney(const double lots)
+  {
+   if(!YssCommissionActive() || lots <= 0.0)
+      return 0.0;
+   return 2.0 * g_yss_cfg.commissionPerLot * lots; // open + close
+  }
+
+// USD commission per lot per side → price distance (independent of lot size).
+double YssCommissionPricePerSide(const string symbol)
+  {
+   if(!YssCommissionActive())
+      return 0.0;
+   const double tickSize  = SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
+   const double tickValue = SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_VALUE);
+   if(tickSize <= 0.0 || tickValue <= 0.0)
+      return 0.0;
+   return g_yss_cfg.commissionPerLot * tickSize / tickValue;
+  }
+
+// Bake open+close commission into SL/TP so tester equity reflects Exness Raw fees.
+// Uses OrderCalcProfit so price distance matches the symbol's contract (custom ticks too).
+void YssApplyCommissionToStops(const string symbol,
+                               const bool isBuy,
+                               const double entry,
+                               const double lots,
+                               double &sl,
+                               double &tp)
+  {
+   if(!YssCommissionActive() || lots <= 0.0 || entry <= 0.0)
+      return;
+
+   const double money = YssCommissionMoney(lots); // round-trip USD
+   if(money <= 0.0)
+      return;
+
+   double profit1 = 0.0;
+   const ENUM_ORDER_TYPE otype = (isBuy ? ORDER_TYPE_BUY : ORDER_TYPE_SELL);
+   const double px2 = (isBuy ? entry + 1.0 : entry - 1.0);
+   if(!OrderCalcProfit(otype, symbol, lots, entry, px2, profit1) || MathAbs(profit1) < 1e-8)
+     {
+      const double tickSize  = SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_SIZE);
+      const double tickValue = SymbolInfoDouble(symbol, SYMBOL_TRADE_TICK_VALUE);
+      if(tickSize <= 0.0 || tickValue <= 0.0)
+         return;
+      const double d = money * tickSize / (lots * tickValue);
+      if(isBuy) { if(sl > 0.0) sl -= d; if(tp > 0.0) tp -= d; }
+      else      { if(sl > 0.0) sl += d; if(tp > 0.0) tp += d; }
+      return;
+     }
+
+   const double d = money / MathAbs(profit1);
+   if(isBuy)
+     {
+      if(sl > 0.0) sl -= d;
+      if(tp > 0.0) tp -= d;
+     }
+   else
+     {
+      if(sl > 0.0) sl += d;
+      if(tp > 0.0) tp += d;
+     }
+  }
+
 #endif
 //+------------------------------------------------------------------+

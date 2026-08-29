@@ -5,6 +5,9 @@
 param(
   [string]$Symbol = "XAUUSD",
   [string]$Period = "M5",
+  [string]$TrendTF = "H4",
+  [string]$ZoneTFs = "M15,M5",
+  [string]$OnePosPerTf = "false",
   [string]$FromDate = "2021.01.01",
   [string]$ToDate = "2026.08.26",
   [int]$Deposit = 100000,
@@ -25,9 +28,14 @@ param(
   [int]$MinApproachBars = 2,
   [double]$SlZoneMult = 2.5,
   [string]$UseGuard = "true",
+  [string]$RequireTrend = "false",
+  [string]$RequireMinRr = "false",
+  [double]$MinRiskReward = 2.5,
   [double]$BeTriggerR = 1.0,
   [double]$TrailStartR = 1.0,
   [double]$TrailDistR = 1.0,
+  [string]$SimCommission = "true",
+  [double]$CommissionPerLot = 3.5,
   [switch]$SkipCompile
 )
 
@@ -101,6 +109,24 @@ if (-not $tfMap.ContainsKey($tfKey)) {
   throw "Unsupported Period='$Period'. Use one of: $($tfMap.Keys -join ', ')"
 }
 $ini = $ini -replace "(?m)^InpTF=.*$", "InpTF=$($tfMap[$tfKey])"
+$trendKey = $TrendTF.ToUpperInvariant()
+if (-not $tfMap.ContainsKey($trendKey)) { throw "Unsupported TrendTF='$TrendTF'" }
+if ($ini -match "(?m)^InpTrendTF=") {
+  $ini = $ini -replace "(?m)^InpTrendTF=.*$", "InpTrendTF=$($tfMap[$trendKey])"
+} else {
+  $ini = $ini -replace "(?m)^InpTF=.*$", "InpTF=$($tfMap[$tfKey])`r`nInpTrendTF=$($tfMap[$trendKey])"
+}
+$zoneTfIni = $ZoneTFs
+if ($ini -match "(?m)^InpZoneTFs=") {
+  $ini = $ini -replace "(?m)^InpZoneTFs=.*$", "InpZoneTFs=$zoneTfIni"
+} else {
+  $ini = $ini.TrimEnd() + "`r`nInpZoneTFs=$zoneTfIni`r`n"
+}
+if ($ini -match "(?m)^InpOnePosPerTf=") {
+  $ini = $ini -replace "(?m)^InpOnePosPerTf=.*$", "InpOnePosPerTf=$OnePosPerTf"
+} else {
+  $ini = $ini.TrimEnd() + "`r`nInpOnePosPerTf=$OnePosPerTf`r`n"
+}
 $inv = [System.Globalization.CultureInfo]::InvariantCulture
 $riskStr = $RiskPct.ToString($inv)
 $impStr = $ImpulseAtrMult.ToString($inv)
@@ -111,6 +137,7 @@ $slStr = $SlZoneMult.ToString($inv)
 $beStr = $BeTriggerR.ToString($inv)
 $tsStr = $TrailStartR.ToString($inv)
 $tdStr = $TrailDistR.ToString($inv)
+$rrStr = $MinRiskReward.ToString($inv)
 $ini = $ini -replace "(?m)^InpRiskPct=.*$", "InpRiskPct=$riskStr"
 $ini = $ini -replace "(?m)^InpAtrPeriod=.*$", "InpAtrPeriod=$AtrPeriod"
 $ini = $ini -replace "(?m)^InpImpulseAtrMult=.*$", "InpImpulseAtrMult=$impStr"
@@ -131,6 +158,20 @@ if ($ini -match "(?m)^InpUseGuard=") {
 } else {
   $ini = $ini.TrimEnd() + "`r`nInpUseGuard=$UseGuard`r`nInpBeTriggerR=$beStr`r`nInpTrailStartR=$tsStr`r`nInpTrailDistR=$tdStr`r`n"
 }
+if ($ini -match "(?m)^InpRequireTrend=") {
+  $ini = $ini -replace "(?m)^InpRequireTrend=.*$", "InpRequireTrend=$RequireTrend"
+  $ini = $ini -replace "(?m)^InpRequireMinRr=.*$", "InpRequireMinRr=$RequireMinRr"
+  $ini = $ini -replace "(?m)^InpMinRiskReward=.*$", "InpMinRiskReward=$rrStr"
+} else {
+  $ini = $ini.TrimEnd() + "`r`nInpRequireTrend=$RequireTrend`r`nInpRequireMinRr=$RequireMinRr`r`nInpMinRiskReward=$rrStr`r`n"
+}
+$commStr = $CommissionPerLot.ToString($inv)
+if ($ini -match "(?m)^InpSimCommission=") {
+  $ini = $ini -replace "(?m)^InpSimCommission=.*$", "InpSimCommission=$SimCommission"
+  $ini = $ini -replace "(?m)^InpCommissionPerLot=.*$", "InpCommissionPerLot=$commStr"
+} else {
+  $ini = $ini.TrimEnd() + "`r`nInpSimCommission=$SimCommission`r`nInpCommissionPerLot=$commStr`r`n"
+}
 Set-Content -Path $IniRun -Value $ini -Encoding ASCII
 
 $candidates = @(
@@ -148,7 +189,7 @@ Start-Sleep -Seconds 2
 
 Write-Host "== Launch Strategy Tester (headless) =="
 Write-Host "Config: $IniRun"
-Write-Host "Range: $FromDate -> $ToDate | Deposit=$Deposit | Model=$Model | $Period $Symbol | risk=$riskStr% | imp=$impStr body=$bodyStr fvg=$RequireFvg slow=$RequireSlow slx=$slStr | guard=$UseGuard be=$beStr start=$tsStr dist=$tdStr"
+Write-Host "Range: $FromDate -> $ToDate | Deposit=$Deposit | Model=$Model | $Period $Symbol | trendTF=$TrendTF zones=$ZoneTFs onePosPerTf=$OnePosPerTf | risk=$riskStr% | imp=$impStr body=$bodyStr fvg=$RequireFvg slow=$RequireSlow slx=$slStr trend=$RequireTrend rr=$RequireMinRr($rrStr) | guard=$UseGuard | comm=$SimCommission($commStr)"
 $before = Get-Date
 $p = Start-Process -FilePath $TerminalExe -ArgumentList "/config:`"$IniRun`"" -PassThru
 
@@ -193,8 +234,8 @@ function Get-Stat([string]$label) {
 
 $lines = @(
   "Report: $reportPath",
-  "Symbol=$Symbol Period=$Period Deposit=$Deposit Model=$Model",
-  "Risk=$riskStr Impulse=$impStr Body=$bodyStr Bos=$RequireBos Fvg=$RequireFvg Slow=$RequireSlow SlowMax=$slowStr Slx=$slStr Guard=$UseGuard Be=$beStr Start=$tsStr Dist=$tdStr",
+  "Symbol=$Symbol Period=$Period TrendTF=$TrendTF ZoneTFs=$ZoneTFs OnePosPerTf=$OnePosPerTf Deposit=$Deposit Model=$Model",
+  "Risk=$riskStr Impulse=$impStr Body=$bodyStr Bos=$RequireBos Fvg=$RequireFvg Slow=$RequireSlow SlowMax=$slowStr Slx=$slStr Trend=$RequireTrend MinRr=$RequireMinRr Rr=$rrStr Guard=$UseGuard Comm=$SimCommission($commStr)",
   "From=$FromDate To=$ToDate",
   "Total Net Profit: $(Get-Stat 'Total Net Profit')",
   "Gross Profit: $(Get-Stat 'Gross Profit')",

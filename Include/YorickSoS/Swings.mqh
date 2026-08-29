@@ -4,6 +4,8 @@
 #ifndef YORICKSOS_SWINGS_MQH
 #define YORICKSOS_SWINGS_MQH
 
+#include "Series.mqh"
+
 bool YssIsSwingHigh(const string symbol,
                     const ENUM_TIMEFRAMES tf,
                     const int shift,
@@ -11,14 +13,14 @@ bool YssIsSwingHigh(const string symbol,
   {
    if(strength < 1 || shift - strength < 0)
       return false;
-   const double h = iHigh(symbol, tf, shift);
+   const double h = YssH(symbol, tf, shift);
    if(h <= 0.0)
       return false;
    for(int k = 1; k <= strength; k++)
      {
-      if(iHigh(symbol, tf, shift + k) >= h)
+      if(YssH(symbol, tf, shift + k) >= h)
          return false;
-      if(iHigh(symbol, tf, shift - k) >= h)
+      if(YssH(symbol, tf, shift - k) >= h)
          return false;
      }
    return true;
@@ -31,14 +33,14 @@ bool YssIsSwingLow(const string symbol,
   {
    if(strength < 1 || shift - strength < 0)
       return false;
-   const double l = iLow(symbol, tf, shift);
+   const double l = YssL(symbol, tf, shift);
    if(l <= 0.0)
       return false;
    for(int k = 1; k <= strength; k++)
      {
-      if(iLow(symbol, tf, shift + k) <= l)
+      if(YssL(symbol, tf, shift + k) <= l)
          return false;
-      if(iLow(symbol, tf, shift - k) <= l)
+      if(YssL(symbol, tf, shift - k) <= l)
          return false;
      }
    return true;
@@ -62,8 +64,8 @@ bool YssSwingHighBefore(const string symbol,
      {
       if(!YssIsSwingHigh(symbol, tf, s, strength))
          continue;
-      level = iHigh(symbol, tf, s);
-      when  = iTime(symbol, tf, s);
+      level = YssH(symbol, tf, s);
+      when  = YssT(symbol, tf, s);
       return (level > 0.0 && when > 0);
      }
    return false;
@@ -87,8 +89,8 @@ bool YssSwingLowBefore(const string symbol,
      {
       if(!YssIsSwingLow(symbol, tf, s, strength))
          continue;
-      level = iLow(symbol, tf, s);
-      when  = iTime(symbol, tf, s);
+      level = YssL(symbol, tf, s);
+      when  = YssT(symbol, tf, s);
       return (level > 0.0 && when > 0);
      }
    return false;
@@ -106,9 +108,9 @@ bool YssBosDemand(const string symbol,
       return false;
    for(int j = firstShift; j >= endShift; j--)
      {
-      if(iClose(symbol, tf, j) > swingHigh)
+      if(YssC(symbol, tf, j) > swingHigh)
         {
-         bosTime = iTime(symbol, tf, j);
+         bosTime = YssT(symbol, tf, j);
          return true;
         }
      }
@@ -127,9 +129,9 @@ bool YssBosSupply(const string symbol,
       return false;
    for(int j = firstShift; j >= endShift; j--)
      {
-      if(iClose(symbol, tf, j) < swingLow)
+      if(YssC(symbol, tf, j) < swingLow)
         {
-         bosTime = iTime(symbol, tf, j);
+         bosTime = YssT(symbol, tf, j);
          return true;
         }
      }

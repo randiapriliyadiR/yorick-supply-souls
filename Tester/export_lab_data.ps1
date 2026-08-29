@@ -1,13 +1,16 @@
 #Requires -Version 5.1
 param(
   [Parameter(Mandatory)][string]$HtmlPath,
-  [Parameter(Mandatory)][ValidateSet("m5_best","d1_best")][string]$StandId,
+  [Parameter(Mandatory)][string]$StandId,
   [Parameter(Mandatory)][double]$Deposit,
   [string]$DocsData = "",
   [string]$Label = "",
   [string]$Period = "",
   [double]$Risk = 2,
-  [string]$GuardLabel = ""
+  [string]$GuardLabel = "",
+  [string]$ModelLabel = "Every tick based on real ticks",
+  [string]$Broker = "XAUUSD_Exness (imported ticks)",
+  [switch]$ReplaceCatalog
 )
 
 Set-StrictMode -Version Latest
@@ -155,24 +158,24 @@ function Write-JsonFile {
 }
 
 function Update-StandsJson {
-  param([string]$StandsPath, [string]$StandId, [hashtable]$StandEntry)
-  if (Test-Path -LiteralPath $StandsPath) {
+  param([string]$StandsPath, [string]$StandId, [hashtable]$StandEntry, [bool]$ReplaceCatalog)
+  if ((-not $ReplaceCatalog) -and (Test-Path -LiteralPath $StandsPath)) {
     $catalog = Get-Content -LiteralPath $StandsPath -Raw -Encoding UTF8 | ConvertFrom-Json
   } else {
-    $catalog = [pscustomobject]@{ version="1.05.0"; updated=(Get-Date -Format "yyyy-MM-dd"); defaultStand="m5_best"; stands=@() }
+    $catalog = [pscustomobject]@{ version="1.11.0"; updated=(Get-Date -Format "yyyy-MM-dd"); defaultStand=$StandId; stands=@() }
   }
   $standsList = [System.Collections.Generic.List[object]]@()
   $found = $false
-  foreach ($s in $catalog.stands) {
+  foreach ($s in @($catalog.stands)) {
+    if ($null -eq $s) { continue }
     if ($s.id -eq $StandId) { $standsList.Add([pscustomobject]$StandEntry); $found = $true }
     else { $standsList.Add($s) }
   }
   if (-not $found) { $standsList.Add([pscustomobject]$StandEntry) }
-  $orderedStands = $standsList | Sort-Object { if ($_.id -eq 'm5_best') { 0 } elseif ($_.id -eq 'd1_best') { 1 } else { 2 } }, id
   $out = [pscustomobject]@{
-    version="1.05.0"; updated=(Get-Date -Format "yyyy-MM-dd")
-    defaultStand= if ($catalog.defaultStand) { $catalog.defaultStand } else { "m5_best" }
-    stands=@($orderedStands)
+    version="1.11.0"; updated=(Get-Date -Format "yyyy-MM-dd")
+    defaultStand= if ($ReplaceCatalog) { $StandId } elseif ($catalog.defaultStand) { $catalog.defaultStand } else { $StandId }
+    stands=@($standsList)
   }
   Write-JsonFile -Path $StandsPath -Object $out
 }
@@ -205,10 +208,10 @@ $standEntry = @{
   id=$StandId; label= if ($Label) { $Label } else { $StandId }; symbol=$summary.symbol
   period= if ($Period) { $Period } else { "M5" }; deposit=$Deposit; risk=$Risk
   guard= if ($GuardLabel) { $GuardLabel } else { "" }; from=$summary.from; to=$summary.to
-  model="1 minute OHLC"; broker="Exness MT5"; net=[math]::Round($summary.net, 2)
+  model=$ModelLabel; broker=$Broker; net=[math]::Round($summary.net, 2)
   profitFactor=[math]::Round($summary.profitFactor, 2); equityDdPct=[math]::Round($summary.equityDdPct, 2)
   trades=$trades.Count; winRate=$summary.winRate; equity="$StandId/equity.json"; months="$StandId/months.json"; tradesDir="$StandId/trades"
 }
-Update-StandsJson -StandsPath (Join-Path $DocsData "stands.json") -StandId $StandId -StandEntry $standEntry
+Update-StandsJson -StandsPath (Join-Path $DocsData "stands.json") -StandId $StandId -StandEntry $standEntry -ReplaceCatalog:$ReplaceCatalog
 Write-Host "Exported $($trades.Count) trades across $($months.Count) months -> $standDir"
 Write-Host "Summary: net=$($summary.net) PF=$($summary.profitFactor) trades=$($summary.totalTrades) equityDD=$($summary.equityDdPct)%"

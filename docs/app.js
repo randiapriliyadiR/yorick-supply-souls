@@ -10,7 +10,7 @@ const money = (n) => {
 const pct = (n) => (n == null ? "\u2014" : n.toFixed(1) + "%");
 
 let DATA = null;
-let standId = "m5_best";
+let standId = "mtf_healthy";
 let equityChart = null;
 let months = [];
 let monthIdx = 0;
@@ -490,7 +490,7 @@ function closeHistoryModal() {
   document.body.classList.remove("modal-open");
 }
 async function setStand(id) {
-  standId = id || "m5_best";
+  standId = id || "mtf_healthy";
   months = await loadMonths(stand());
   monthIdx = Math.max(0, months.length - 1);
   page = 0;
@@ -578,7 +578,7 @@ function wireEvents() {
 
 async function boot() {
   await loadStands();
-  standId = DATA.defaultStand || "m5_best";
+  standId = DATA.defaultStand || "mtf_healthy";
   wireEvents();
   await setStand(standId);
 }

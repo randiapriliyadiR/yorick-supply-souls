@@ -1,0 +1,102 @@
+{
+    "trades":  [
+                   {
+                       "id":  75,
+                       "side":  "sell",
+                       "volume":  35.27,
+                       "openTime":  "2021.12.02 14:00:34",
+                       "closeTime":  "2021.12.02 14:33:42",
+                       "openPrice":  1775.88,
+                       "closePrice":  1773.896,
+                       "profit":  6997.57,
+                       "balance":  135499.53,
+                       "comment":  "YSS M5 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  77,
+                       "side":  "sell",
+                       "volume":  41.21,
+                       "openTime":  "2021.12.03 09:58:35",
+                       "closeTime":  "2021.12.03 10:29:02",
+                       "openPrice":  1768.38,
+                       "closePrice":  1771.745,
+                       "profit":  -13867.17,
+                       "balance":  121632.36,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  79,
+                       "side":  "buy",
+                       "volume":  29.39,
+                       "openTime":  "2021.12.06 15:32:12",
+                       "closeTime":  "2021.12.06 15:36:25",
+                       "openPrice":  1779.92,
+                       "closePrice":  1781.49,
+                       "profit":  4614.23,
+                       "balance":  126246.59,
+                       "comment":  "YSS M5 demand",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  81,
+                       "side":  "sell",
+                       "volume":  39.72,
+                       "openTime":  "2021.12.17 14:22:30",
+                       "closeTime":  "2021.12.17 14:32:04",
+                       "openPrice":  1806.76,
+                       "closePrice":  1805.497,
+                       "profit":  5016.64,
+                       "balance":  131263.23,
+                       "comment":  "YSS M5 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  83,
+                       "side":  "sell",
+                       "volume":  100,
+                       "openTime":  "2021.12.20 04:42:23",
+                       "closeTime":  "2021.12.20 04:51:28",
+                       "openPrice":  1801.66,
+                       "closePrice":  1801.723,
+                       "profit":  -630,
+                       "balance":  130633.23,
+                       "comment":  "YSS M5 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  85,
+                       "side":  "sell",
+                       "volume":  55.32,
+                       "openTime":  "2021.12.20 21:51:53",
+                       "closeTime":  "2021.12.21 05:33:46",
+                       "openPrice":  1790.38,
+                       "closePrice":  1792.838,
+                       "profit":  -13877.58,
+                       "balance":  116755.65,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  -279.92
+                   },
+                   {
+                       "id":  87,
+                       "side":  "sell",
+                       "volume":  87.91,
+                       "openTime":  "2021.12.23 14:22:23",
+                       "closeTime":  "2021.12.23 14:30:30",
+                       "openPrice":  1807.02,
+                       "closePrice":  1805.448,
+                       "profit":  13819.45,
+                       "balance":  130575.1,
+                       "comment":  "YSS M5 supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

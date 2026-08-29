@@ -1,0 +1,102 @@
+{
+    "trades":  [
+                   {
+                       "id":  91,
+                       "side":  "buy",
+                       "volume":  100,
+                       "openTime":  "2022.02.02 01:30:58",
+                       "closeTime":  "2022.02.02 01:47:23",
+                       "openPrice":  1801.15,
+                       "closePrice":  1801.4,
+                       "profit":  2500,
+                       "balance":  137540.06,
+                       "comment":  "YSS M5 demand",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  93,
+                       "side":  "buy",
+                       "volume":  47.47,
+                       "openTime":  "2022.02.03 17:01:40",
+                       "closeTime":  "2022.02.03 18:26:37",
+                       "openPrice":  1806.45,
+                       "closePrice":  1803.474,
+                       "profit":  -14127.07,
+                       "balance":  123412.99,
+                       "comment":  "YSS M5 demand",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  95,
+                       "side":  "sell",
+                       "volume":  99.36,
+                       "openTime":  "2022.02.08 18:35:38",
+                       "closeTime":  "2022.02.08 19:04:48",
+                       "openPrice":  1827.5,
+                       "closePrice":  1828.817,
+                       "profit":  -13085.71,
+                       "balance":  110327.28,
+                       "comment":  "YSS M5 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  97,
+                       "side":  "sell",
+                       "volume":  100,
+                       "openTime":  "2022.02.09 01:13:07",
+                       "closeTime":  "2022.02.09 01:26:28",
+                       "openPrice":  1826.8,
+                       "closePrice":  1825.599,
+                       "profit":  12010,
+                       "balance":  122337.28,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  99,
+                       "side":  "buy",
+                       "volume":  100,
+                       "openTime":  "2022.02.18 01:01:16",
+                       "closeTime":  "2022.02.18 01:07:34",
+                       "openPrice":  1898.15,
+                       "closePrice":  1898.078,
+                       "profit":  -720,
+                       "balance":  121617.28,
+                       "comment":  "YSS M15 demand",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  101,
+                       "side":  "sell",
+                       "volume":  25.5,
+                       "openTime":  "2022.02.22 10:57:09",
+                       "closeTime":  "2022.02.22 11:25:48",
+                       "openPrice":  1895.35,
+                       "closePrice":  1894.089,
+                       "profit":  3215.55,
+                       "balance":  124832.83,
+                       "comment":  "YSS M5 supply",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  103,
+                       "side":  "buy",
+                       "volume":  34.57,
+                       "openTime":  "2022.02.28 14:06:05",
+                       "closeTime":  "2022.02.28 14:31:42",
+                       "openPrice":  1915.33,
+                       "closePrice":  1911.624,
+                       "profit":  -12811.64,
+                       "balance":  112021.19,
+                       "comment":  "YSS M5 demand",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

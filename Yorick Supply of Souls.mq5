@@ -7,9 +7,9 @@
 //+------------------------------------------------------------------+
 #property copyright "Randi Apriliyadi"
 #property link      "https://github.com/randiapriliyadiR/yorick-supply-souls"
-#property version   "1.05"
+#property version   "1.11"
 #property strict
-#property description "Yorick Supply of Souls — M5 gold shepherd, tuned 2% soul budget + grave guard"
+#property description "Yorick Supply of Souls — gold shepherd, light chart load + tester path"
 
 // Bundle overlays from this project folder (no MQL5/Indicators copy required).
 #resource "Indicators\\Yorick Structure.ex5"
@@ -25,8 +25,11 @@
 
 input group "=== Flock ==="
 input string           InpSymbol          = "XAUUSD";   // Grave market filter (substring ok)
-input ENUM_TIMEFRAMES  InpTF              = PERIOD_M5;  // Shepherd timeframe
-input double           InpRiskPct         = 2.0;        // Soul budget (% of balance)
+input ENUM_TIMEFRAMES  InpTF              = PERIOD_M5;  // Chart / tick clock
+input ENUM_TIMEFRAMES  InpTrendTF         = PERIOD_H4;  // Major trend (video 2 gate)
+input string           InpZoneTFs         = "M5,M15"; // Entry zone TFs (comma-separated, max 4)
+input bool             InpOnePosPerTf     = false;    // true=1 pos per entry TF; false=1 pos global
+input double           InpRiskPct         = 0.5;        // Soul budget (% of balance)
 input ulong            InpMagic           = 26082603;   // Identity stamp
 input ulong            InpDeviation       = 50;         // Slippage allowance (points)
 input int              InpMaxSpreadPoints = 0;          // Max fog / spread (0 = off)
@@ -40,17 +43,26 @@ input int    InpLookback        = 200;      // Grave scan depth (bars)
 input int    InpMaxImpulseBars  = 15;       // Max surge bars
 input bool   InpRequireBos      = true;     // Structure gate
 input bool   InpRequireFvg      = true;     // Gap gate
-input bool   InpRequireSlow     = false;    // Gentle return gate
+input bool   InpRequireSlow     = true;     // Gentle return gate
 input double InpSlowMaxAtr      = 0.8;      // Gentle: max bar breath
 input double InpSharpAtr        = 1.2;      // Sharp: reject bar breath
 input int    InpMinApproachBars = 2;        // Min return bars
-input double InpSlZoneMult      = 2.5;      // Grave buffer (× zone depth)
+input double InpSlZoneMult      = 2.0;      // Grave buffer (× zone depth; 2.0 tuned on real ticks)
+
+input group "=== Structure filters (video 2) ==="
+input bool   InpRequireTrend    = true;     // Demand in uptrend, supply in downtrend
+input bool   InpRequireMinRr     = false;    // Skip if reward/risk too low (OFF = usable frequency)
+input double InpMinRiskReward   = 2.5;      // Minimum TP distance vs SL (R)
 
 input group "=== Grave Guard ==="
 input bool   InpUseGuard        = true;     // BEP + trail (lock soul after touch)
 input double InpBeTriggerR      = 0.5;      // Move SL to BEP after this many R
 input double InpTrailStartR     = 0.5;      // Start trail after this many R
 input double InpTrailDistR      = 0.5;      // Trail distance (R behind best)
+
+input group "=== Debug (commission sim) ==="
+input bool   InpSimCommission      = true;  // Strategy Tester only (ignored live)
+input double InpCommissionPerLot   = 3.5;   // USD per lot per side (Exness Raw ≈ 3.5)
 
 bool YssSymbolAllowed(void)
   {
@@ -72,15 +84,13 @@ bool YssNewBar(void)
 
 void YssRelease(void)
   {
-   if(g_hAtr != INVALID_HANDLE)
-      IndicatorRelease(g_hAtr);
+   YssReleaseZoneAtr();
    if(g_hStruct != INVALID_HANDLE)
       IndicatorRelease(g_hStruct);
    if(g_hFvg != INVALID_HANDLE)
       IndicatorRelease(g_hFvg);
    if(g_hZones != INVALID_HANDLE)
       IndicatorRelease(g_hZones);
-   g_hAtr = INVALID_HANDLE;
    g_hStruct = INVALID_HANDLE;
    g_hFvg = INVALID_HANDLE;
    g_hZones = INVALID_HANDLE;
@@ -93,14 +103,18 @@ int OnInit()
       Print("YSS: symbol mismatch, chart=", _Symbol, " expected=", InpSymbol);
       return(INIT_FAILED);
      }
+   if(StringLen(InpZoneTFs) <= 0)
+      return(INIT_PARAMETERS_INCORRECT);
    if(InpRiskPct <= 0.0 || InpAtrPeriod < 1 || InpImpulseAtrMult <= 0.0 ||
       InpBodyAtrMult <= 0.0 || InpSwingStrength < 1 || InpLookback < 30 ||
       InpMaxImpulseBars < 2 || InpSlZoneMult < 1.0 || InpMinApproachBars < 1 ||
-      InpBeTriggerR <= 0.0 || InpTrailStartR <= 0.0 || InpTrailDistR <= 0.0)
+      InpBeTriggerR <= 0.0 || InpTrailStartR <= 0.0 || InpTrailDistR <= 0.0 ||
+      InpMinRiskReward <= 0.0 || InpCommissionPerLot < 0.0)
       return(INIT_PARAMETERS_INCORRECT);
 
    g_yss_cfg.symbol          = _Symbol;
    g_yss_cfg.tf              = YssResolveTf(InpTF);
+   g_yss_cfg.trendTf         = YssResolveTf(InpTrendTF);
    g_yss_cfg.riskPct         = InpRiskPct;
    g_yss_cfg.magic           = InpMagic;
    g_yss_cfg.deviation       = InpDeviation;
@@ -118,46 +132,104 @@ int OnInit()
    g_yss_cfg.sharpAtr        = InpSharpAtr;
    g_yss_cfg.minApproachBars = InpMinApproachBars;
    g_yss_cfg.slZoneMult      = InpSlZoneMult;
+   g_yss_cfg.requireTrend    = InpRequireTrend;
+   g_yss_cfg.requireMinRr    = InpRequireMinRr;
+   g_yss_cfg.minRiskReward   = InpMinRiskReward;
    g_yss_cfg.useGuard        = InpUseGuard;
    g_yss_cfg.beTriggerR      = InpBeTriggerR;
    g_yss_cfg.trailStartR     = InpTrailStartR;
    g_yss_cfg.trailDistR      = InpTrailDistR;
+   g_yss_cfg.simCommission   = InpSimCommission;
+   g_yss_cfg.commissionPerLot = InpCommissionPerLot;
+   g_yss_cfg.onePosPerTf     = InpOnePosPerTf;
 
-   g_yss_zoneCount = 0;
-   g_yss_usedCount = 0;
+   YssZonesResetAll();
+   g_yss_needScan = true;
+   g_yss_atrNow = 0.0;
+   g_yss_posTicket = 0;
+   g_yss_inTrade = false;
+   g_yss_openCount = 0;
+   g_yss_uiReady = false;
+   g_yss_uiPhase = 0;
+   g_yss_commissionPaid = 0.0;
    YssGuardReset();
    ZeroMemory(g_yss_view);
    g_yss_view.reason = "idle";
 
-   g_hAtr = iATR(_Symbol, g_yss_cfg.tf, InpAtrPeriod);
-   g_hStruct = iCustom(_Symbol, g_yss_cfg.tf, "::Indicators\\Yorick Structure",
-                       InpSwingStrength, InpLookback);
-   g_hFvg = iCustom(_Symbol, g_yss_cfg.tf, "::Indicators\\Yorick FVG", InpLookback);
-   g_hZones = iCustom(_Symbol, g_yss_cfg.tf, "::Indicators\\Yorick Zones",
-                      InpAtrPeriod, InpImpulseAtrMult, InpBodyAtrMult,
-                      InpSwingStrength, InpLookback, InpMaxImpulseBars,
-                      InpRequireBos, InpRequireFvg, InpSlZoneMult);
+   g_yss_lastBar = 0;
 
-   if(g_hAtr == INVALID_HANDLE)
+   if(!YssInitZoneTfsFromString(InpZoneTFs, InpAtrPeriod))
      {
-      Print("YSS: ATR handle failed");
+      Print("YSS: zone TF init failed (InpZoneTFs='", InpZoneTFs, "', max ", YSS_MAX_ZONE_TFS, ")");
       YssRelease();
       return(INIT_FAILED);
      }
+
+   if(InpOnePosPerTf)
+     {
+      const long mm = AccountInfoInteger(ACCOUNT_MARGIN_MODE);
+      if(mm != ACCOUNT_MARGIN_MODE_RETAIL_HEDGING && mm != ACCOUNT_MARGIN_MODE_EXCHANGE)
+         Print("YSS: OnePosPerTf needs hedging account; netting will merge same-symbol positions");
+      Print("YSS: position mode = 1 per entry TF (", YssZoneTfsText(), ")");
+     }
+   else
+      Print("YSS: position mode = 1 global for all entry TFs");
+
+   if(YssCommissionActive())
+      Print("YSS: tester commission sim ON — $",
+            DoubleToString(InpCommissionPerLot, 2), "/lot/side (round-trip baked into SL/TP)");
+   else if(InpSimCommission && InpCommissionPerLot > 0.0)
+      Print("YSS: commission sim skipped (live chart — broker already charges)");
+
+   YssOrdersInit(InpMagic, InpDeviation);
+
+   if(YssShowUi())
+      EventSetMillisecondTimer(1);
+   return(INIT_SUCCEEDED);
+  }
+
+void YssCreateOverlays(void)
+  {
+   if(!YssShowUi())
+      return;
+   if(g_hStruct == INVALID_HANDLE)
+      g_hStruct = iCustom(_Symbol, g_yss_cfg.tf, "::Indicators\\Yorick Structure",
+                          InpSwingStrength, InpLookback);
+   if(g_hFvg == INVALID_HANDLE)
+      g_hFvg = iCustom(_Symbol, g_yss_cfg.tf, "::Indicators\\Yorick FVG", InpLookback);
+   if(g_hZones == INVALID_HANDLE)
+      g_hZones = iCustom(_Symbol, g_yss_cfg.tf, "::Indicators\\Yorick Zones",
+                         InpAtrPeriod, InpImpulseAtrMult, InpBodyAtrMult,
+                         InpSwingStrength, InpLookback, InpMaxImpulseBars,
+                         InpRequireBos, InpRequireFvg, InpSlZoneMult);
    if(g_hStruct == INVALID_HANDLE || g_hFvg == INVALID_HANDLE || g_hZones == INVALID_HANDLE)
       Print("YSS: overlay handle failed struct=", g_hStruct,
             " fvg=", g_hFvg, " zones=", g_hZones);
-
-   YssOrdersInit(InpMagic, InpDeviation);
-   g_yss_lastBar = 0;
-
    YssChartAttach();
-   YssPanelUpdate();
-   return(INIT_SUCCEEDED);
+  }
+
+void OnTimer()
+  {
+   if(!YssShowUi())
+     {
+      EventKillTimer();
+      return;
+     }
+   if(g_yss_uiPhase == 0)
+     {
+      YssFillView(g_yss_atrNow, g_yss_inTrade, g_yss_posTicket);
+      YssPanelUpdate();
+      g_yss_uiPhase = 1;
+      return;
+     }
+   EventKillTimer();
+   YssCreateOverlays();
+   g_yss_uiReady = true;
   }
 
 void OnDeinit(const int reason)
   {
+   EventKillTimer();
    YssPanelRemove();
    YssChartDetach();
    YssRelease();
@@ -171,16 +243,24 @@ void OnTick()
    const bool newBar = YssNewBar();
    YssEngineStep(newBar);
 
-   ulong ticket = 0;
-   const bool inTrade = YssSelectPosition(_Symbol, InpMagic, ticket);
-   if(inTrade && PositionSelectByTicket(ticket))
+   if(!YssShowUi())
+      return;
+
+   static uint lastUi = 0;
+   const uint now = GetTickCount();
+   if(!newBar && (now - lastUi) < 250)
+      return;
+   lastUi = now;
+
+   YssFillView(g_yss_atrNow, g_yss_inTrade, g_yss_posTicket);
+   if(g_yss_inTrade && g_yss_posTicket != 0 && PositionSelectByTicket(g_yss_posTicket))
      {
       g_yss_view.posProfit = PositionGetDouble(POSITION_PROFIT)
                              + PositionGetDouble(POSITION_SWAP);
       g_yss_view.posSl     = PositionGetDouble(POSITION_SL);
       g_yss_view.posTp     = PositionGetDouble(POSITION_TP);
       g_yss_view.posLots   = PositionGetDouble(POSITION_VOLUME);
-      g_yss_view.posDir    = YssPosDir(ticket);
+      g_yss_view.posDir    = YssPosDir(g_yss_posTicket);
       g_yss_view.balance   = AccountInfoDouble(ACCOUNT_BALANCE);
       g_yss_view.equity    = AccountInfoDouble(ACCOUNT_EQUITY);
      }

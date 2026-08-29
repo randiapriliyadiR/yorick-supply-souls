@@ -9,6 +9,10 @@
 #define YSS_SL_LINE "YSS_SL_LINE"
 #define YSS_TP_LINE "YSS_TP_LINE"
 
+double g_yss_lvlSl = 0.0;
+double g_yss_lvlTp = 0.0;
+int    g_yss_lvlDir = 0;
+
 bool YssChartAdd(const int handle)
   {
    if(handle == INVALID_HANDLE)
@@ -64,6 +68,11 @@ void YssChartLevels(const double sl, const double tp, const int dir)
   {
    if(!YssShowUi())
       return;
+   if(dir == g_yss_lvlDir && MathAbs(sl - g_yss_lvlSl) < 1e-12 && MathAbs(tp - g_yss_lvlTp) < 1e-12)
+      return;
+   g_yss_lvlDir = dir;
+   g_yss_lvlSl = sl;
+   g_yss_lvlTp = tp;
    if(dir == 0)
      {
       ObjectDelete(0, YSS_SL_LINE);

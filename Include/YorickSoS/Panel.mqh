@@ -14,7 +14,7 @@
 #define YSS_PNL_ROW      17
 #define YSS_PNL_TITLE_H  22
 #define YSS_PNL_WIDTH    392
-#define YSS_PNL_ROWS     11
+#define YSS_PNL_ROWS     12
 
 #define YSS_PNL_BG       C'18,16,22'
 #define YSS_PNL_BORDER   C'62,58,72'
@@ -192,7 +192,10 @@ void YssPanelUpdate(void)
    y += YSS_PNL_ROW;
    YssPnlLabel("APP", tx, y, "APPROACH  " + appTxt, appClr, 8, false);
    y += YSS_PNL_ROW;
-   YssPnlLabel("POS", tx, y, "POS       " + posTxt, posClr, 8, false);
+   YssPnlLabel("POS", tx, y, "POS       " + posTxt +
+               (g_yss_openCount > 1 ? ("  x" + IntegerToString(g_yss_openCount)) : "") +
+               (g_yss_cfg.onePosPerTf ? "  [perTF]" : "  [global]"),
+               posClr, 8, false);
    y += YSS_PNL_ROW;
    YssPnlLabel("BAL", tx, y,
                "BAL       " + DoubleToString(v.balance, 2) +
@@ -205,6 +208,15 @@ void YssPanelUpdate(void)
                DoubleToString(v.nextLots, 2) + " lot",
                YSS_PNL_ACCENT, 8, false);
    y += YSS_PNL_ROW;
+   if((g_yss_cfg.simCommission && g_yss_cfg.commissionPerLot > 0.0 &&
+       (bool)MQLInfoInteger(MQL_TESTER)) || v.commissionPaid > 0.0)
+     {
+      YssPnlLabel("COMM", tx, y,
+                  "COMM SIM  $" + DoubleToString(g_yss_cfg.commissionPerLot, 2) +
+                  "/lot/side  paid≈$" + DoubleToString(v.commissionPaid, 2),
+                  YSS_PNL_MUTED, 8, false);
+      y += YSS_PNL_ROW;
+     }
    YssPnlLabel("WHY", tx, y, "WHY       " + StringSubstr(v.reason, 0, 42),
                YSS_PNL_MUTED, 8, false);
 
