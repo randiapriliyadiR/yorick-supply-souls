@@ -1,0 +1,18 @@
+{
+    "trades":  [
+                   {
+                       "id":  71,
+                       "side":  "sell",
+                       "volume":  0.02,
+                       "openTime":  "2022.10.21 05:33:58",
+                       "closeTime":  "2022.10.21 06:01:34",
+                       "openPrice":  1.11902,
+                       "closePrice":  1.11849,
+                       "profit":  1.06,
+                       "balance":  207.41,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

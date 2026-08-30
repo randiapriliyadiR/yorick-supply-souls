@@ -1,0 +1,18 @@
+{
+    "trades":  [
+                   {
+                       "id":  121,
+                       "side":  "sell",
+                       "volume":  8.64,
+                       "openTime":  "2024.01.08 08:34:08",
+                       "closeTime":  "2024.01.08 08:42:36",
+                       "openPrice":  1.27062,
+                       "closePrice":  1.26934,
+                       "profit":  1105.92,
+                       "balance":  120797.38,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

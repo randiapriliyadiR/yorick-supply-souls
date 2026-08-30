@@ -1,0 +1,18 @@
+{
+    "trades":  [
+                   {
+                       "id":  185,
+                       "side":  "buy",
+                       "volume":  0.08,
+                       "openTime":  "2025.11.05 00:40:11",
+                       "closeTime":  "2025.11.05 05:14:37",
+                       "openPrice":  1.30174,
+                       "closePrice":  1.3027,
+                       "profit":  7.68,
+                       "balance":  288.5,
+                       "comment":  "YSS M15 demand",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

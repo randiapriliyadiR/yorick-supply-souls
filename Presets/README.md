@@ -8,6 +8,7 @@ Load in MT5: attach EA → Inputs → Load → pick a file from this folder.
 | `YorickSoS_XAU_ProBest.set` | `XAUUSD_ExnessPro` | SlowMax **0.7** |
 | `YorickSoS_EUR_ProBest.set` | `EURUSD_ExnessPro` | M15 · Risk **1.5%** · MinRR **1.5** (~+42% / DD ~18%) |
 | `YorickSoS_EUR_ProSafe.set` | `EURUSD_ExnessPro` | Risk **0.5%** · MinRR **1.8** (~+9% / DD ~3%) |
+| `YorickSoS_GBP_ProBest.set` | `GBPUSD_ExnessPro` | M15 · Risk **2.5%** · Slx **3.5** · SlowMax **1.0** · Guard **1.0R** · ATR OFF (~+44%/$200 · +59%/$100k) |
 | `YorickSoS_USTEC_ProVideoH4.set` | `USTEC_ExnessPro` | **Video baseline** H4 · Risk **2%** · SlowMax **1.0** · Guard **1.0R** (thin: 11 trades) |
 
-Lab portfolio (`mtf_200` / `mtf_100k`) now defaults **XAU + EUR** both ON.
+Lab portfolio (`mtf_200` / `mtf_100k`) defaults **XAU + EUR + GBP** ON.

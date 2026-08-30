@@ -1,6 +1,6 @@
-﻿{
-    "version":  "1.17.0",
-    "updated":  "2026-08-30",
+{
+    "version":  "1.18.0",
+    "updated":  "2026-08-31",
     "defaultStand":  "mtf_200",
     "stands":  [
                    {
@@ -70,6 +70,14 @@
                                         "symbol":  "EURUSD_ExnessPro",
                                         "tradesAll":  "eur_200/trades_all.json",
                                         "tradesDir":  "eur_200/trades",
+                                        "enabledDefault":  true
+                                    },
+                                    {
+                                        "id":  "gbp",
+                                        "label":  "GBP",
+                                        "symbol":  "GBPUSD_ExnessPro",
+                                        "tradesAll":  "gbp_200/trades_all.json",
+                                        "tradesDir":  "gbp_200/trades",
                                         "enabledDefault":  true
                                     }
                                 ]
@@ -141,6 +149,14 @@
                                         "symbol":  "EURUSD_ExnessPro",
                                         "tradesAll":  "eur_100k/trades_all.json",
                                         "tradesDir":  "eur_100k/trades",
+                                        "enabledDefault":  true
+                                    },
+                                    {
+                                        "id":  "gbp",
+                                        "label":  "GBP",
+                                        "symbol":  "GBPUSD_ExnessPro",
+                                        "tradesAll":  "gbp_100k/trades_all.json",
+                                        "tradesDir":  "gbp_100k/trades",
                                         "enabledDefault":  true
                                     }
                                 ]
@@ -267,6 +283,185 @@
                                         "symbol":  "EURUSD_ExnessPro",
                                         "tradesAll":  "eur_100k/trades_all.json",
                                         "tradesDir":  "eur_100k/trades",
+                                        "enabledDefault":  true
+                                    }
+                                ]
+                   },
+                   {
+                       "to":  "2025.12.31",
+                       "period":  "M15",
+                       "id":  "eur_safe_100k",
+                       "worstLoss":  {
+                                         "id":  203,
+                                         "side":  "buy",
+                                         "volume":  3.38,
+                                         "openTime":  "2022.10.13 12:30:01",
+                                         "closeTime":  "2022.10.13 12:30:02",
+                                         "openPrice":  0.97215,
+                                         "closePrice":  0.97037,
+                                         "profit":  -601.64,
+                                         "balance":  103754.02,
+                                         "comment":  "YSS M15 demand",
+                                         "commission":  0,
+                                         "swap":  0
+                                     },
+                       "trades":  263,
+                       "tradesDir":  "eur_safe_100k/trades",
+                       "model":  "Every tick based on real ticks",
+                       "months":  "eur_safe_100k/months.json",
+                       "net":  8823.16,
+                       "label":  "EUR ProSafe  Risk0.5 MinRR1.8",
+                       "profitFactor":  1.17,
+                       "dailyDdPct":  1.04,
+                       "equity":  "eur_safe_100k/equity.json",
+                       "winRate":  "50 (19.01%)",
+                       "equityDdMoney":  7244.83,
+                       "equityDdPct":  6.8,
+                       "broker":  "EURUSD_ExnessPro · Safe",
+                       "bestWin":  {
+                                       "id":  7,
+                                       "side":  "sell",
+                                       "volume":  6.81,
+                                       "openTime":  "2021.03.15 01:28:26",
+                                       "closeTime":  "2021.03.15 15:35:05",
+                                       "openPrice":  1.19615,
+                                       "closePrice":  1.19151,
+                                       "profit":  3159.84,
+                                       "balance":  102626.38,
+                                       "comment":  "YSS M15 supply",
+                                       "commission":  0,
+                                       "swap":  0
+                                   },
+                       "returnPct":  8.8,
+                       "from":  "2021.01.01",
+                       "symbol":  "EURUSD_ExnessPro",
+                       "guard":  "0.5R BEP+trail",
+                       "deposit":  100000,
+                       "dailyDdMoney":  1122.37,
+                       "risk":  0.5
+                   },
+                   {
+                       "to":  "2025.12.22",
+                       "period":  "M15 (zones M15)",
+                       "id":  "gbp_200",
+                       "worstLoss":  {
+                                         "id":  179,
+                                         "side":  "sell",
+                                         "volume":  0.03,
+                                         "openTime":  "2025.10.06 11:34:40",
+                                         "closeTime":  "2025.10.06 13:44:01",
+                                         "openPrice":  1.34312,
+                                         "closePrice":  1.34541,
+                                         "profit":  -6.87,
+                                         "balance":  275.87,
+                                         "comment":  "YSS M15 supply",
+                                         "commission":  0,
+                                         "swap":  0
+                                     },
+                       "trades":  92,
+                       "tradesDir":  "gbp_200/trades",
+                       "model":  "Every tick based on real ticks",
+                       "months":  "gbp_200/months.json",
+                       "net":  88.5,
+                       "label":  "GBP Pro  · M15 · Risk 2.5% · Slx3.5 · SlowMax1.0 · Guard1R · ATR OFF",
+                       "profitFactor":  1.83,
+                       "dailyDdPct":  4.06,
+                       "equity":  "gbp_200/equity.json",
+                       "winRate":  "67 (72.83%)",
+                       "equityDdMoney":  25.9,
+                       "equityDdPct":  12.9,
+                       "broker":  "GBPUSD_ExnessPro · Risk2.5 / Slx3.5 / ATR OFF",
+                       "bestWin":  {
+                                       "id":  165,
+                                       "side":  "sell",
+                                       "volume":  0.04,
+                                       "openTime":  "2025.05.26 13:21:45",
+                                       "closeTime":  "2025.05.28 00:00:00",
+                                       "openPrice":  1.35585,
+                                       "closePrice":  1.35148,
+                                       "profit":  17.3,
+                                       "balance":  286.59,
+                                       "comment":  "YSS M15 supply",
+                                       "commission":  0,
+                                       "swap":  -0.18
+                                   },
+                       "returnPct":  44.2,
+                       "from":  "2021.01.01",
+                       "symbol":  "GBPUSD_ExnessPro",
+                       "guard":  "1.0R BEP+trail",
+                       "deposit":  200,
+                       "dailyDdMoney":  7.85,
+                       "risk":  2.5,
+                       "legs":  [
+                                    {
+                                        "id":  "gbp",
+                                        "label":  "GBP",
+                                        "symbol":  "GBPUSD_ExnessPro",
+                                        "tradesAll":  "gbp_200/trades_all.json",
+                                        "tradesDir":  "gbp_200/trades",
+                                        "enabledDefault":  true
+                                    }
+                                ]
+                   },
+                   {
+                       "to":  "2025.12.22",
+                       "period":  "M15 (zones M15)",
+                       "id":  "gbp_100k",
+                       "worstLoss":  {
+                                         "id":  183,
+                                         "side":  "sell",
+                                         "volume":  31.99,
+                                         "openTime":  "2025.06.03 22:00:04",
+                                         "closeTime":  "2025.06.03 23:45:02",
+                                         "openPrice":  1.35183,
+                                         "closePrice":  1.35307,
+                                         "profit":  -3966.76,
+                                         "balance":  154747.21,
+                                         "comment":  "YSS M15 supply",
+                                         "commission":  0,
+                                         "swap":  0
+                                     },
+                       "trades":  100,
+                       "tradesDir":  "gbp_100k/trades",
+                       "model":  "Every tick based on real ticks",
+                       "months":  "gbp_100k/months.json",
+                       "net":  58728.68,
+                       "label":  "GBP Pro  · M15 · Risk 2.5% · Slx3.5 · SlowMax1.0 · Guard1R · ATR OFF",
+                       "profitFactor":  1.81,
+                       "dailyDdPct":  4.96,
+                       "equity":  "gbp_100k/equity.json",
+                       "winRate":  "74 (74.00%)",
+                       "equityDdMoney":  14672.54,
+                       "equityDdPct":  14.56,
+                       "broker":  "GBPUSD_ExnessPro · Risk2.5 / Slx3.5 / ATR OFF",
+                       "bestWin":  {
+                                       "id":  181,
+                                       "side":  "sell",
+                                       "volume":  24.67,
+                                       "openTime":  "2025.05.26 13:21:45",
+                                       "closeTime":  "2025.05.28 00:00:00",
+                                       "openPrice":  1.35585,
+                                       "closePrice":  1.35148,
+                                       "profit":  10672.25,
+                                       "balance":  158713.97,
+                                       "comment":  "YSS M15 supply",
+                                       "commission":  0,
+                                       "swap":  -108.54
+                                   },
+                       "returnPct":  58.7,
+                       "from":  "2021.01.01",
+                       "symbol":  "GBPUSD_ExnessPro",
+                       "guard":  "1.0R BEP+trail",
+                       "deposit":  100000,
+                       "dailyDdMoney":  4816.18,
+                       "risk":  2.5,
+                       "legs":  [
+                                    {
+                                        "id":  "gbp",
+                                        "label":  "GBP",
+                                        "symbol":  "GBPUSD_ExnessPro",
+                                        "tradesAll":  "gbp_100k/trades_all.json",
+                                        "tradesDir":  "gbp_100k/trades",
                                         "enabledDefault":  true
                                     }
                                 ]

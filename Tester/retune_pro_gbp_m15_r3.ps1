@@ -1,0 +1,75 @@
+﻿#Requires -Version 5.1
+# GBP M15 winner aggression: lift return without nuking PF/DD.
+$ErrorActionPreference = "Stop"
+$tester = $PSScriptRoot
+$run = Join-Path $tester "run_backtest.ps1"
+$csv = Join-Path $tester "health_tune_pro_gbp_m15_r3.csv"
+Set-Content -Path $csv -Value "Preset,Net,ReturnPct,PF,EquityDD,Trades,WinRate,Notes" -Encoding ASCII
+
+function Add-Row {
+  param($SumPath, $Name, $Notes, $Deposit = 100000)
+  $txt = Get-Content $SumPath -Raw
+  $net = if ($txt -match "Total Net Profit:\s*(.+)") { $Matches[1].Trim() } else { "?" }
+  $pf  = if ($txt -match "Profit Factor:\s*(.+)") { $Matches[1].Trim() } else { "?" }
+  $dd  = if ($txt -match "Equity DD Maximal:\s*(.+)") { $Matches[1].Trim() } else { "?" }
+  $tr  = if ($txt -match "Total Trades:\s*(.+)") { $Matches[1].Trim() } else { "?" }
+  $wr  = if ($txt -match "Profit Trades:\s*(.+)") { $Matches[1].Trim() } else { "?" }
+  $netNum = 0.0
+  if ($net -match "-?[\d\s]+(?:[\.,]\d+)?") { $netNum = [double](($Matches[0] -replace "\s","").Replace(",", ".")) }
+  $ret = [math]::Round(100.0 * $netNum / $Deposit, 1)
+  $line = ('"{0}","{1}","{2}","{3}","{4}","{5}","{6}","{7}"' -f $Name, $net, $ret, $pf, $dd, $tr, $wr, $Notes)
+  Add-Content -Path $csv -Value $line -Encoding ASCII
+  Write-Host ("ROW " + $line)
+}
+
+function Run-One {
+  param(
+    $Name, $Notes, $Deposit = 100000,
+    $RiskPct = 2.0,
+    $SlowMaxAtr = 1.0, $RequireSlow = "true",
+    $SlZoneMult = 3.5,
+    $RequireMinRr = "false", $MinRiskReward = 1.5,
+    $UseAtrRegime = "true",
+    $ImpulseAtrMult = 1.25, $BodyAtrMult = 0.65,
+    $BeTriggerR = 1.0, $TrailStartR = 1.0, $TrailDistR = 1.0,
+    $QualityMode = "0",
+    [switch]$SkipCompile
+  )
+  Write-Host ""
+  Write-Host ("======== {0} ======== {1}" -f $Name, $Notes)
+  $args = @{
+    Symbol = "GBPUSD_ExnessPro"; Period = "M15"; TrendTF = "H4"; TrendOnZoneTf = "false"
+    ZoneTFs = "M15"; OnePosPerTf = "false"
+    FromDate = "2021.01.01"; ToDate = "2025.12.22"; Deposit = $Deposit; Model = 4; TimeoutSec = 14400
+    ReportName = ("YorickSoS_{0}" -f $Name); RiskPct = $RiskPct; QualityMode = $QualityMode
+    RequireBos = "true"; RequireFvg = "true"; RequireSlow = $RequireSlow
+    RequireTrend = "true"; RequireMinRr = $RequireMinRr; MinRiskReward = $MinRiskReward
+    UseAtrRegime = $UseAtrRegime; AtrRegimeBars = 50; AtrRegimeMult = 1.5
+    ImpulseAtrMult = $ImpulseAtrMult; BodyAtrMult = $BodyAtrMult; SlowMaxAtr = $SlowMaxAtr
+    UseGuard = "true"; BeTriggerR = $BeTriggerR; TrailStartR = $TrailStartR; TrailDistR = $TrailDistR
+    SimCommission = "false"; CommissionPerLot = 0; SlZoneMult = $SlZoneMult
+  }
+  if ($SkipCompile) { & $run @args -SkipCompile } else { & $run @args }
+  if ($LASTEXITCODE -ne 0) { throw "failed $Name exit=$LASTEXITCODE" }
+  Add-Row -SumPath (Join-Path $tester ("last_summary_YorickSoS_{0}.txt" -f $Name)) -Name $Name -Notes $Notes -Deposit $Deposit
+}
+
+Run-One -Name "pgbp3_base" -Notes "slx3.5 risk2 baseline"
+Run-One -Name "pgbp3_r25" -Notes "risk2.5" -RiskPct 2.5 -SkipCompile
+Run-One -Name "pgbp3_r30" -Notes "risk3.0" -RiskPct 3.0 -SkipCompile
+Run-One -Name "pgbp3_slx32" -Notes "slx3.25" -SlZoneMult 3.25 -SkipCompile
+Run-One -Name "pgbp3_slx37" -Notes "slx3.75" -SlZoneMult 3.75 -SkipCompile
+Run-One -Name "pgbp3_atroff" -Notes "slx3.5 atrOFF" -UseAtrRegime "false" -SkipCompile
+Run-One -Name "pgbp3_imp15" -Notes "slx3.5+imp1.5" -ImpulseAtrMult 1.5 -SkipCompile
+Run-One -Name "pgbp3_body05" -Notes "slx3.5+body0.5" -BodyAtrMult 0.5 -SkipCompile
+Run-One -Name "pgbp3_soff" -Notes "slx3.5 slowOFF" -RequireSlow "false" -SkipCompile
+Run-One -Name "pgbp3_g05" -Notes "slx3.5 guard0.5" -BeTriggerR 0.5 -TrailStartR 0.5 -TrailDistR 0.5 -SkipCompile
+Run-One -Name "pgbp3_qc" -Notes "slx3.5 qualityC" -QualityMode "2" -SkipCompile
+Run-One -Name "pgbp3_r25_atroff" -Notes "risk2.5 atrOFF" -RiskPct 2.5 -UseAtrRegime "false" -SkipCompile
+Run-One -Name "pgbp3_r30_200" -Notes "risk3 $200" -Deposit 200 -RiskPct 3.0 -SkipCompile
+Run-One -Name "pgbp3_r25_200" -Notes "risk2.5 $200" -Deposit 200 -RiskPct 2.5 -SkipCompile
+
+Write-Host ""
+Write-Host "======== CSV ========"
+Get-Content $csv
+Import-Csv $csv | Sort-Object {[double]$_.ReturnPct} -Descending | Format-Table Preset,Net,ReturnPct,PF,EquityDD,Trades,Notes -AutoSize

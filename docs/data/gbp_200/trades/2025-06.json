@@ -1,0 +1,18 @@
+{
+    "trades":  [
+                   {
+                       "id":  167,
+                       "side":  "sell",
+                       "volume":  0.05,
+                       "openTime":  "2025.06.03 22:00:04",
+                       "closeTime":  "2025.06.03 23:45:02",
+                       "openPrice":  1.35183,
+                       "closePrice":  1.35307,
+                       "profit":  -6.2,
+                       "balance":  280.39,
+                       "comment":  "YSS M15 supply",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}

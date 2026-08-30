@@ -1,0 +1,32 @@
+{
+    "trades":  [
+                   {
+                       "id":  77,
+                       "side":  "buy",
+                       "volume":  1.67,
+                       "openTime":  "2022.09.26 12:01:28",
+                       "closeTime":  "2022.09.26 12:39:19",
+                       "openPrice":  1.07444,
+                       "closePrice":  1.08337,
+                       "profit":  1491.31,
+                       "balance":  106180.3,
+                       "comment":  "YSS M15 demand",
+                       "commission":  0,
+                       "swap":  0
+                   },
+                   {
+                       "id":  79,
+                       "side":  "buy",
+                       "volume":  2.19,
+                       "openTime":  "2022.09.30 16:04:56",
+                       "closeTime":  "2022.09.30 18:56:59",
+                       "openPrice":  1.11199,
+                       "closePrice":  1.11767,
+                       "profit":  1243.92,
+                       "balance":  107424.22,
+                       "comment":  "YSS M15 demand",
+                       "commission":  0,
+                       "swap":  0
+                   }
+               ]
+}
