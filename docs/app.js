@@ -87,7 +87,7 @@ function viewMetrics() {
 }
 
 async function loadStands() {
-  DATA = await (await fetch("./data/stands.json")).json();
+  DATA = await (await fetch("./data/stands.json?v=20260831a")).json();
 }
 
 async function loadLegTrades(leg) {
